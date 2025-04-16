@@ -5,20 +5,32 @@
  */
 type roomSlice = (" " | "x" | "c")[];
 
+type roomMatrix = roomSlice[];
+
+/**
+ * Generates a matrix for constructing levels.
+ * - " " is floor/empty
+ * - "x" is indestructable walls
+ * - "c" is crates/destructable walls.
+ * @param height How tall the grid should be
+ * @param width How wide it should be, takes care of wall placement
+ * @param destructableBlocksPercentage inclusive range of 0 - 1; the chance an empty floor space will be a destructable tile
+ * @returns {roomMatrix} {@link roomMatrix}
+ */
 function roomLayoutGenerator(
   height = 30,
   width = 30,
-  destructableBlocks = true
-) {
-  const room: roomSlice[] = [];
+  destructableBlocksPercentage = 0.33
+): roomMatrix {
+  const room: roomMatrix = [];
   for (let i = 0; i < height; i++) {
     if (i === 0 || i === height - 1) room.push(new Array(width).fill("x"));
     else if (room[i - 1].slice(1, -1).includes("x"))
       room.push(["x", ...new Array(width - 2).fill(" "), "x"]);
     else if (!room[i]) room.push(widthGenerator(width));
 
-    if (destructableBlocks) {
-      room[i] = addDestructableBlocks(room[i], 0.33);
+    if (destructableBlocksPercentage) {
+      room[i] = addDestructableBlocks(room[i], destructableBlocksPercentage);
     }
   }
 
