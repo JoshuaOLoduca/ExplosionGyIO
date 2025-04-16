@@ -13,13 +13,12 @@ import { Background } from "./scenes/Background";
   new ScaleFlow({
     type: Phaser.AUTO,
     parent: "gameParent",
-    width: 1280, // this must be a pixel value
-    height: 720, // this must be a pixel value
+    width: 1920, // this must be a pixel value
+    height: 1080, // this must be a pixel value
     backgroundColor: "#000000",
     roundPixels: false,
     pixelArt: true,
     scale: {
-      autoCenter: Phaser.Scale.CENTER_BOTH,
       mode: Phaser.Scale.FIT
     },
     scene: [Boot, Preloader, MainMenu, Game, Background],
