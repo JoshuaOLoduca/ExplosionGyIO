@@ -17,7 +17,11 @@ import { Background } from "./scenes/Background";
     height: 720, // this must be a pixel value
     backgroundColor: "#000000",
     roundPixels: false,
-    pixelArt: false,
+    pixelArt: true,
+    scale: {
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      mode: Phaser.Scale.FIT
+    },
     scene: [Boot, Preloader, MainMenu, Game, Background],
   });
 })();
