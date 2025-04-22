@@ -12,13 +12,6 @@ export class Game extends Scene {
   async create() {
     this.scene.launch("background");
 
-    const grid = this.add.image(
-      this.cameras.main.width * 0.5,
-      this.cameras.main.height * 0.4,
-      "grid"
-    );
-    grid.setScale(0.6);
-
     await this.connect();
 
     const $ = getStateCallbacks(this.room);
