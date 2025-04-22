@@ -1,11 +1,13 @@
+export type tRoomTile = " " | "x" | "c";
+
 /**
  * ' ' = floor
  * 'x' = indestructable wall
  * 'c' = destructable wall
  */
-type roomSlice = (" " | "x" | "c")[];
+export type tRoomSlice = tRoomTile[];
 
-type roomMatrix = roomSlice[];
+export type tRoomMatrix = tRoomSlice[];
 
 /**
  * Generates a matrix for constructing levels.
@@ -15,14 +17,14 @@ type roomMatrix = roomSlice[];
  * @param height How tall the grid should be
  * @param width How wide it should be, takes care of wall placement
  * @param destructableBlocksPercentage inclusive range of 0 - 1; the chance an empty floor space will be a destructable tile
- * @returns {roomMatrix} {@link roomMatrix}
+ * @returns {tRoomMatrix} {@link tRoomMatrix}
  */
 function roomLayoutGenerator(
   height = 30,
   width = 30,
   destructableBlocksPercentage = 0.33
-): roomMatrix {
-  const room: roomMatrix = [];
+): tRoomMatrix {
+  const room: tRoomMatrix = [];
   for (let i = 0; i < height; i++) {
     if (i === 0 || i === height - 1) room.push(new Array(width).fill("x"));
     else if (room[i - 1].slice(1, -1).includes("x"))
@@ -37,8 +39,8 @@ function roomLayoutGenerator(
   return room;
 }
 
-function widthGenerator(width: number): roomSlice {
-  const roomSlice: roomSlice = [];
+function widthGenerator(width: number): tRoomSlice {
+  const roomSlice: tRoomSlice = [];
 
   for (let i = 0; i < width; i++) {
     if (i % 2 === 0 || i === width - 1) roomSlice.push("x");
@@ -48,7 +50,10 @@ function widthGenerator(width: number): roomSlice {
   return roomSlice;
 }
 
-function addDestructableBlocks(slice: roomSlice, percentage = 0.25): roomSlice {
+function addDestructableBlocks(
+  slice: tRoomSlice,
+  percentage = 0.25
+): tRoomSlice {
   return slice.map((tile) => {
     if (tile !== " ") return tile;
     if (Math.random() < percentage) return "c";
