@@ -1,41 +1,37 @@
 import { Client, Room } from "colyseus";
 import { GameState, Draggables } from "../schemas/GameState";
+import roomLayoutGenerator, { tRoomTile } from "../utils/roomLayoutGenerator";
+
+function getImageId(tile: tRoomTile) {
+  switch (tile) {
+    case "x":
+      return "cross" as const;
+    case "c":
+      return "alien" as const;
+    default:
+      return "grid" as const;
+  }
+}
 
 export class GameRoom extends Room<GameState> {
   state = new GameState();
   maxClients = 25; // Current Discord limit is 25
 
   onCreate(options: any): void | Promise<any> {
-    const draggableList = [
-      "smile",
-      "alien",
-      "a",
-      "b",
-      "c",
-      "d",
-      "cross_1",
-      "cross_2",
-      "cross_3",
-      "nought_1",
-      "nought_2",
-      "nought_3",
-    ];
-    draggableList.forEach((draggable, index) => {
-      const draggableObject = new Draggables();
+    const initialMap = roomLayoutGenerator(10, 10, 0);
+    initialMap.forEach((mapSlice, sliceIndex) => {
+      mapSlice.forEach((tile, tileIndex) => {
+        const draggableObject = new Draggables();
 
-      const offset = 500;
-      const minWidth = offset;
-      const maxWidth = options.screenWidth / 2 + 250;
-      const minHeight = offset;
-      const maxHeight = options.screenHeight / 2;
+        draggableObject.x = (tileIndex + 1) * 100;
+        draggableObject.y = (sliceIndex + 1) * 100;
+        draggableObject.imageId = getImageId(tile);
 
-      draggableObject.x =
-        Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
-      draggableObject.y =
-        Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-      draggableObject.imageId = draggable;
-
-      this.state.draggables.set(draggable, draggableObject);
+        this.state.draggables.set(
+          sliceIndex + tile + tileIndex,
+          draggableObject
+        );
+      });
     });
 
     this.onMessage("move", (client, message) => {

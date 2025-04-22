@@ -12,61 +12,76 @@ export class Game extends Scene {
   async create() {
     this.scene.launch("background");
 
-    const grid = this.add.image(this.cameras.main.width * 0.5, this.cameras.main.height * 0.4, "grid");
+    const grid = this.add.image(
+      this.cameras.main.width * 0.5,
+      this.cameras.main.height * 0.4,
+      "grid"
+    );
     grid.setScale(0.6);
 
     await this.connect();
 
     const $ = getStateCallbacks(this.room);
 
-    $(this.room.state).draggables.onAdd((draggable: any, draggableId: string) => {
-      const image = this.add.image(draggable.x, draggable.y, draggableId).setInteractive();
-      image.name = draggableId;
-      image.setScale(0.8);
+    $(this.room.state).draggables.onAdd(
+      (draggable: any, draggableId: string) => {
+        const image = this.add
+          .image(draggable.x, draggable.y, draggable.imageId)
+          .setInteractive();
+        image.name = draggableId;
+        image.setScale(0.8);
 
-      this.input.setDraggable(image);
-      image.on("drag", (pointer, dragX, dragY) => {
-        if (!this.room) {
-          return;
-        }
+        this.input.setDraggable(image);
+        image.on("drag", (pointer, dragX, dragY) => {
+          if (!this.room) {
+            return;
+          }
 
-        // Clamp drag position to screen bounds
-        image.x = Phaser.Math.Clamp(
-          dragX,
-          image.displayWidth / 2,
-          Number(this.game.config.width) - image.displayWidth / 2
-        );
-        image.y = Phaser.Math.Clamp(
-          dragY,
-          image.displayHeight / 2,
-          Number(this.game.config.height) - image.displayHeight / 2
-        );
+          // Clamp drag position to screen bounds
+          image.x = Phaser.Math.Clamp(
+            dragX,
+            image.displayWidth / 2,
+            Number(this.game.config.width) - image.displayWidth / 2
+          );
+          image.y = Phaser.Math.Clamp(
+            dragY,
+            image.displayHeight / 2,
+            Number(this.game.config.height) - image.displayHeight / 2
+          );
 
-        // Send position update to the server
-        this.room.send("move", {
-          imageId: draggableId,
-          x: image.x,
-          y: image.y,
+          // Send position update to the server
+          this.room.send("move", {
+            imageId: draggableId,
+            x: image.x,
+            y: image.y,
+          });
         });
-      });
 
-      $(draggable).onChange(() => {
-        image.x = draggable.x;
-        image.y = draggable.y;
-      });
-    });
+        $(draggable).onChange(() => {
+          image.x = draggable.x;
+          image.y = draggable.y;
+        });
+      }
+    );
 
     this.add
-      .text(this.cameras.main.width * 0.5, this.cameras.main.height * 0.95, `Connected as: ${getUserName()}`, {
-        font: "14px Arial",
-        color: "#000000",
-      })
+      .text(
+        this.cameras.main.width * 0.5,
+        this.cameras.main.height * 0.95,
+        `Connected as: ${getUserName()}`,
+        {
+          font: "14px Arial",
+          color: "#000000",
+        }
+      )
       .setOrigin(0.5);
   }
 
   async connect() {
     const url =
-      location.host === "localhost:3000" ? `ws://localhost:3001` : `wss://${location.host}/.proxy/api/colyseus`;
+      location.host === "localhost:3000"
+        ? `ws://localhost:3001`
+        : `wss://${location.host}/.proxy/api/colyseus`;
 
     const client = new Client(`${url}`);
 
