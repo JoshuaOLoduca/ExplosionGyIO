@@ -1,0 +1,420 @@
+.dirt {
+   background: url('spritesheet.png') no-repeat -0px -0px;
+   width: 16px;
+   height: 16px;
+}
+.grass {
+   background: url('spritesheet.png') no-repeat -16px -0px;
+   width: 16px;
+   height: 16px;
+}
+.bush {
+   background: url('spritesheet.png') no-repeat -48px -0px;
+   width: 16px;
+   height: 16px;
+}
+.crate {
+   background: url('spritesheet.png') no-repeat -144px -0px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_elbow_shine {
+   background: url('spritesheet.png') no-repeat -160px -0px;
+   width: 16px;
+   height: 16px;
+}
+.tree_1 {
+   background: url('spritesheet.png') no-repeat -176px -0px;
+   width: 16px;
+   height: 16px;
+}
+.tree_2 {
+   background: url('spritesheet.png') no-repeat -192px -0px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_cap_top {
+   background: url('spritesheet.png') no-repeat -208px -0px;
+   width: 16px;
+   height: 16px;
+}
+.explosion_1 {
+   background: url('spritesheet.png') no-repeat -224px -0px;
+   width: 16px;
+   height: 16px;
+}
+.p_stand_up {
+   background: url('spritesheet.png') no-repeat -0px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_stand_down {
+   background: url('spritesheet.png') no-repeat -16px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_walk_down_1 {
+   background: url('spritesheet.png') no-repeat -32px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_walk_down_2 {
+   background: url('spritesheet.png') no-repeat -48px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_stand_side {
+   background: url('spritesheet.png') no-repeat -64px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_walk_side_1 {
+   background: url('spritesheet.png') no-repeat -80px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_walk_side_2 {
+   background: url('spritesheet.png') no-repeat -96px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_walk_side_3 {
+   background: url('spritesheet.png') no-repeat -112px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_walk_up_1 {
+   background: url('spritesheet.png') no-repeat -128px -16px;
+   width: 16px;
+   height: 16px;
+}
+.p_walk_up_2 {
+   background: url('spritesheet.png') no-repeat -144px -16px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_elbow_1 {
+   background: url('spritesheet.png') no-repeat -160px -16px;
+   width: 16px;
+   height: 16px;
+}
+.tree_3 {
+   background: url('spritesheet.png') no-repeat -176px -16px;
+   width: 16px;
+   height: 16px;
+}
+.tree_4 {
+   background: url('spritesheet.png') no-repeat -192px -16px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_straight_vert {
+   background: url('spritesheet.png') no-repeat -208px -16px;
+   width: 16px;
+   height: 16px;
+}
+.explosion_2 {
+   background: url('spritesheet.png') no-repeat -224px -16px;
+   width: 16px;
+   height: 16px;
+}
+.ap_stand_up {
+   background: url('spritesheet.png') no-repeat -0px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_stand_down {
+   background: url('spritesheet.png') no-repeat -16px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_walk_down_1 {
+   background: url('spritesheet.png') no-repeat -32px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_walk_down_2 {
+   background: url('spritesheet.png') no-repeat -48px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_stand_side {
+   background: url('spritesheet.png') no-repeat -64px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_walk_side_1 {
+   background: url('spritesheet.png') no-repeat -80px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_walk_side_2 {
+   background: url('spritesheet.png') no-repeat -96px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_walk_side_3 {
+   background: url('spritesheet.png') no-repeat -112px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_walk_up_1 {
+   background: url('spritesheet.png') no-repeat -128px -32px;
+   width: 16px;
+   height: 16px;
+}
+.ap_walk_up_2 {
+   background: url('spritesheet.png') no-repeat -144px -32px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_elbow_2 {
+   background: url('spritesheet.png') no-repeat -160px -32px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_small_1 {
+   background: url('spritesheet.png') no-repeat -176px -32px;
+   width: 16px;
+   height: 16px;
+}
+.bar_top {
+   background: url('spritesheet.png') no-repeat -192px -32px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_cap_bottom {
+   background: url('spritesheet.png') no-repeat -208px -32px;
+   width: 16px;
+   height: 16px;
+}
+.explosion_3 {
+   background: url('spritesheet.png') no-repeat -224px -32px;
+   width: 16px;
+   height: 16px;
+}
+.bp_stand_up {
+   background: url('spritesheet.png') no-repeat -0px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_stand_down {
+   background: url('spritesheet.png') no-repeat -16px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_walk_down_1 {
+   background: url('spritesheet.png') no-repeat -32px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_walk_down_2 {
+   background: url('spritesheet.png') no-repeat -48px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_stand_side {
+   background: url('spritesheet.png') no-repeat -64px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_walk_side_1 {
+   background: url('spritesheet.png') no-repeat -80px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_walk_side_2 {
+   background: url('spritesheet.png') no-repeat -96px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_walk_side_3 {
+   background: url('spritesheet.png') no-repeat -112px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_walk_up_1 {
+   background: url('spritesheet.png') no-repeat -128px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bp_walk_up_2 {
+   background: url('spritesheet.png') no-repeat -144px -48px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_elbow_dull {
+   background: url('spritesheet.png') no-repeat -160px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_small_2 {
+   background: url('spritesheet.png') no-repeat -176px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bar_bottom {
+   background: url('spritesheet.png') no-repeat -192px -48px;
+   width: 16px;
+   height: 16px;
+}
+.sprite54 {
+   background: url('spritesheet.png') no-repeat -208px -48px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_explosion_1 {
+   background: url('spritesheet.png') no-repeat -224px -48px;
+   width: 16px;
+   height: 16px;
+}
+.cp_stand_up {
+   background: url('spritesheet.png') no-repeat -0px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_stand_down {
+   background: url('spritesheet.png') no-repeat -16px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_walk_down_1 {
+   background: url('spritesheet.png') no-repeat -32px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_walk_down_2 {
+   background: url('spritesheet.png') no-repeat -48px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_stand_side {
+   background: url('spritesheet.png') no-repeat -64px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_walk_side_1 {
+   background: url('spritesheet.png') no-repeat -80px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_walk_side_2 {
+   background: url('spritesheet.png') no-repeat -96px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_walk_side_3 {
+   background: url('spritesheet.png') no-repeat -112px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_walk_up_1 {
+   background: url('spritesheet.png') no-repeat -128px -64px;
+   width: 16px;
+   height: 16px;
+}
+.cp_walk_up_2 {
+   background: url('spritesheet.png') no-repeat -144px -64px;
+   width: 16px;
+   height: 16px;
+}
+.wall {
+   background: url('spritesheet.png') no-repeat -160px -64px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_small_3 {
+   background: url('spritesheet.png') no-repeat -176px -64px;
+   width: 16px;
+   height: 16px;
+}
+.bar_left {
+   background: url('spritesheet.png') no-repeat -192px -64px;
+   width: 16px;
+   height: 16px;
+}
+.bar_right {
+   background: url('spritesheet.png') no-repeat -208px -64px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_explosion_2 {
+   background: url('spritesheet.png') no-repeat -224px -64px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_extended_explosion_1 {
+   background: url('spritesheet.png') no-repeat -0px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_extended_explosion_2 {
+   background: url('spritesheet.png') no-repeat -16px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_extended_explosion_core {
+   background: url('spritesheet.png') no-repeat -32px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_extended_explosion_3 {
+   background: url('spritesheet.png') no-repeat -48px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_big_1 {
+   background: url('spritesheet.png') no-repeat -64px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_big_2 {
+   background: url('spritesheet.png') no-repeat -80px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_big_3 {
+   background: url('spritesheet.png') no-repeat -96px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_big_4 {
+   background: url('spritesheet.png') no-repeat -112px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_big_5 {
+   background: url('spritesheet.png') no-repeat -128px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_big_6 {
+   background: url('spritesheet.png') no-repeat -144px -80px;
+   width: 16px;
+   height: 16px;
+}
+.wall_stacked {
+   background: url('spritesheet.png') no-repeat -160px -80px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_cap_left {
+   background: url('spritesheet.png') no-repeat -176px -80px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_straight_hor {
+   background: url('spritesheet.png') no-repeat -192px -80px;
+   width: 16px;
+   height: 16px;
+}
+.pipe_cap_right {
+   background: url('spritesheet.png') no-repeat -208px -80px;
+   width: 16px;
+   height: 16px;
+}
+.bomb_explosion_3 {
+   background: url('spritesheet.png') no-repeat -224px -80px;
+   width: 16px;
+   height: 16px;
+}
