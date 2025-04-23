@@ -16,46 +16,13 @@ export class Game extends Scene {
 
     const $ = getStateCallbacks(this.room);
 
-    $(this.room.state).draggables.onAdd(
-      (draggable: any, draggableId: string) => {
-        const image = this.add
-          .image(draggable.x, draggable.y, draggable.imageId)
-          .setInteractive();
-        image.name = draggableId;
-        image.setScale(0.8);
-
-        this.input.setDraggable(image);
-        image.on("drag", (pointer, dragX, dragY) => {
-          if (!this.room) {
-            return;
-          }
-
-          // Clamp drag position to screen bounds
-          image.x = Phaser.Math.Clamp(
-            dragX,
-            image.displayWidth / 2,
-            Number(this.game.config.width) - image.displayWidth / 2
-          );
-          image.y = Phaser.Math.Clamp(
-            dragY,
-            image.displayHeight / 2,
-            Number(this.game.config.height) - image.displayHeight / 2
-          );
-
-          // Send position update to the server
-          this.room.send("move", {
-            imageId: draggableId,
-            x: image.x,
-            y: image.y,
-          });
-        });
-
-        $(draggable).onChange(() => {
-          image.x = draggable.x;
-          image.y = draggable.y;
-        });
-      }
-    );
+    $(this.room.state).tiles.onAdd((draggable: any, tileId: string) => {
+      const image = this.add
+        .image(draggable.x, draggable.y, draggable.imageId)
+        .setInteractive();
+      image.name = tileId;
+      image.setScale(0.8);
+    });
 
     this.add
       .text(

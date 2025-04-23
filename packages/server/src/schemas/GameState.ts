@@ -1,6 +1,6 @@
 import { Schema, type, MapSchema } from "@colyseus/schema";
 
-export class Draggables extends Schema {
+export class Tiles extends Schema {
   @type("string")
   imageId = "";
 
@@ -12,6 +12,6 @@ export class Draggables extends Schema {
 }
 
 export class GameState extends Schema {
-  @type({ map: Draggables })
-  draggables = new MapSchema<Draggables>();
+  @type({ map: Tiles })
+  tiles = new MapSchema<Tiles>();
 }

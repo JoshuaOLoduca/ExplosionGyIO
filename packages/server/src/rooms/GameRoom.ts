@@ -1,5 +1,5 @@
 import { Client, Room } from "colyseus";
-import { GameState, Draggables } from "../schemas/GameState";
+import { GameState, Tiles } from "../schemas/GameState";
 import roomLayoutGenerator, { tRoomTile } from "../utils/roomLayoutGenerator";
 
 function getImageId(tile: tRoomTile) {
@@ -21,27 +21,14 @@ export class GameRoom extends Room<GameState> {
     const initialMap = roomLayoutGenerator(10, 10, 0);
     initialMap.forEach((mapSlice, sliceIndex) => {
       mapSlice.forEach((tile, tileIndex) => {
-        const draggableObject = new Draggables();
+        const tileObject = new Tiles();
 
-        draggableObject.x = (tileIndex + 1) * 100;
-        draggableObject.y = (sliceIndex + 1) * 100;
-        draggableObject.imageId = getImageId(tile);
+        tileObject.x = (tileIndex + 1) * 100;
+        tileObject.y = (sliceIndex + 1) * 100;
+        tileObject.imageId = getImageId(tile);
 
-        this.state.draggables.set(
-          sliceIndex + tile + tileIndex,
-          draggableObject
-        );
+        this.state.tiles.set(sliceIndex + tile + tileIndex, tileObject);
       });
-    });
-
-    this.onMessage("move", (client, message) => {
-      // Update image position based on data received
-      const image = this.state.draggables.get(message.imageId);
-      if (image) {
-        image.x = message.x;
-        image.y = message.y;
-        this.broadcast("move", this.state.draggables);
-      }
     });
   }
 
