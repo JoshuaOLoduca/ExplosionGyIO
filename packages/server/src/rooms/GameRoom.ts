@@ -26,7 +26,7 @@ export class GameRoom extends Room<GameState> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
     console.log({ ratio });
 
-    const initialMap = roomLayoutGenerator(11, 19, 0);
+    const initialMap = roomLayoutGenerator(11, 19, 0.5);
     initialMap.forEach((mapSlice, sliceIndex) => {
       mapSlice.forEach((tile, tileIndex) => {
         const tileObject = new Tiles();

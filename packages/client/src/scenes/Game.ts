@@ -17,10 +17,21 @@ export class Game extends Scene {
     const $ = getStateCallbacks(this.room);
 
     $(this.room.state).tiles.onAdd((draggable: any, tileId: string) => {
-      const image = this.add
-        .sprite(draggable.x, draggable.y, "gameSprites", draggable.imageId)
-        .setInteractive();
-      image.setScale(draggable?.scale || 6.225);
+      if (draggable.imageId === "crate") {
+        const image = this.add
+          .sprite(draggable.x, draggable.y, "gameSprites", "grass")
+          .setInteractive();
+        image.setScale(draggable?.scale || 6.225);
+        const image2 = this.add
+          .sprite(draggable.x, draggable.y, "gameSprites", "crate")
+          .setInteractive();
+        image2.setScale((draggable?.scale || 6.225) * 0.95);
+      } else {
+        const image = this.add
+          .sprite(draggable.x, draggable.y, "gameSprites", draggable.imageId)
+          .setInteractive();
+        image.setScale(draggable?.scale || 6.225);
+      }
     });
 
     this.add
