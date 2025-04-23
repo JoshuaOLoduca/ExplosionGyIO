@@ -18,10 +18,9 @@ export class Game extends Scene {
 
     $(this.room.state).tiles.onAdd((draggable: any, tileId: string) => {
       const image = this.add
-        .image(draggable.x, draggable.y, draggable.imageId)
+        .sprite(draggable.x, draggable.y, "gameSprites", draggable.imageId)
         .setInteractive();
-      image.name = tileId;
-      image.setScale(0.8);
+      image.setScale(draggable?.scale || 6.225);
     });
 
     this.add

@@ -45,11 +45,13 @@ export class Preloader extends Scene {
   preload() {
     //  Load the assets for the game - Replace with your own assets
     this.load.setPath("/.proxy/assets");
+    this.load.atlas(
+      "gameSprites",
+      "bomb_party_v4_simple.png",
+      "sprites-tp-array.json"
+    );
 
-    this.load.image("alien", "alien.png");
     this.load.image("logo", "logo.png");
-    this.load.image("cross", "cross.png");
-    this.load.image("grid", "grid.png");
   }
 
   create() {
