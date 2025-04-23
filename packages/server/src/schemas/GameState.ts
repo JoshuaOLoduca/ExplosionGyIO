@@ -9,6 +9,9 @@ export class Tiles extends Schema {
 
   @type("number")
   y = 0;
+
+  @type("number")
+  scale?: number = undefined;
 }
 
 export class GameState extends Schema {
