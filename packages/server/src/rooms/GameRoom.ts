@@ -26,7 +26,7 @@ export class GameRoom extends Room<GameState> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
     console.log({ ratio });
 
-    const initialMap = roomLayoutGenerator(11, 19, 0.5);
+    const initialMap = roomLayoutGenerator(11, 19, 0);
     initialMap.forEach((mapSlice, sliceIndex) => {
       mapSlice.forEach((tile, tileIndex) => {
         const tileObject = new Tile();
@@ -40,6 +40,33 @@ export class GameRoom extends Room<GameState> {
 
         this.state.tiles.set(sliceIndex + tile + tileIndex, tileObject);
       });
+    });
+
+    this.onMessage(0, (client: Client, message: 0 | 1 | 2 | 3) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+
+      switch (message) {
+        // W
+        case 0:
+          player.y -= 100;
+          break;
+        // A
+        case 1:
+          player.x -= 100;
+          break;
+        // S
+        case 2:
+          player.y += 100;
+          break;
+        // D
+        case 3:
+          player.x += 100;
+          break;
+
+        default:
+          break;
+      }
     });
   }
 

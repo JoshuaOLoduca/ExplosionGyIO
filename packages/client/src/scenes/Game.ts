@@ -15,8 +15,7 @@ export class Game extends Scene {
     await this.connect();
 
     const $ = getStateCallbacks(this.room);
-
-    // this.input.keyboard.
+    const colyseusRoom = this;
 
     $(this.room.state).tiles.onAdd((draggable: any, tileId: string) => {
       if (draggable.imageId === "crate") {
@@ -36,9 +35,29 @@ export class Game extends Scene {
       }
     });
 
+    const bigTest = [
+      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+    ];
+
+    bigTest.forEach((phaserKey, index) =>
+      phaserKey?.on("down", function (event) {
+        colyseusRoom.room.send(0, index);
+      })
+    );
+
     $(this.room.state).players.onAdd((player, playerId) => {
       const playerSprite = this.add.circle(player.x, player.y, 32, 0xff0000);
       this.data.set(playerId, playerSprite);
+
+      $(player).onChange(() => {
+        const playerSprite = this.data.get(playerId);
+        if (!playerSprite) return;
+        playerSprite.x = player.x;
+        playerSprite.y = player.y;
+      });
     });
 
     $(this.room.state).players.onRemove((player, playerId) => {
@@ -73,8 +92,8 @@ export class Game extends Scene {
         screenHeight: this.game.config.height,
       });
 
-      this.room.onMessage("move", (message) => {
-        //console.log("Move message received:", message);
+      this.room.onMessage("", (message) => {
+        console.log("Move message received:", message);
       });
 
       console.log("Successfully connected!");
