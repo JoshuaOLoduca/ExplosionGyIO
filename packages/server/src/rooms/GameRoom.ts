@@ -41,8 +41,6 @@ export class GameRoom extends Room<GameState> {
         this.state.tiles.set(sliceIndex + tile + tileIndex, tileObject);
       });
     });
-
-    // console.log(JSON.stringify(this.state.tiles.toJSON(), undefined, 2));
   }
 
   onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
@@ -57,8 +55,8 @@ export class GameRoom extends Room<GameState> {
 
     const player = new Player();
     player.clientId = client.sessionId;
-    player.x = spawnTile.x + 8;
-    player.y = spawnTile.y + 8;
+    player.x = spawnTile.x;
+    player.y = spawnTile.y;
 
     this.state.players.set(client.sessionId, player);
   }
