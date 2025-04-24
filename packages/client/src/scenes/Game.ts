@@ -5,6 +5,8 @@ import { getUserName } from "../utils/discordSDK";
 export class Game extends Scene {
   room: Room;
 
+  sessionIds: Set<string> = new Set();
+
   constructor() {
     super("Game");
   }
@@ -65,19 +67,24 @@ export class Game extends Scene {
     );
 
     $(this.room.state).players.onAdd((player, playerId) => {
+      if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
       const playerSprite = this.add.circle(player.x, player.y, 32, 0xff0000);
       this.data.set(playerId, playerSprite);
 
       $(player).onChange(() => {
         const playerSprite = this.data.get(playerId);
         if (!playerSprite) return;
-        playerSprite.x = player.x;
-        playerSprite.y = player.y;
+        playerSprite.setData("serverX", player.x);
+        playerSprite.setData("serverY", player.y);
+        // this.physics.moveTo(playerSprite, player.x, player.y);
+        // playerSprite.x = player.x;
+        // playerSprite.y = player.y;
       });
     });
 
     $(this.room.state).players.onRemove((player, playerId) => {
       this.data.get(playerId)?.destroy();
+      this.sessionIds.delete(playerId);
     });
 
     this.add
@@ -91,6 +98,22 @@ export class Game extends Scene {
         }
       )
       .setOrigin(0.5);
+  }
+
+  update(time: number, delta: number): void {
+    if (!this.room) return;
+
+    for (let sessionId of this.sessionIds.values()) {
+      // interpolate all player entities
+      const entity = this.data.get(sessionId);
+      if (!entity) continue;
+      const { serverX, serverY } = entity.data.values;
+
+      if (serverX !== entity.serverX)
+        entity.x = Phaser.Math.Linear(entity.x, serverX, 0.2);
+      if (serverY !== entity.serverY)
+        entity.y = Phaser.Math.Linear(entity.y, serverY, 0.2);
+    }
   }
 
   async connect() {

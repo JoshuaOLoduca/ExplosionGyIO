@@ -45,7 +45,7 @@ export class GameRoom extends Room<GameState> {
     this.onMessage(0, (client: Client, message: 0 | 1 | 2 | 3) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
-      const movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 30;
+      const movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
 
       switch (message) {
         // W
