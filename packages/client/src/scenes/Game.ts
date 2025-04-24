@@ -53,9 +53,6 @@ export class Game extends Scene {
         if (!playerSprite) return;
         playerSprite.setData("serverX", player.x);
         playerSprite.setData("serverY", player.y);
-        // this.physics.moveTo(playerSprite, player.x, player.y);
-        // playerSprite.x = player.x;
-        // playerSprite.y = player.y;
       });
     });
 
