@@ -36,10 +36,26 @@ export class Game extends Scene {
     });
 
     const controls = [
-      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      this.input.keyboard?.addKey(
+        Phaser.Input.Keyboard.KeyCodes.W,
+        undefined,
+        true
+      ),
+      this.input.keyboard?.addKey(
+        Phaser.Input.Keyboard.KeyCodes.A,
+        undefined,
+        true
+      ),
+      this.input.keyboard?.addKey(
+        Phaser.Input.Keyboard.KeyCodes.S,
+        undefined,
+        true
+      ),
+      this.input.keyboard?.addKey(
+        Phaser.Input.Keyboard.KeyCodes.D,
+        undefined,
+        true
+      ),
     ];
 
     controls.forEach((phaserKey, index) =>

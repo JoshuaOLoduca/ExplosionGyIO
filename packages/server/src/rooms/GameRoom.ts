@@ -45,23 +45,24 @@ export class GameRoom extends Room<GameState> {
     this.onMessage(0, (client: Client, message: 0 | 1 | 2 | 3) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
+      const movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 30;
 
       switch (message) {
         // W
         case 0:
-          player.y -= 100;
+          player.y -= movementDelta;
           break;
         // A
         case 1:
-          player.x -= 100;
+          player.x -= movementDelta;
           break;
         // S
         case 2:
-          player.y += 100;
+          player.y += movementDelta;
           break;
         // D
         case 3:
-          player.x += 100;
+          player.x += movementDelta;
           break;
 
         default:
