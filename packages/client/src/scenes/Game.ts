@@ -6,6 +6,12 @@ export class Game extends Scene {
   room: Room;
 
   sessionIds: Set<string> = new Set();
+  inputPayload = {
+    up: false,
+    left: false,
+    down: false,
+    right: false,
+  };
 
   constructor() {
     super("Game");
@@ -36,35 +42,6 @@ export class Game extends Scene {
         image.setScale(draggable?.scale || 6.225);
       }
     });
-
-    const controls = [
-      this.input.keyboard?.addKey(
-        Phaser.Input.Keyboard.KeyCodes.W,
-        undefined,
-        true
-      ),
-      this.input.keyboard?.addKey(
-        Phaser.Input.Keyboard.KeyCodes.A,
-        undefined,
-        true
-      ),
-      this.input.keyboard?.addKey(
-        Phaser.Input.Keyboard.KeyCodes.S,
-        undefined,
-        true
-      ),
-      this.input.keyboard?.addKey(
-        Phaser.Input.Keyboard.KeyCodes.D,
-        undefined,
-        true
-      ),
-    ];
-
-    controls.forEach((phaserKey, index) =>
-      phaserKey?.on("down", function (event) {
-        colyseusRoom.room.send(0, index);
-      })
-    );
 
     $(this.room.state).players.onAdd((player, playerId) => {
       if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
@@ -102,6 +79,21 @@ export class Game extends Scene {
 
   update(time: number, delta: number): void {
     if (!this.room) return;
+
+    this.inputPayload.up = !!this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.W
+    ).isDown;
+    this.inputPayload.left = !!this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.A
+    ).isDown;
+    this.inputPayload.down = !!this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.S
+    ).isDown;
+    this.inputPayload.right = !!this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.D
+    ).isDown;
+
+    this.room.send(0, this.inputPayload);
 
     for (let sessionId of this.sessionIds.values()) {
       // interpolate all player entities

@@ -42,33 +42,29 @@ export class GameRoom extends Room<GameState> {
       });
     });
 
-    this.onMessage(0, (client: Client, message: 0 | 1 | 2 | 3) => {
-      const player = this.state.players.get(client.sessionId);
-      if (!player) return;
-      const movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
+    this.onMessage(
+      0,
+      (
+        client: Client,
+        message: { up: boolean; down: boolean; left: boolean; right: boolean }
+      ) => {
+        const player = this.state.players.get(client.sessionId);
+        if (!player) return;
+        const MOVING_DIAGNAL =
+          (message.up || message.down) && (message.left || message.right);
+        let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
+        if (MOVING_DIAGNAL) movementDelta = movementDelta / 2;
 
-      switch (message) {
         // W
-        case 0:
-          player.y -= movementDelta;
-          break;
+        if (message.up) player.y -= movementDelta;
         // A
-        case 1:
-          player.x -= movementDelta;
-          break;
+        if (message.left) player.x -= movementDelta;
         // S
-        case 2:
-          player.y += movementDelta;
-          break;
+        if (message.down) player.y += movementDelta;
         // D
-        case 3:
-          player.x += movementDelta;
-          break;
-
-        default:
-          break;
+        if (message.right) player.x += movementDelta;
       }
-    });
+    );
   }
 
   onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
