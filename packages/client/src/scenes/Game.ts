@@ -35,14 +35,14 @@ export class Game extends Scene {
       }
     });
 
-    const bigTest = [
+    const controls = [
       this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.W),
       this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     ];
 
-    bigTest.forEach((phaserKey, index) =>
+    controls.forEach((phaserKey, index) =>
       phaserKey?.on("down", function (event) {
         colyseusRoom.room.send(0, index);
       })
