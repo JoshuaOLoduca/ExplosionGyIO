@@ -34,6 +34,15 @@ export class Game extends Scene {
       }
     });
 
+    $(this.room.state).players.onAdd((player, playerId) => {
+      const playerSprite = this.add.circle(player.x, player.y, 32, 0xff0000);
+      this.data.set(playerId + "sprite", playerSprite);
+    });
+
+    $(this.room.state).players.onRemove((player, playerId) => {
+      this.data.get(playerId + "sprite")?.destroy();
+    });
+
     this.add
       .text(
         this.cameras.main.width * 0.5,

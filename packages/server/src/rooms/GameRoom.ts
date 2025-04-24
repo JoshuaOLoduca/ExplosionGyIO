@@ -1,5 +1,5 @@
 import { Client, Room } from "colyseus";
-import { GameState, Tiles } from "../schemas/GameState";
+import { GameState, Player, Tile } from "../schemas/GameState";
 import roomLayoutGenerator, { tRoomTile } from "../utils/roomLayoutGenerator";
 
 function getImageId(tile: tRoomTile) {
@@ -29,7 +29,7 @@ export class GameRoom extends Room<GameState> {
     const initialMap = roomLayoutGenerator(11, 19, 0.5);
     initialMap.forEach((mapSlice, sliceIndex) => {
       mapSlice.forEach((tile, tileIndex) => {
-        const tileObject = new Tiles();
+        const tileObject = new Tile();
 
         tileObject.x =
           (tileIndex + 0.5) * (options.screenWidth / BLOCKS_IN_WIDTH);
@@ -41,13 +41,30 @@ export class GameRoom extends Room<GameState> {
         this.state.tiles.set(sliceIndex + tile + tileIndex, tileObject);
       });
     });
+
+    // console.log(JSON.stringify(this.state.tiles.toJSON(), undefined, 2));
   }
 
   onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
     console.log(`Client joined: ${client.sessionId}`);
+    const validSpawnTiles = [...this.state.tiles.entries()].filter(([key]) =>
+      key.includes(" ")
+    );
+
+    const [, spawnTile] = validSpawnTiles.at(
+      Math.floor(Math.random() * validSpawnTiles.length)
+    )!;
+
+    const player = new Player();
+    player.clientId = client.sessionId;
+    player.x = spawnTile.x + 8;
+    player.y = spawnTile.y + 8;
+
+    this.state.players.set(client.sessionId, player);
   }
 
   onLeave(client: Client, consented: boolean): void | Promise<any> {
     console.log(`Client left: ${client.sessionId}`);
+    this.state.players.delete(client.sessionId);
   }
 }
