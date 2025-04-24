@@ -16,6 +16,8 @@ export class Game extends Scene {
 
     const $ = getStateCallbacks(this.room);
 
+    // this.input.keyboard.
+
     $(this.room.state).tiles.onAdd((draggable: any, tileId: string) => {
       if (draggable.imageId === "crate") {
         const image = this.add
@@ -36,11 +38,11 @@ export class Game extends Scene {
 
     $(this.room.state).players.onAdd((player, playerId) => {
       const playerSprite = this.add.circle(player.x, player.y, 32, 0xff0000);
-      this.data.set(playerId + "sprite", playerSprite);
+      this.data.set(playerId, playerSprite);
     });
 
     $(this.room.state).players.onRemove((player, playerId) => {
-      this.data.get(playerId + "sprite")?.destroy();
+      this.data.get(playerId)?.destroy();
     });
 
     this.add

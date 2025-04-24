@@ -1,9 +1,6 @@
 import { Schema, type, MapSchema } from "@colyseus/schema";
 
-export class Tile extends Schema {
-  @type("string")
-  imageId = "";
-
+export class BaseTile extends Schema {
   @type("number")
   x = 0;
 
@@ -14,19 +11,22 @@ export class Tile extends Schema {
   scale?: number = undefined;
 }
 
-export class Player extends Schema {
+export class Tile extends BaseTile {
+  @type("string")
+  imageId = "";
+}
 
-  @type("number")
-  x = 0;
+export class Bomb extends BaseTile {}
 
-  @type("number")
-  y = 0;
-
+export class Player extends BaseTile {
   @type("string")
   sprite = "p";
 
   @type("string")
   clientId = "";
+
+  @type({ array: Bomb })
+  bombs = [];
 }
 
 export class GameState extends Schema {
