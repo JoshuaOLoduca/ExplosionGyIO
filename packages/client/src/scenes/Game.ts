@@ -2,6 +2,8 @@ import { Scene } from "phaser";
 import { Room, Client, getStateCallbacks } from "colyseus.js";
 import { getUserName } from "../utils/discordSDK";
 
+const DEBUG = true;
+
 export class Game extends Scene {
   room: Room;
 
@@ -72,10 +74,35 @@ export class Game extends Scene {
         }
       )
       .setOrigin(0.5);
+
+    if (DEBUG)
+      this.data.set(
+        "DEBUG-mouse",
+        this.add
+          .text(
+            this.cameras.main.width * 0.5,
+            this.cameras.main.height * 0.05,
+            `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
+            {
+              font: "24px Arial",
+              color: "#000000",
+            }
+          )
+          .setOrigin(0.5)
+      );
   }
 
   update(time: number, delta: number): void {
     if (!this.room) return;
+    if (DEBUG) {
+      this.data
+        .get("DEBUG-mouse")
+        ?.setText(
+          `X: ${this.input.mousePointer.x.toFixed(
+            2
+          )} || Y: ${this.input.mousePointer.y.toFixed(2)}`
+        );
+    }
 
     this.inputPayload.up = !!this.input.keyboard?.addKey(
       Phaser.Input.Keyboard.KeyCodes.W
