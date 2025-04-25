@@ -1,6 +1,12 @@
 import { Client, Room } from "colyseus";
 import { GameState, Player, Tile } from "../schemas/GameState";
-import roomLayoutGenerator, { tRoomTile } from "../utils/roomLayoutGenerator";
+import roomLayoutGenerator, {
+  tRoomMatrix,
+  tRoomTile,
+} from "../utils/roomLayoutGenerator";
+
+const TILE_SIZE = 16;
+const BLOCKS_IN_WIDTH = 19;
 
 function getImageId(tile: tRoomTile) {
   switch (tile) {
@@ -16,18 +22,17 @@ function getImageId(tile: tRoomTile) {
 export class GameRoom extends Room<GameState> {
   state = new GameState();
   maxClients = 25; // Current Discord limit is 25
+  initialMap: tRoomMatrix = roomLayoutGenerator(3, 3, 0);
 
   onCreate(options: {
     screenWidth: number;
     screenHeight: number;
   }): void | Promise<any> {
-    const BLOCKS_IN_WIDTH = 19;
-    const TILE_SIZE = 16;
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
     console.log({ ratio });
 
-    const initialMap = roomLayoutGenerator(11, 19, 0);
-    initialMap.forEach((mapSlice, sliceIndex) => {
+    this.initialMap = roomLayoutGenerator(9, 7, 0);
+    this.initialMap.forEach((mapSlice, sliceIndex) => {
       mapSlice.forEach((tile, tileIndex) => {
         const tileObject = new Tile();
 
@@ -55,14 +60,35 @@ export class GameRoom extends Room<GameState> {
         let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
         if (MOVING_DIAGNAL) movementDelta = movementDelta / 2;
 
+        // TODO: calculate/cache this array on state tile change instead
+        const tileList = [...this.state.tiles.values()].filter((tile) =>
+          tile.imageId.includes("wall")
+        );
+
         // W
-        if (message.up) player.y -= movementDelta;
+        if (
+          message.up &&
+          !willCollide(player.x, player.y - movementDelta, tileList)
+        )
+          player.y -= movementDelta;
         // A
-        if (message.left) player.x -= movementDelta;
+        if (
+          message.left &&
+          !willCollide(player.x - movementDelta, player.y, tileList)
+        )
+          player.x -= movementDelta;
         // S
-        if (message.down) player.y += movementDelta;
+        if (
+          message.down &&
+          !willCollide(player.x, player.y + movementDelta, tileList)
+        )
+          player.y += movementDelta;
         // D
-        if (message.right) player.x += movementDelta;
+        if (
+          message.right &&
+          !willCollide(player.x + movementDelta, player.y, tileList)
+        )
+          player.x += movementDelta;
       }
     );
   }
@@ -89,4 +115,37 @@ export class GameRoom extends Room<GameState> {
     console.log(`Client left: ${client.sessionId}`);
     this.state.players.delete(client.sessionId);
   }
+}
+
+// TODO: make alternative that finds the closest available x/y that doesnt collide
+function willCollide(x: number, y: number, tiles: Tile[]): boolean {
+  return tiles.some((tile) => {
+    const top = tile.y - (TILE_SIZE / 2) * (tile?.scale || 1);
+    const bottom = tile.y + (TILE_SIZE / 2) * (tile?.scale || 1);
+    const left = tile.x - (TILE_SIZE / 2) * (tile?.scale || 1);
+    const right = tile.x + (TILE_SIZE / 2) * (tile?.scale || 1);
+
+    const playerSize = TILE_SIZE * (tile?.scale || 1) * 0.1;
+
+    if (
+      tile.x - (TILE_SIZE / 2) * (tile.scale || 1) < x &&
+      tile.x + (TILE_SIZE / 2) * (tile.scale || 1) > x
+    ) {
+      const collideTop = y < top && y + playerSize > top;
+      const collideBottom = y > bottom && y - playerSize < bottom;
+
+      if (collideTop || collideBottom) return true;
+    }
+    if (
+      tile.y - (TILE_SIZE / 2) * (tile.scale || 1) < y &&
+      tile.y + (TILE_SIZE / 2) * (tile.scale || 1) > y
+    ) {
+      const collideLeft = x < left && x + playerSize > left;
+      const collideRight = x > right && x - playerSize < right;
+
+      if (collideLeft || collideRight) return true;
+    }
+
+    return false;
+  });
 }
