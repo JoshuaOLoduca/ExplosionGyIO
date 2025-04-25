@@ -31,7 +31,7 @@ export class GameRoom extends Room<GameState> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
     console.log({ ratio });
 
-    this.initialMap = roomLayoutGenerator(9, 7, 0);
+    this.initialMap = roomLayoutGenerator(11, 19, 0);
     this.initialMap.forEach((mapSlice, sliceIndex) => {
       mapSlice.forEach((tile, tileIndex) => {
         const tileObject = new Tile();
@@ -55,40 +55,40 @@ export class GameRoom extends Room<GameState> {
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
-        const MOVING_DIAGNAL =
-          (message.up || message.down) && (message.left || message.right);
-        let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
-        if (MOVING_DIAGNAL) movementDelta = movementDelta / 2;
-
         // TODO: calculate/cache this array on state tile change instead
         const tileList = [...this.state.tiles.values()].filter((tile) =>
           tile.imageId.includes("wall")
         );
+        let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
+
+        // disable diagnal input if it would collide.
+        // this retains full speed if user is walking into a wall.
+        // W
+        if (willCollide(player.x, player.y - movementDelta, tileList))
+          message.up = false;
+        // A
+        if (willCollide(player.x - movementDelta, player.y, tileList))
+          message.left = false;
+        // S
+        if (willCollide(player.x, player.y + movementDelta, tileList))
+          message.down = false;
+        // D
+        if (willCollide(player.x + movementDelta, player.y, tileList))
+          message.right = false;
+
+        // Normalize input
+        const MOVING_DIAGNAL =
+          (message.up || message.down) && (message.left || message.right);
+        if (MOVING_DIAGNAL) movementDelta = movementDelta / 2;
 
         // W
-        if (
-          message.up &&
-          !willCollide(player.x, player.y - movementDelta, tileList)
-        )
-          player.y -= movementDelta;
+        if (message.up) player.y -= movementDelta;
         // A
-        if (
-          message.left &&
-          !willCollide(player.x - movementDelta, player.y, tileList)
-        )
-          player.x -= movementDelta;
+        if (message.left) player.x -= movementDelta;
         // S
-        if (
-          message.down &&
-          !willCollide(player.x, player.y + movementDelta, tileList)
-        )
-          player.y += movementDelta;
+        if (message.down) player.y += movementDelta;
         // D
-        if (
-          message.right &&
-          !willCollide(player.x + movementDelta, player.y, tileList)
-        )
-          player.x += movementDelta;
+        if (message.right) player.x += movementDelta;
       }
     );
   }
