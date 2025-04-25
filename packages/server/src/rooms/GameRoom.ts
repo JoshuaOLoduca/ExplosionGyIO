@@ -23,6 +23,7 @@ export class GameRoom extends Room<GameState> {
   state = new GameState();
   maxClients = 25; // Current Discord limit is 25
   initialMap: tRoomMatrix = roomLayoutGenerator(3, 3, 0);
+  COLLISION_TILES = ["wall", "crate"];
 
   onCreate(options: {
     screenWidth: number;
@@ -30,7 +31,7 @@ export class GameRoom extends Room<GameState> {
   }): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
 
-    this.initialMap = roomLayoutGenerator(11, 19, 0);
+    this.initialMap = roomLayoutGenerator(11, 19, 0.1);
     this.initialMap.forEach((mapSlice, sliceIndex) => {
       mapSlice.forEach((tile, tileIndex) => {
         const tileObject = new Tile();
@@ -47,7 +48,7 @@ export class GameRoom extends Room<GameState> {
     });
     // TODO: calculate/cache this array on state tile change instead
     const tileCollisionList = [...this.state.tiles.values()].filter((tile) =>
-      tile.imageId.includes("wall")
+      this.COLLISION_TILES.includes(tile.imageId)
     );
 
     this.onMessage(
