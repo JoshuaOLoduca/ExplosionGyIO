@@ -118,18 +118,25 @@ export class GameRoom extends Room<GameState> {
 }
 
 // TODO: make alternative that finds the closest available x/y that doesnt collide
-function willCollide(x: number, y: number, tiles: Tile[]): boolean {
+function willCollide(
+  x: number,
+  y: number,
+  tiles: Tile[],
+  playerSize = 0
+): boolean {
   return tiles.some((tile) => {
     const top = tile.y - (TILE_SIZE / 2) * (tile?.scale || 1);
     const bottom = tile.y + (TILE_SIZE / 2) * (tile?.scale || 1);
     const left = tile.x - (TILE_SIZE / 2) * (tile?.scale || 1);
     const right = tile.x + (TILE_SIZE / 2) * (tile?.scale || 1);
 
-    const playerSize = TILE_SIZE * (tile?.scale || 1) * 0.1;
+    if (!playerSize) {
+      playerSize = (TILE_SIZE / 2) * (tile?.scale || 1) * 0.5;
+    }
 
     if (
-      tile.x - (TILE_SIZE / 2) * (tile.scale || 1) < x &&
-      tile.x + (TILE_SIZE / 2) * (tile.scale || 1) > x
+      tile.x - (TILE_SIZE / 2) * (tile.scale || 1) < x + playerSize &&
+      tile.x + (TILE_SIZE / 2) * (tile.scale || 1) > x - playerSize
     ) {
       const collideTop = y < top && y + playerSize > top;
       const collideBottom = y > bottom && y - playerSize < bottom;
@@ -137,8 +144,8 @@ function willCollide(x: number, y: number, tiles: Tile[]): boolean {
       if (collideTop || collideBottom) return true;
     }
     if (
-      tile.y - (TILE_SIZE / 2) * (tile.scale || 1) < y &&
-      tile.y + (TILE_SIZE / 2) * (tile.scale || 1) > y
+      tile.y - (TILE_SIZE / 2) * (tile.scale || 1) < y + playerSize &&
+      tile.y + (TILE_SIZE / 2) * (tile.scale || 1) > y - playerSize
     ) {
       const collideLeft = x < left && x + playerSize > left;
       const collideRight = x > right && x - playerSize < right;
