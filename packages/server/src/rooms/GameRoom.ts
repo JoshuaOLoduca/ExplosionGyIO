@@ -29,7 +29,6 @@ export class GameRoom extends Room<GameState> {
     screenHeight: number;
   }): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
-    console.log({ ratio });
 
     this.initialMap = roomLayoutGenerator(11, 19, 0);
     this.initialMap.forEach((mapSlice, sliceIndex) => {
@@ -46,6 +45,10 @@ export class GameRoom extends Room<GameState> {
         this.state.tiles.set(sliceIndex + tile + tileIndex, tileObject);
       });
     });
+    // TODO: calculate/cache this array on state tile change instead
+    const tileCollisionList = [...this.state.tiles.values()].filter((tile) =>
+      tile.imageId.includes("wall")
+    );
 
     this.onMessage(
       0,
@@ -55,25 +58,21 @@ export class GameRoom extends Room<GameState> {
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
-        // TODO: calculate/cache this array on state tile change instead
-        const tileList = [...this.state.tiles.values()].filter((tile) =>
-          tile.imageId.includes("wall")
-        );
         let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
 
         // disable diagnal input if it would collide.
         // this retains full speed if user is walking into a wall.
         // W
-        if (willCollide(player.x, player.y - movementDelta, tileList))
+        if (willCollide(player.x, player.y - movementDelta, tileCollisionList))
           message.up = false;
         // A
-        if (willCollide(player.x - movementDelta, player.y, tileList))
+        if (willCollide(player.x - movementDelta, player.y, tileCollisionList))
           message.left = false;
         // S
-        if (willCollide(player.x, player.y + movementDelta, tileList))
+        if (willCollide(player.x, player.y + movementDelta, tileCollisionList))
           message.down = false;
         // D
-        if (willCollide(player.x + movementDelta, player.y, tileList))
+        if (willCollide(player.x + movementDelta, player.y, tileCollisionList))
           message.right = false;
 
         // Normalize input
