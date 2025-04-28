@@ -44,6 +44,22 @@ export class Game extends Scene {
           .setInteractive();
         image.setScale(tile?.scale || 6.225);
       }
+
+      $(tile).onChange(() => {
+        const { bomb } = tile;
+        const dataKey = tile.imageId + tile.x + tile.y;
+        if (bomb) {
+          this.data.set(
+            dataKey,
+            this.add
+              .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
+              .setScale(bomb.scale || 6.225)
+              .setInteractive()
+          );
+        } else if (this.data.has(dataKey)) {
+          this.data.get(dataKey)?.destroy();
+        }
+      });
     });
 
     $(this.room.state).players.onAdd((player, playerId) => {

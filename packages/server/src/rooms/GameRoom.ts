@@ -1,5 +1,5 @@
 import { Client, Room } from "colyseus";
-import { GameState, Player, Tile } from "../schemas/GameState";
+import { Bomb, GameState, Player, Tile } from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
@@ -80,7 +80,25 @@ export class GameRoom extends Room<GameState> {
             player.x,
             player.y
           );
-          if (bombTile?.bomb === undefined) {
+          if (bombTile && !bombTile.bomb) {
+            const bomb = new Bomb();
+            bomb.owner = player;
+            bomb.imageId = "bomb_big_1";
+
+            bomb.x = bombTile.x;
+            bomb.y = bombTile.y;
+            bomb.fuse = 1000 * 2;
+            bomb.scale = (bombTile.scale || 2) / 2;
+
+            bombTile.bomb = bomb;
+
+            const bombFuse = setInterval(() => {
+              bomb.fuse -= 1;
+              if (bomb.fuse <= 0) {
+                clearInterval(bombFuse);
+                bombTile.bomb = undefined;
+              }
+            }, 1);
           }
         }
 
