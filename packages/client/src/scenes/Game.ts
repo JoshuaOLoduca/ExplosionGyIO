@@ -49,13 +49,24 @@ export class Game extends Scene {
         const { bomb } = tile;
         const dataKey = tile.imageId + tile.x + tile.y;
         if (bomb) {
-          this.data.set(
-            dataKey,
-            this.add
-              .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
-              .setScale(bomb.scale || 6.225)
-              .setInteractive()
-          );
+          console.log(bomb);
+          const spriteToAdd = this.add
+            .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
+            .setScale(bomb.scale || 6.225)
+            .setInteractive();
+
+          spriteToAdd.anims.create({
+            key: "bomb",
+            duration: bomb.fuse,
+            frames: this.anims.generateFrameNames("gameSprites", {
+              prefix: "bomb_big_",
+              start: 1,
+              end: 6,
+            }),
+          });
+          spriteToAdd.anims.play("bomb");
+
+          this.data.set(dataKey, spriteToAdd);
         } else if (this.data.has(dataKey)) {
           this.data.get(dataKey)?.destroy();
         }
