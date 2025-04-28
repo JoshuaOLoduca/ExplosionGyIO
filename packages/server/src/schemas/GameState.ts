@@ -25,6 +25,9 @@ export class Player extends BaseTile {
 
   @type("string")
   clientId = "";
+
+  @type("uint8")
+  health = 3;
 }
 
 export class Bomb extends BaseTile {
