@@ -13,6 +13,7 @@ export class Game extends Scene {
     left: false,
     down: false,
     right: false,
+    placeBomb: false,
   };
 
   constructor() {
@@ -115,6 +116,9 @@ export class Game extends Scene {
     ).isDown;
     this.inputPayload.right = !!this.input.keyboard?.addKey(
       Phaser.Input.Keyboard.KeyCodes.D
+    ).isDown;
+    this.inputPayload.placeBomb = !!this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
     ).isDown;
 
     this.room.send(0, this.inputPayload);

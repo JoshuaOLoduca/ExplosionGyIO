@@ -55,7 +55,13 @@ export class GameRoom extends Room<GameState> {
       0,
       (
         client: Client,
-        message: { up: boolean; down: boolean; left: boolean; right: boolean }
+        message: {
+          up: boolean;
+          down: boolean;
+          left: boolean;
+          right: boolean;
+          placeBomb: boolean;
+        }
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
