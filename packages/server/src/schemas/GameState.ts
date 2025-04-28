@@ -16,17 +16,6 @@ export class Explosion extends BaseTile {
   damage = 1;
 }
 
-export class Bomb extends BaseTile {
-  /**
-   * Once it hits 0, it will explode. Currently assuming its miliseconds
-   */
-  @type("uint16")
-  fuse = 10;
-
-  @type({ array: Explosion })
-  explosions = [];
-}
-
 export class Tile extends BaseTile {
   @type("string")
   imageId = "";
@@ -44,9 +33,20 @@ export class Player extends BaseTile {
 
   @type("string")
   clientId = "";
+}
 
-  @type({ array: Bomb })
-  bombs = [];
+export class Bomb extends BaseTile {
+  /**
+   * Once it hits 0, it will explode. Currently assuming its miliseconds
+   */
+  @type("uint16")
+  fuse = 10;
+
+  @type({ array: Explosion })
+  explosions = [];
+
+  @type({ type: Player })
+  owner?: Player = undefined;
 }
 
 export class GameState extends Schema {
