@@ -28,21 +28,21 @@ export class Game extends Scene {
     const $ = getStateCallbacks(this.room);
     const colyseusRoom = this;
 
-    $(this.room.state).tiles.onAdd((draggable: any, tileId: string) => {
-      if (draggable.imageId === "crate") {
+    $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
+      if (tile.imageId === "crate") {
         const image = this.add
-          .sprite(draggable.x, draggable.y, "gameSprites", "grass")
+          .sprite(tile.x, tile.y, "gameSprites", "grass")
           .setInteractive();
-        image.setScale(draggable?.scale || 6.225);
+        image.setScale(tile?.scale || 6.225);
         const image2 = this.add
-          .sprite(draggable.x, draggable.y, "gameSprites", "crate")
+          .sprite(tile.x, tile.y, "gameSprites", "crate")
           .setInteractive();
-        image2.setScale((draggable?.scale || 6.225) * 0.95);
+        image2.setScale((tile?.scale || 6.225) * 0.95);
       } else {
         const image = this.add
-          .sprite(draggable.x, draggable.y, "gameSprites", draggable.imageId)
+          .sprite(tile.x, tile.y, "gameSprites", tile.imageId)
           .setInteractive();
-        image.setScale(draggable?.scale || 6.225);
+        image.setScale(tile?.scale || 6.225);
       }
     });
 
