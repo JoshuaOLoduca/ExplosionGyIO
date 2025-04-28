@@ -47,7 +47,8 @@ export class GameRoom extends Room<GameState> {
       });
     });
     // TODO: calculate/cache this array on state tile change instead
-    const tileCollisionList = [...this.state.tiles.values()].filter((tile) =>
+    const arrOfTileState = [...this.state.tiles.values()];
+    const tileCollisionList = arrOfTileState.filter((tile) =>
       this.COLLISION_TILES.includes(tile.imageId)
     );
 
@@ -65,6 +66,27 @@ export class GameRoom extends Room<GameState> {
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
+
+        // ////////////////////////////////////
+        //           BOMB
+        //  before movement so it places the
+        //  bomb where the user IS, not where
+        //  They will be.
+        // ////////////////////////////////////
+
+        if (message.placeBomb) {
+          const bombTile = getTileUnderCoord(
+            arrOfTileState.filter((tile) => tile.imageId === "grass"),
+            player.x,
+            player.y
+          );
+          if (bombTile?.bomb === undefined) {
+          }
+        }
+
+        // ///////////////////////////
+        //         MOVEMENT
+        // ///////////////////////////
         let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
 
         // disable diagnal input if it would collide.
@@ -121,6 +143,20 @@ export class GameRoom extends Room<GameState> {
     console.log(`Client left: ${client.sessionId}`);
     this.state.players.delete(client.sessionId);
   }
+}
+
+function getTileUnderCoord(bombAcceptingTiles: Tile[], x: number, y: number) {
+  const tileUnderCoord = bombAcceptingTiles.find((tile) => {
+    const sizeInPixelsFromCentre = (tile.scale || 1) * (TILE_SIZE / 2);
+    const distanceFromX = Math.abs(tile.x - x);
+    const distanceFromY = Math.abs(tile.y - y);
+    const isTileUnderCoord =
+      distanceFromX < sizeInPixelsFromCentre &&
+      distanceFromY < sizeInPixelsFromCentre;
+
+    return isTileUnderCoord;
+  });
+  return tileUnderCoord;
 }
 
 // TODO: make alternative that finds the closest available x/y that doesnt collide
