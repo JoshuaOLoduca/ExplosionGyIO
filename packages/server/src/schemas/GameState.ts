@@ -16,7 +16,13 @@ export class Tile extends BaseTile {
   imageId = "";
 }
 
-export class Bomb extends BaseTile {}
+export class Bomb extends BaseTile {
+  /**
+   * Once it hits 0, it will explode. Currently assuming its miliseconds
+   */
+  @type("uint16")
+  fuse = 10;
+}
 
 export class Player extends BaseTile {
   @type("string")
