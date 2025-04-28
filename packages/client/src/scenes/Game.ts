@@ -49,7 +49,6 @@ export class Game extends Scene {
         const { bomb } = tile;
         const dataKey = tile.imageId + tile.x + tile.y;
         if (bomb) {
-          console.log(bomb);
           const spriteToAdd = this.add
             .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
             .setScale(bomb.scale || 6.225)
