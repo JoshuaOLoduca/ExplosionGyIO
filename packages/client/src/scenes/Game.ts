@@ -76,21 +76,26 @@ export class Game extends Scene {
       )
       .setOrigin(0.5);
 
-    if (DEBUG)
-      this.data.set(
-        "DEBUG-mouse",
-        this.add
-          .text(
-            this.cameras.main.width * 0.5,
-            this.cameras.main.height * 0.05,
-            `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
-            {
-              font: "24px Arial",
-              color: "#000000",
-            }
-          )
-          .setOrigin(0.5)
-      );
+    if (DEBUG) {
+      setTimeout(() => {
+        this.data.set(
+          "DEBUG-mouse",
+          this.add
+            .text(
+              this.cameras.main.width * 0.5,
+              this.cameras.main.height * 0.05,
+              `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
+              {
+                font: "24px Arial",
+                color: "#000000",
+                strokeThickness: 14,
+                stroke: "#fff",
+              }
+            )
+            .setOrigin(0.5)
+        );
+      }, 1000 * 0.5);
+    }
   }
 
   update(time: number, delta: number): void {
