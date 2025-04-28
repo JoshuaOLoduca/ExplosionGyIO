@@ -11,11 +11,6 @@ export class BaseTile extends Schema {
   scale?: number = undefined;
 }
 
-export class Tile extends BaseTile {
-  @type("string")
-  imageId = "";
-}
-
 export class Explosion extends BaseTile {
   @type("uint8")
   damage = 1;
@@ -30,6 +25,17 @@ export class Bomb extends BaseTile {
 
   @type({ array: Explosion })
   explosions = [];
+}
+
+export class Tile extends BaseTile {
+  @type("string")
+  imageId = "";
+
+  /**
+   * each tile can only have a single bomb.
+   */
+  @type({ type: Bomb })
+  bomb?: Bomb = undefined;
 }
 
 export class Player extends BaseTile {
