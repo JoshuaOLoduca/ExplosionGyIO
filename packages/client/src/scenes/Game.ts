@@ -45,21 +45,16 @@ export class Game extends Scene {
         image.setScale(tile?.scale || 6.225);
       }
 
-      // if(tile.bomb) {
-      //   const dataKey = tile.imageId + tile.x + tile.y;
-      //   this.data.set()
-      // }
-
-      let bombSprite;
+      const dataKey = tileId + "bomb";
       const updateBombState = () => {
         const { bomb } = tile;
-        if (bomb) {
-          bombSprite = this.add
+        if (bomb && !this.data.has(dataKey)) {
+          const spriteToAdd = this.add
             .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
             .setScale(bomb.scale || 6.225)
             .setInteractive();
 
-          bombSprite.anims.create({
+          spriteToAdd.anims.create({
             key: "bomb",
             duration: bomb.fuse,
             frames: this.anims.generateFrameNames("gameSprites", {
@@ -68,9 +63,12 @@ export class Game extends Scene {
               end: 6,
             }),
           });
-          bombSprite.anims.play("bomb");
-        } else if (bombSprite) {
-          bombSprite.destroy();
+          spriteToAdd.anims.play("bomb");
+
+          this.data.set(dataKey, spriteToAdd);
+        } else if (!bomb && this.data.has(dataKey)) {
+          this.data.get(dataKey).destroy();
+          this.data.remove(dataKey);
         }
       };
 

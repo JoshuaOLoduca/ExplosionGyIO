@@ -87,7 +87,7 @@ export class GameRoom extends Room<GameState> {
 
             bomb.x = bombTile.x;
             bomb.y = bombTile.y;
-            bomb.fuse = 1000 * 5;
+            bomb.fuse = 1000 * 2;
             bomb.scale = (bombTile.scale || 2) / 2;
 
             bombTile.bomb = bomb;
