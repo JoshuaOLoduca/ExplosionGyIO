@@ -23,7 +23,17 @@ export class GameRoom extends Room<GameState> {
   state = new GameState();
   maxClients = 25; // Current Discord limit is 25
   initialMap: tRoomMatrix = roomLayoutGenerator(3, 3, 0);
-  COLLISION_TILES = ["wall", "crate"];
+  COLLISION_TILES = [
+    "wall",
+    "crate",
+    // "bomb_big_1",
+    // "bomb_big_2",
+    // "bomb_big_3",
+    // "bomb_big_4",
+    // "bomb_big_5",
+    // "bomb_big_6",
+  ];
+  BOMBS = new Set<Bomb>();
 
   onCreate(options: {
     screenWidth: number;
@@ -48,7 +58,7 @@ export class GameRoom extends Room<GameState> {
     });
     // TODO: calculate/cache this array on state tile change instead
     const arrOfTileState = [...this.state.tiles.values()];
-    const tileCollisionList = arrOfTileState.filter((tile) =>
+    const tileCollisionListPrimary = arrOfTileState.filter((tile) =>
       this.COLLISION_TILES.includes(tile.imageId)
     );
 
@@ -66,6 +76,8 @@ export class GameRoom extends Room<GameState> {
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
+
+        const tileCollisionList = [...tileCollisionListPrimary, ...this.BOMBS];
 
         // ////////////////////////////////////
         //           BOMB
@@ -92,11 +104,15 @@ export class GameRoom extends Room<GameState> {
 
             bombTile.bomb = bomb;
 
+            // For collision tracking
+            this.BOMBS.add(bomb);
+
             const bombFuse = setInterval(() => {
               bomb.fuse -= 1;
               if (bomb.fuse <= 0) {
                 clearInterval(bombFuse);
                 bombTile.bomb = undefined;
+                this.BOMBS.delete(bomb);
               }
             }, 1);
           }
