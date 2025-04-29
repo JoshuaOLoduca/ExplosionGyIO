@@ -147,10 +147,7 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (
-          (topCollide && !playerInsideCollisionTile) ||
-          topCollide === tileUnderPlayer
-        ) {
+        if (topCollide && topCollide !== tileUnderPlayer?.bomb) {
           message.up = false;
         }
         // A
@@ -161,10 +158,7 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (
-          (leftCollide && !playerInsideCollisionTile) ||
-          leftCollide === tileUnderPlayer
-        )
+        if (leftCollide && leftCollide !== tileUnderPlayer?.bomb)
           message.left = false;
         // S
         const downCollide = willCollide(
@@ -174,10 +168,7 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (
-          (downCollide && !playerInsideCollisionTile) ||
-          downCollide === tileUnderPlayer
-        )
+        if (downCollide && downCollide !== tileUnderPlayer?.bomb)
           message.down = false;
         // D
         const rightCollide = willCollide(
@@ -187,10 +178,7 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (
-          (rightCollide && !playerInsideCollisionTile) ||
-          rightCollide === tileUnderPlayer
-        )
+        if (rightCollide && rightCollide !== tileUnderPlayer?.bomb)
           message.right = false;
 
         // Normalize input
