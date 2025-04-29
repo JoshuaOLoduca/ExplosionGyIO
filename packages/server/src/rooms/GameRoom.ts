@@ -1,5 +1,5 @@
 import { Client, Room } from "colyseus";
-import { Bomb, GameState, Player, Tile } from "../schemas/GameState";
+import { BaseTile, Bomb, GameState, Player, Tile } from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
@@ -193,14 +193,25 @@ function getTileUnderCoord(bombAcceptingTiles: Tile[], x: number, y: number) {
   return tileUnderCoord;
 }
 
-// TODO: make alternative that finds the closest available x/y that doesnt collide
 function willCollide(
   x: number,
   y: number,
-  tiles: Tile[],
+  tiles: BaseTile[],
   playerSize = 0
 ): boolean {
-  return tiles.some((tile) => {
+  return !!getTileCollision(x, y, tiles, playerSize);
+}
+
+function isInsideTile(x: number, y: number, tiles: BaseTile, playerSize = 0) {}
+
+// TODO: make alternative that finds the closest available x/y that doesnt collide
+function getTileCollision(
+  x: number,
+  y: number,
+  tiles: BaseTile[],
+  playerSize = 0
+): BaseTile | undefined {
+  return tiles.find((tile) => {
     const top = tile.y - (TILE_SIZE / 2) * (tile?.scale || 1);
     const bottom = tile.y + (TILE_SIZE / 2) * (tile?.scale || 1);
     const left = tile.x - (TILE_SIZE / 2) * (tile?.scale || 1);
