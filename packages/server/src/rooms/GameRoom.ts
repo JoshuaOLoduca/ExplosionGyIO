@@ -58,6 +58,10 @@ export class GameRoom extends Room<GameState> {
     });
     // TODO: calculate/cache this array on state tile change instead
     const arrOfTileState = [...this.state.tiles.values()];
+    const arrOfGrassTiles = arrOfTileState.filter((tile) =>
+      tile.imageId.includes("grass")
+    );
+
     const tileCollisionListPrimary = arrOfTileState.filter((tile) =>
       this.COLLISION_TILES.includes(tile.imageId)
     );
@@ -88,7 +92,7 @@ export class GameRoom extends Room<GameState> {
 
         if (message.placeBomb) {
           const bombTile = getTileUnderCoord(
-            arrOfTileState.filter((tile) => tile.imageId === "grass"),
+            arrOfGrassTiles,
             player.x,
             player.y
           );
@@ -123,19 +127,70 @@ export class GameRoom extends Room<GameState> {
         // ///////////////////////////
         let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
 
+        const tileUnderPlayer = getTileUnderCoord(
+          arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),
+          player.x,
+          player.y
+        );
+        const playerInsideCollisionTile =
+          !!tileUnderPlayer &&
+          isInsideTile(player.x, player.y, tileUnderPlayer);
+
         // disable diagnal input if it would collide.
         // this retains full speed if user is walking into a wall.
         // W
-        if (willCollide(player.x, player.y - movementDelta, tileCollisionList))
+
+        const topCollide = willCollide(
+          player.x,
+          player.y - movementDelta,
+          tileCollisionList,
+          undefined,
+          true
+        );
+        if (
+          (topCollide && !playerInsideCollisionTile) ||
+          topCollide === tileUnderPlayer
+        ) {
           message.up = false;
+        }
         // A
-        if (willCollide(player.x - movementDelta, player.y, tileCollisionList))
+        const leftCollide = willCollide(
+          player.x - movementDelta,
+          player.y,
+          tileCollisionList,
+          undefined,
+          true
+        );
+        if (
+          (leftCollide && !playerInsideCollisionTile) ||
+          leftCollide === tileUnderPlayer
+        )
           message.left = false;
         // S
-        if (willCollide(player.x, player.y + movementDelta, tileCollisionList))
+        const downCollide = willCollide(
+          player.x,
+          player.y + movementDelta,
+          tileCollisionList,
+          undefined,
+          true
+        );
+        if (
+          (downCollide && !playerInsideCollisionTile) ||
+          downCollide === tileUnderPlayer
+        )
           message.down = false;
         // D
-        if (willCollide(player.x + movementDelta, player.y, tileCollisionList))
+        const rightCollide = willCollide(
+          player.x + movementDelta,
+          player.y,
+          tileCollisionList,
+          undefined,
+          true
+        );
+        if (
+          (rightCollide && !playerInsideCollisionTile) ||
+          rightCollide === tileUnderPlayer
+        )
           message.right = false;
 
         // Normalize input
@@ -179,14 +234,14 @@ export class GameRoom extends Room<GameState> {
   }
 }
 
-function getTileUnderCoord(bombAcceptingTiles: Tile[], x: number, y: number) {
-  const tileUnderCoord = bombAcceptingTiles.find((tile) => {
+function getTileUnderCoord(tiles: Tile[], x: number, y: number) {
+  const tileUnderCoord = tiles.find((tile) => {
     const sizeInPixelsFromCentre = (tile.scale || 1) * (TILE_SIZE / 2);
     const distanceFromX = Math.abs(tile.x - x);
     const distanceFromY = Math.abs(tile.y - y);
     const isTileUnderCoord =
-      distanceFromX < sizeInPixelsFromCentre &&
-      distanceFromY < sizeInPixelsFromCentre;
+      distanceFromX <= sizeInPixelsFromCentre &&
+      distanceFromY <= sizeInPixelsFromCentre;
 
     return isTileUnderCoord;
   });
@@ -197,12 +252,31 @@ function willCollide(
   x: number,
   y: number,
   tiles: BaseTile[],
-  playerSize = 0
-): boolean {
-  return !!getTileCollision(x, y, tiles, playerSize);
+  playerSize = 0,
+  returnTile = false
+): boolean | BaseTile {
+  const collisionTile = getTileCollision(x, y, tiles, playerSize);
+
+  if (!returnTile || !collisionTile) return !!collisionTile;
+
+  return collisionTile;
 }
 
-function isInsideTile(x: number, y: number, tiles: BaseTile, playerSize = 0) {}
+function isInsideTile(x: number, y: number, tile: BaseTile, playerSize = 0) {
+  const tilePixelSizeFromCentre = (tile.scale || 1) * (TILE_SIZE / 2);
+  /**
+   * Ok, so top left of map/tile is negative.
+   * That means top and left walls are smaller then origin
+   * bottom and right are positive.
+   */
+  const leftWall = tile.x - tilePixelSizeFromCentre;
+  const rightWall = tile.x + tilePixelSizeFromCentre;
+  const topWall = tile.y - tilePixelSizeFromCentre;
+  const bottomWall = tile.y + tilePixelSizeFromCentre;
+  if (leftWall <= x && rightWall >= x) return true;
+  if (topWall <= y && bottomWall >= y) return true;
+  return false;
+}
 
 // TODO: make alternative that finds the closest available x/y that doesnt collide
 function getTileCollision(
