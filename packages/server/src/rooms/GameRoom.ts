@@ -1,11 +1,12 @@
 import { Client, Room } from "colyseus";
-import { BaseTile, Bomb, GameState, Player, Tile } from "../schemas/GameState";
+import { Bomb, GameState, Player, Tile } from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
 } from "../utils/roomLayoutGenerator";
+import { isInsideTile, willCollide, getTileUnderCoord } from "../utils/physics";
 
-const TILE_SIZE = 16;
+export const TILE_SIZE = 16;
 const BLOCKS_IN_WIDTH = 19;
 
 function getImageId(tile: tRoomTile) {
@@ -220,88 +221,4 @@ export class GameRoom extends Room<GameState> {
     console.log(`Client left: ${client.sessionId}`);
     this.state.players.delete(client.sessionId);
   }
-}
-
-function getTileUnderCoord(tiles: Tile[], x: number, y: number) {
-  const tileUnderCoord = tiles.find((tile) => {
-    const sizeInPixelsFromCentre = (tile.scale || 1) * (TILE_SIZE / 2);
-    const distanceFromX = Math.abs(tile.x - x);
-    const distanceFromY = Math.abs(tile.y - y);
-    const isTileUnderCoord =
-      distanceFromX <= sizeInPixelsFromCentre &&
-      distanceFromY <= sizeInPixelsFromCentre;
-
-    return isTileUnderCoord;
-  });
-  return tileUnderCoord;
-}
-
-function willCollide(
-  x: number,
-  y: number,
-  tiles: BaseTile[],
-  playerSize = 0,
-  returnTile = false
-): boolean | BaseTile {
-  const collisionTile = getTileCollision(x, y, tiles, playerSize);
-
-  if (!returnTile || !collisionTile) return !!collisionTile;
-
-  return collisionTile;
-}
-
-function isInsideTile(x: number, y: number, tile: BaseTile, playerSize = 0) {
-  const tilePixelSizeFromCentre = (tile.scale || 1) * (TILE_SIZE / 2);
-  /**
-   * Ok, so top left of map/tile is negative.
-   * That means top and left walls are smaller then origin
-   * bottom and right are positive.
-   */
-  const leftWall = tile.x - tilePixelSizeFromCentre;
-  const rightWall = tile.x + tilePixelSizeFromCentre;
-  const topWall = tile.y - tilePixelSizeFromCentre;
-  const bottomWall = tile.y + tilePixelSizeFromCentre;
-  if (leftWall <= x && rightWall >= x) return true;
-  if (topWall <= y && bottomWall >= y) return true;
-  return false;
-}
-
-// TODO: make alternative that finds the closest available x/y that doesnt collide
-function getTileCollision(
-  x: number,
-  y: number,
-  tiles: BaseTile[],
-  playerSize = 0
-): BaseTile | undefined {
-  return tiles.find((tile) => {
-    const top = tile.y - (TILE_SIZE / 2) * (tile?.scale || 1);
-    const bottom = tile.y + (TILE_SIZE / 2) * (tile?.scale || 1);
-    const left = tile.x - (TILE_SIZE / 2) * (tile?.scale || 1);
-    const right = tile.x + (TILE_SIZE / 2) * (tile?.scale || 1);
-
-    if (!playerSize) {
-      playerSize = (TILE_SIZE / 2) * (tile?.scale || 1) * 0.5;
-    }
-
-    if (
-      tile.x - (TILE_SIZE / 2) * (tile.scale || 1) < x + playerSize &&
-      tile.x + (TILE_SIZE / 2) * (tile.scale || 1) > x - playerSize
-    ) {
-      const collideTop = y < top && y + playerSize > top;
-      const collideBottom = y > bottom && y - playerSize < bottom;
-
-      if (collideTop || collideBottom) return true;
-    }
-    if (
-      tile.y - (TILE_SIZE / 2) * (tile.scale || 1) < y + playerSize &&
-      tile.y + (TILE_SIZE / 2) * (tile.scale || 1) > y - playerSize
-    ) {
-      const collideLeft = x < left && x + playerSize > left;
-      const collideRight = x > right && x - playerSize < right;
-
-      if (collideLeft || collideRight) return true;
-    }
-
-    return false;
-  });
 }
