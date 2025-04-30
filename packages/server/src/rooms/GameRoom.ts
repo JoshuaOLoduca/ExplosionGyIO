@@ -208,8 +208,14 @@ export class GameRoom extends Room<GameState> {
                       break;
                   }
                 }
+                const centerExplosion = new Explosion();
+                centerExplosion.x = bombTile.x;
+                centerExplosion.y = bombTile.y;
+                centerExplosion.scale = bombTile.scale || 1;
+                centerExplosion.imageId = "bomb_extended_explosion_core";
 
                 const bombs = [
+                  centerExplosion,
                   ...topExplosion,
                   ...rightExplosion,
                   ...bottomExplosion,
@@ -218,6 +224,7 @@ export class GameRoom extends Room<GameState> {
                 bombs.forEach((bomb) => {
                   if (bomb) bomb.damage = bombPower;
                 });
+
                 bomb.explosions.push(...bombs);
                 clearInterval(bombFuse);
                 // bombTile.bomb = undefined;

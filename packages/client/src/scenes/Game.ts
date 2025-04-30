@@ -80,6 +80,7 @@ export class Game extends Scene {
               .sprite(item.x, item.y, "gameSprites", item.imageId)
               .setAngle(item.angle)
               .setScale(tile.scale || 1)
+              // .setAlpha(0.9)
               .setInteractive();
           });
 
