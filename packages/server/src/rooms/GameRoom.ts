@@ -114,118 +114,69 @@ export class GameRoom extends Room<GameState> {
             // For collision tracking
             this.BOMBS.add(bomb);
 
+            const thang = (
+              coordsToCheck: (
+                x: number,
+                y: number,
+                offset: number
+              ) => [x: number, y: number]
+            ) => {
+              return [
+                (arr: (Explosion | null)[], _: unknown, index: number) => {
+                  debugger;
+                  const tileSize = (bombTile.scale || 1) * TILE_SIZE;
+                  const multiplier = index + 1;
+                  const [xToCheck, yToCheck] = coordsToCheck(
+                    bombTile.x,
+                    bombTile.y,
+                    tileSize * multiplier
+                  );
+                  const foundTile = getTileUnderCoord(
+                    arrOfGrassTiles,
+                    xToCheck,
+                    yToCheck
+                  );
+
+                  if (!foundTile || arr[index - 1] === null) {
+                    arr.push(null);
+                    return arr;
+                  }
+
+                  const explosion = new Explosion();
+                  explosion.x = foundTile.x;
+                  explosion.y = foundTile.y;
+                  explosion.imageId = "bomb_explosion_1";
+                  arr.push(explosion);
+
+                  return arr;
+                },
+                [],
+              ] as const;
+            };
+
             // TODO: use date object for more reliable time change
             // SetInterval can be off by some u/n seconds due to the scheduler being busy.
             const bombFuse = setInterval(() => {
               bomb.fuse -= 1;
               if (bomb.fuse <= 0) {
-                const bombExplosionLength = 3;
+                const bombExplosionLength = 2;
                 const bombPower = 1;
                 // Top Left is 0,0
                 const leftExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .map((_, index, arr) => {
-                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index;
-                    const [xToCheck, yToCheck] = [
-                      bombTile.x - tileSize * multiplier,
-                      bombTile.y,
-                    ];
-                    const foundTile = getTileUnderCoord(
-                      arrOfGrassTiles,
-                      xToCheck,
-                      yToCheck
-                    );
-
-                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
-                      return null;
-                    }
-                    const explosion = new Explosion();
-                    explosion.x = foundTile.x;
-                    explosion.y = foundTile.y;
-                    explosion.imageId = "bomb_explosion_1";
-
-                    return explosion;
-                  })
+                  .reduce(...thang((x, y, offset) => [x - offset, y]))
                   .filter(Boolean);
                 const topExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .map((_, index, arr) => {
-                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index;
-                    const [xToCheck, yToCheck] = [
-                      bombTile.x,
-                      bombTile.y - tileSize * multiplier,
-                    ];
-                    const foundTile = getTileUnderCoord(
-                      arrOfGrassTiles,
-                      xToCheck,
-                      yToCheck
-                    );
-
-                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
-                      return null;
-                    }
-                    const explosion = new Explosion();
-                    explosion.x = foundTile.x;
-                    explosion.y = foundTile.y;
-                    explosion.imageId = "bomb_explosion_1";
-
-                    return explosion;
-                  })
+                  .reduce(...thang((x, y, offset) => [x, y - offset]))
                   .filter(Boolean);
                 const rightExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .map((_, index, arr) => {
-                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index;
-                    const [xToCheck, yToCheck] = [
-                      bombTile.x + tileSize * multiplier,
-                      bombTile.y,
-                    ];
-                    const foundTile = getTileUnderCoord(
-                      arrOfGrassTiles,
-                      xToCheck,
-                      yToCheck
-                    );
-
-                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
-                      return null;
-                    }
-                    const explosion = new Explosion();
-                    explosion.x = foundTile.x;
-                    explosion.y = foundTile.y;
-                    explosion.imageId = "bomb_explosion_1";
-
-                    return explosion;
-                  })
+                  .reduce(...thang((x, y, offset) => [x + offset, y]))
                   .filter(Boolean);
                 const bottomExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .map((_, index, arr) => {
-                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index;
-                    const [xToCheck, yToCheck] = [
-                      bombTile.x,
-                      bombTile.y + tileSize * multiplier,
-                    ];
-                    const foundTile = getTileUnderCoord(
-                      arrOfGrassTiles,
-                      xToCheck,
-                      yToCheck
-                    );
-
-                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
-                      return null;
-                    }
-
-                    const explosion = new Explosion();
-                    explosion.x = foundTile.x;
-                    explosion.y = foundTile.y;
-                    explosion.imageId = "bomb_explosion_1";
-
-                    return explosion;
-                  })
+                  .reduce(...thang((x, y, offset) => [x, y + offset]))
                   .filter(Boolean);
 
                 for (const bombExplosionArr of [
