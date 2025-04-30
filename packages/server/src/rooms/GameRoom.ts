@@ -82,7 +82,9 @@ export class GameRoom extends Room<GameState> {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
 
-        const tileCollisionList = [...tileCollisionListPrimary, ...this.BOMBS];
+        const tileCollisionList = Array.from(tileCollisionListPrimary).concat(
+          Array.from(this.BOMBS)
+        );
 
         // ////////////////////////////////////
         //           BOMB
