@@ -126,7 +126,7 @@ export class GameRoom extends Room<GameState> {
                   .fill(2)
                   .map((_, index, arr) => {
                     const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index + 1;
+                    const multiplier = index;
                     const [xToCheck, yToCheck] = [
                       bombTile.x - tileSize * multiplier,
                       bombTile.y,
@@ -152,7 +152,7 @@ export class GameRoom extends Room<GameState> {
                   .fill(2)
                   .map((_, index, arr) => {
                     const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index + 1;
+                    const multiplier = index;
                     const [xToCheck, yToCheck] = [
                       bombTile.x,
                       bombTile.y - tileSize * multiplier,
@@ -178,7 +178,7 @@ export class GameRoom extends Room<GameState> {
                   .fill(2)
                   .map((_, index, arr) => {
                     const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index + 1;
+                    const multiplier = index;
                     const [xToCheck, yToCheck] = [
                       bombTile.x + tileSize * multiplier,
                       bombTile.y,
@@ -204,7 +204,7 @@ export class GameRoom extends Room<GameState> {
                   .fill(2)
                   .map((_, index, arr) => {
                     const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                    const multiplier = index + 1;
+                    const multiplier = index;
                     const [xToCheck, yToCheck] = [
                       bombTile.x,
                       bombTile.y + tileSize * multiplier,
@@ -227,13 +227,6 @@ export class GameRoom extends Room<GameState> {
                     return explosion;
                   })
                   .filter(Boolean);
-
-                console.log({
-                  topExplosion,
-                  rightExplosion,
-                  bottomExplosion,
-                  leftExplosion,
-                });
 
                 for (const bombExplosionArr of [
                   topExplosion,

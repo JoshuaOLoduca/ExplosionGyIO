@@ -54,6 +54,8 @@ export class Game extends Scene {
             .setScale(bomb.scale || 6.225)
             .setInteractive();
 
+          spriteToAdd.disableInteractive;
+
           spriteToAdd.anims.create({
             key: "bomb",
             duration: bomb.fuse,
@@ -72,6 +74,14 @@ export class Game extends Scene {
             }
           });
 
+          $(bomb.explosions).onAdd((item) => {
+            console.log(item);
+            this.add
+              .sprite(item.x, item.y, "gameSprites", item.imageId)
+              .setScale(bomb.scale || 1)
+              .setInteractive();
+          });
+
           this.data.set(dataKey, spriteToAdd);
         } else if (!bomb && this.data.has(dataKey)) {
           this.data.get(dataKey).destroy();
@@ -82,7 +92,7 @@ export class Game extends Scene {
       updateBombState();
 
       $(tile).onChange(() => {
-        console.log(tile);
+        // console.log(tile);
         updateBombState();
       });
     });
