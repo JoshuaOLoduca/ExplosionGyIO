@@ -31,6 +31,40 @@ export class Player extends BaseTile {
 
   @type("uint8")
   health = 3;
+
+  /**
+   * miliseconds player is invincible for.
+   * when at 0, can take damage
+   */
+  @type("uint16")
+  invincible = 0;
+
+  addDamage(
+    damageAmount: number,
+    invincibleLengthMs = 300,
+    /**
+     * How often to calculate how much active invincibility is left
+     */
+    invincibleUpdateRateMs = 25
+  ) {
+    if (this.invincible === 0 && this.health > 0) {
+      this.health -= damageAmount;
+      this.invincible = invincibleLengthMs;
+
+      /**
+       * lower is faster. min 1
+       */
+      const updateRate = invincibleUpdateRateMs;
+
+      const invincibleCD = setInterval(() => {
+        this.invincible -= updateRate;
+        if (this.invincible <= 0) {
+          clearInterval(invincibleCD);
+          this.invincible = 0;
+        }
+      }, updateRate);
+    }
+  }
 }
 
 export class Bomb extends BaseTile {

@@ -340,6 +340,18 @@ export class GameRoom extends Room<GameState> {
         if (message.down) player.y += movementDelta;
         // D
         if (message.right) player.x += movementDelta;
+
+        // /////////////////////////
+        //    Damage Collision
+        // /////////////////////////
+        const explosionTiles = Array.from(this.BOMBS).flatMap((bomb) =>
+          Array.from(bomb.explosions)
+        );
+        if (explosionTiles.length) {
+          debugger;
+          const damaged = checkCollision(player.x, player.y, explosionTiles);
+          if (damaged) player.addDamage((damaged as Explosion)?.damage || 1);
+        }
       }
     );
   }
