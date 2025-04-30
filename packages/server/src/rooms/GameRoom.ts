@@ -83,7 +83,7 @@ export class GameRoom extends Room<GameState> {
         if (!player) return;
 
         const tileCollisionList = Array.from(tileCollisionListPrimary).concat(
-          Array.from(this.BOMBS)
+          Array.from(this.BOMBS).filter((bomb) => !!bomb.fuse)
         );
 
         // ////////////////////////////////////

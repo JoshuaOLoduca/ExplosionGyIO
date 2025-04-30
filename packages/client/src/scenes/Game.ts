@@ -65,6 +65,13 @@ export class Game extends Scene {
           });
           spriteToAdd.anims.play("bomb");
 
+          $(bomb).onChange(() => {
+            if (spriteToAdd.visible && bomb?.fuse <= 0) {
+              spriteToAdd.setVisible(false);
+              spriteToAdd.disableInteractive(true);
+            }
+          });
+
           this.data.set(dataKey, spriteToAdd);
         } else if (!bomb && this.data.has(dataKey)) {
           this.data.get(dataKey).destroy();
