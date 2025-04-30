@@ -263,8 +263,18 @@ export class GameRoom extends Room<GameState> {
 
                 bomb.explosions.push(...bombs);
                 clearInterval(bombFuse);
-                // bombTile.bomb = undefined;
-                // this.BOMBS.delete(bomb);
+
+                const updateRate = 25;
+
+                const bombExplosionLinger = setInterval(() => {
+                  centerExplosion.lingerMs -= updateRate;
+                  if (centerExplosion.lingerMs <= 0) {
+                    clearInterval(bombExplosionLinger);
+                    bomb.explosions.clear();
+                    bombTile.bomb = undefined;
+                    this.BOMBS.delete(bomb);
+                  }
+                }, updateRate);
               }
             }, 1);
           }

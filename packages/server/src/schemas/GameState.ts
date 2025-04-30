@@ -20,6 +20,9 @@ export class BaseTile extends Schema {
 export class Explosion extends BaseTile {
   @type("uint8")
   damage = 1;
+
+  @type("uint16")
+  lingerMs = 500;
 }
 
 export class Player extends BaseTile {

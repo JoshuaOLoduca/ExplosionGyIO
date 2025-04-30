@@ -46,6 +46,7 @@ export class Game extends Scene {
       }
 
       const dataKey = tileId + "bomb";
+      const keysToDestroy: string[] = [];
       const updateBombState = () => {
         const { bomb } = tile;
         if (bomb && !this.data.has(dataKey)) {
@@ -75,17 +76,31 @@ export class Game extends Scene {
           });
 
           $(bomb.explosions).onAdd((item) => {
-            console.log(item);
-            this.add
-              .sprite(item.x, item.y, "gameSprites", item.imageId)
-              .setAngle(item.angle)
-              .setScale(tile.scale || 1)
-              // .setAlpha(0.9)
-              .setInteractive();
+            const bombExplosionKey = (Math.random() * 1000000).toFixed(4);
+            if (!this.data.has(bombExplosionKey)) {
+              keysToDestroy.push(bombExplosionKey);
+
+              this.data.set(
+                bombExplosionKey,
+                this.add
+                  .sprite(item.x, item.y, "gameSprites", item.imageId)
+                  .setAngle(item.angle)
+                  .setScale(tile.scale || 1)
+                  // .setAlpha(0.9)
+                  .setInteractive()
+              );
+            }
           });
 
           this.data.set(dataKey, spriteToAdd);
         } else if (!bomb && this.data.has(dataKey)) {
+          // console.log(this.data.get(dataKey));
+          keysToDestroy.forEach((bombExpKey) => {
+            if (this.data.has(bombExpKey)) {
+              this.data.get(bombExpKey)?.destroy();
+              this.data.remove(bombExpKey);
+            }
+          });
           this.data.get(dataKey).destroy();
           this.data.remove(dataKey);
         }
