@@ -1,4 +1,4 @@
-import { Schema, type, MapSchema } from "@colyseus/schema";
+import { Schema, type, MapSchema, ArraySchema } from "@colyseus/schema";
 
 export class BaseTile extends Schema {
   @type("number")
@@ -75,7 +75,7 @@ export class Bomb extends BaseTile {
   fuse = 10;
 
   @type({ array: Explosion })
-  explosions: Explosion[] = [];
+  explosions = new ArraySchema<Explosion>();
 
   @type(Player)
   owner?: Player = undefined;

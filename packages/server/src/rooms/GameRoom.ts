@@ -345,7 +345,7 @@ export class GameRoom extends Room<GameState> {
         //    Damage Collision
         // /////////////////////////
         const explosionTiles = Array.from(this.BOMBS).flatMap((bomb) =>
-          Array.from(bomb.explosions)
+          bomb.explosions.toArray()
         );
         if (explosionTiles.length) {
           debugger;
