@@ -185,7 +185,7 @@ export class GameRoom extends Room<GameState> {
                   bottomExplosion,
                   leftExplosion,
                 ]) {
-                  if (bombExplosionArr.length >= 2) {
+                  if (bombExplosionArr.length >= 1) {
                     bombExplosionArr.at(-1)!.imageId = "bomb_explosion_2";
                   }
                 }
