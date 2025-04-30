@@ -197,14 +197,50 @@ export class GameRoom extends Room<GameState> {
                   }
 
                   switch (bombExplosionArr) {
+                    case bottomExplosion:
+                      bottomExplosion.forEach((bomb) => {
+                        if (
+                          Math.random() > 0.5 &&
+                          bomb === bottomExplosion.at(-1)
+                        ) {
+                          bomb.imageId = "bomb_extended_explosion_1";
+                          bomb.angle = -90;
+                        } else bomb.angle = 0;
+                      });
+                      break;
                     case rightExplosion:
-                      rightExplosion.forEach((bomb) => (bomb.angle = -90));
+                      rightExplosion.forEach((bomb) => {
+                        if (
+                          Math.random() > 0.5 &&
+                          bomb === rightExplosion.at(-1)
+                        ) {
+                          bomb.imageId = "bomb_extended_explosion_1";
+                          bomb.angle = 180;
+                        } else bomb.angle = -90;
+                      });
                       break;
                     case topExplosion:
-                      topExplosion.forEach((bomb) => (bomb.angle = -180));
+                      topExplosion.forEach((bomb) => {
+                        if (
+                          Math.random() > 0.5 &&
+                          bomb === topExplosion.at(-1)
+                        ) {
+                          bomb.imageId = "bomb_extended_explosion_1";
+                          bomb.angle = 90;
+                        } else bomb.angle = -180;
+                      });
+
                       break;
                     case leftExplosion:
-                      leftExplosion.forEach((bomb) => (bomb.angle = 90));
+                      leftExplosion.forEach((bomb) => {
+                        if (
+                          Math.random() > 0.5 &&
+                          bomb === leftExplosion.at(-1)
+                        ) {
+                          bomb.imageId = "bomb_extended_explosion_1";
+                          bomb.angle = 0;
+                        } else bomb.angle = 90;
+                      });
                       break;
                   }
                 }
