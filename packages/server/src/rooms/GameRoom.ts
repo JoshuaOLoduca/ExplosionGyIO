@@ -114,6 +114,8 @@ export class GameRoom extends Room<GameState> {
             // For collision tracking
             this.BOMBS.add(bomb);
 
+            // TODO: use date object for more reliable time change
+            // SetInterval can be off by some u/n seconds due to the scheduler being busy.
             const bombFuse = setInterval(() => {
               bomb.fuse -= 1;
               if (bomb.fuse <= 0) {
