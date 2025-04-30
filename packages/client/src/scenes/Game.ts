@@ -77,6 +77,18 @@ export class Game extends Scene {
 
           $(bomb.explosions).onAdd((item) => {
             const bombExplosionKey = (Math.random() * 1000000).toFixed(4);
+            if (item?.imageId.includes("core")) {
+              const originalLinger = item.lingerMs;
+              $(item).listen("lingerMs", (newLinger) => {
+                keysToDestroy.forEach((bombExplosionKey) => {
+                  const explosionSprite = this.data.get(bombExplosionKey);
+                  if (!explosionSprite) return;
+                  explosionSprite.setAlpha(
+                    Math.min(newLinger / originalLinger + 0.25, 1)
+                  );
+                });
+              });
+            }
             if (!this.data.has(bombExplosionKey)) {
               keysToDestroy.push(bombExplosionKey);
 
@@ -94,7 +106,6 @@ export class Game extends Scene {
 
           this.data.set(dataKey, spriteToAdd);
         } else if (!bomb && this.data.has(dataKey)) {
-          // console.log(this.data.get(dataKey));
           keysToDestroy.forEach((bombExpKey) => {
             if (this.data.has(bombExpKey)) {
               this.data.get(bombExpKey)?.destroy();
@@ -109,7 +120,6 @@ export class Game extends Scene {
       updateBombState();
 
       $(tile).onChange(() => {
-        // console.log(tile);
         updateBombState();
       });
     });
