@@ -119,7 +119,7 @@ export class GameRoom extends Room<GameState> {
             const bombFuse = setInterval(() => {
               bomb.fuse -= 1;
               if (bomb.fuse <= 0) {
-                const bombExplosionLength = 2;
+                const bombExplosionLength = 3;
                 const bombPower = 1;
                 // Top Left is 0,0
                 const leftExplosion = new Array(bombExplosionLength)
@@ -215,10 +215,6 @@ export class GameRoom extends Room<GameState> {
                       yToCheck
                     );
 
-                    if (!foundTile || (index - 1 !== 0 && arr[index - 1])) {
-                      arr[index - 1].imageId = "bomb_explosion_2";
-                    }
-
                     if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
                       return null;
                     }
@@ -231,6 +227,24 @@ export class GameRoom extends Room<GameState> {
                     return explosion;
                   })
                   .filter(Boolean);
+
+                console.log({
+                  topExplosion,
+                  rightExplosion,
+                  bottomExplosion,
+                  leftExplosion,
+                });
+
+                for (const bombExplosionArr of [
+                  topExplosion,
+                  rightExplosion,
+                  bottomExplosion,
+                  leftExplosion,
+                ]) {
+                  if (bombExplosionArr.length >= 2) {
+                    bombExplosionArr.at(-1)!.imageId = "bomb_explosion_2";
+                  }
+                }
 
                 const bombs = [
                   ...topExplosion,
