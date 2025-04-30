@@ -1,5 +1,5 @@
 import { Client, Room } from "colyseus";
-import { Bomb, GameState, Player, Tile } from "../schemas/GameState";
+import { Bomb, Explosion, GameState, Player, Tile } from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
@@ -119,9 +119,132 @@ export class GameRoom extends Room<GameState> {
             const bombFuse = setInterval(() => {
               bomb.fuse -= 1;
               if (bomb.fuse <= 0) {
+                const bombExplosionLength = 2;
+                const bombPower = 1;
+                // Top Left is 0,0
+                const leftExplosion = new Array(bombExplosionLength)
+                  .fill(2)
+                  .map((_, index, arr) => {
+                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
+                    const multiplier = index + 1;
+                    const [xToCheck, yToCheck] = [
+                      bombTile.x - tileSize * multiplier,
+                      bombTile.y,
+                    ];
+                    const foundTile = getTileUnderCoord(
+                      arrOfGrassTiles,
+                      xToCheck,
+                      yToCheck
+                    );
+
+                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
+                      return null;
+                    }
+                    const explosion = new Explosion();
+                    explosion.x = foundTile.x;
+                    explosion.y = foundTile.y;
+                    explosion.imageId = "bomb_explosion_1";
+
+                    return explosion;
+                  })
+                  .filter(Boolean);
+                const topExplosion = new Array(bombExplosionLength)
+                  .fill(2)
+                  .map((_, index, arr) => {
+                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
+                    const multiplier = index + 1;
+                    const [xToCheck, yToCheck] = [
+                      bombTile.x,
+                      bombTile.y - tileSize * multiplier,
+                    ];
+                    const foundTile = getTileUnderCoord(
+                      arrOfGrassTiles,
+                      xToCheck,
+                      yToCheck
+                    );
+
+                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
+                      return null;
+                    }
+                    const explosion = new Explosion();
+                    explosion.x = foundTile.x;
+                    explosion.y = foundTile.y;
+                    explosion.imageId = "bomb_explosion_1";
+
+                    return explosion;
+                  })
+                  .filter(Boolean);
+                const rightExplosion = new Array(bombExplosionLength)
+                  .fill(2)
+                  .map((_, index, arr) => {
+                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
+                    const multiplier = index + 1;
+                    const [xToCheck, yToCheck] = [
+                      bombTile.x + tileSize * multiplier,
+                      bombTile.y,
+                    ];
+                    const foundTile = getTileUnderCoord(
+                      arrOfGrassTiles,
+                      xToCheck,
+                      yToCheck
+                    );
+
+                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
+                      return null;
+                    }
+                    const explosion = new Explosion();
+                    explosion.x = foundTile.x;
+                    explosion.y = foundTile.y;
+                    explosion.imageId = "bomb_explosion_1";
+
+                    return explosion;
+                  })
+                  .filter(Boolean);
+                const bottomExplosion = new Array(bombExplosionLength)
+                  .fill(2)
+                  .map((_, index, arr) => {
+                    const tileSize = (bombTile.scale || 1) * TILE_SIZE;
+                    const multiplier = index + 1;
+                    const [xToCheck, yToCheck] = [
+                      bombTile.x,
+                      bombTile.y + tileSize * multiplier,
+                    ];
+                    const foundTile = getTileUnderCoord(
+                      arrOfGrassTiles,
+                      xToCheck,
+                      yToCheck
+                    );
+
+                    if (!foundTile || (index - 1 !== 0 && arr[index - 1])) {
+                      arr[index - 1].imageId = "bomb_explosion_2";
+                    }
+
+                    if (!foundTile || (index - 1 !== 0 && !arr[index - 1])) {
+                      return null;
+                    }
+
+                    const explosion = new Explosion();
+                    explosion.x = foundTile.x;
+                    explosion.y = foundTile.y;
+                    explosion.imageId = "bomb_explosion_1";
+
+                    return explosion;
+                  })
+                  .filter(Boolean);
+
+                const bombs = [
+                  ...topExplosion,
+                  ...rightExplosion,
+                  ...bottomExplosion,
+                  ...leftExplosion,
+                ] as Explosion[];
+                bombs.forEach((bomb) => {
+                  if (bomb) bomb.damage = bombPower;
+                });
+                bomb.explosions.push(...bombs);
                 clearInterval(bombFuse);
-                bombTile.bomb = undefined;
-                this.BOMBS.delete(bomb);
+                // bombTile.bomb = undefined;
+                // this.BOMBS.delete(bomb);
               }
             }, 1);
           }

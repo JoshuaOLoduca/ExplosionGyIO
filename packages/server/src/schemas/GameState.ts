@@ -38,7 +38,7 @@ export class Bomb extends BaseTile {
   fuse = 10;
 
   @type({ array: Explosion })
-  explosions = [];
+  explosions: Explosion[] = [];
 
   @type(Player)
   owner?: Player = undefined;
