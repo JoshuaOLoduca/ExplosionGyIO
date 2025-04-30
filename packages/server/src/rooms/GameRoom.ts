@@ -11,7 +11,11 @@ import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
 } from "../utils/roomLayoutGenerator";
-import { checkCollision, getTileUnderCoord } from "../utils/physics";
+import {
+  checkCollision,
+  getTileUnderCoord,
+  isInsideTile,
+} from "../utils/physics";
 
 export const TILE_SIZE = 16;
 const BLOCKS_IN_WIDTH = 19;
@@ -373,9 +377,21 @@ export class GameRoom extends Room<GameState> {
           bomb.explosions.toArray()
         );
         if (explosionTiles.length) {
-          debugger;
-          const damaged = checkCollision(player.x, player.y, explosionTiles);
-          if (damaged) player.addDamage((damaged as Explosion)?.damage || 1);
+          const damaged =
+            checkCollision(
+              player.x,
+              player.y,
+              explosionTiles,
+              undefined,
+              true
+            ) ||
+            explosionTiles.find((expTile) =>
+              isInsideTile(player.x, player.y, expTile)
+            );
+
+          if (damaged instanceof Explosion && damaged.lingerMs > 0) {
+            player.addDamage(damaged.damage);
+          }
         }
       }
     );
