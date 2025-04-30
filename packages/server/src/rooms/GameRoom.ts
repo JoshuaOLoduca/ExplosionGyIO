@@ -1,5 +1,12 @@
 import { Client, Room } from "colyseus";
-import { Bomb, Explosion, GameState, Player, Tile } from "../schemas/GameState";
+import {
+  BaseTile,
+  Bomb,
+  Explosion,
+  GameState,
+  Player,
+  Tile,
+} from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
@@ -165,19 +172,19 @@ export class GameRoom extends Room<GameState> {
                 const leftExplosion = new Array(bombExplosionLength)
                   .fill(2)
                   .reduce(...thang((x, y, offset) => [x - offset, y]))
-                  .filter(Boolean);
+                  .filter(Boolean) as Explosion[];
                 const topExplosion = new Array(bombExplosionLength)
                   .fill(2)
                   .reduce(...thang((x, y, offset) => [x, y - offset]))
-                  .filter(Boolean);
+                  .filter(Boolean) as Explosion[];
                 const rightExplosion = new Array(bombExplosionLength)
                   .fill(2)
                   .reduce(...thang((x, y, offset) => [x + offset, y]))
-                  .filter(Boolean);
+                  .filter(Boolean) as Explosion[];
                 const bottomExplosion = new Array(bombExplosionLength)
                   .fill(2)
                   .reduce(...thang((x, y, offset) => [x, y + offset]))
-                  .filter(Boolean);
+                  .filter(Boolean) as Explosion[];
 
                 for (const bombExplosionArr of [
                   topExplosion,
@@ -191,13 +198,13 @@ export class GameRoom extends Room<GameState> {
 
                   switch (bombExplosionArr) {
                     case rightExplosion:
-                      rightExplosion.forEach((bomb: any) => (bomb.angle = -90));
+                      rightExplosion.forEach((bomb) => (bomb.angle = -90));
                       break;
                     case topExplosion:
-                      topExplosion.forEach((bomb: any) => (bomb.angle = -180));
+                      topExplosion.forEach((bomb) => (bomb.angle = -180));
                       break;
                     case leftExplosion:
-                      leftExplosion.forEach((bomb: any) => (bomb.angle = 90));
+                      leftExplosion.forEach((bomb) => (bomb.angle = 90));
                       break;
                   }
                 }
