@@ -121,7 +121,7 @@ export class GameRoom extends Room<GameState> {
             // For collision tracking
             this.BOMBS.add(bomb);
 
-            const thang = (
+            const reduceConstructorForExplosionPlacement = (
               coordsToCheck: (
                 x: number,
                 y: number,
@@ -130,7 +130,6 @@ export class GameRoom extends Room<GameState> {
             ) => {
               return [
                 (arr: (Explosion | null)[], _: unknown, index: number) => {
-                  debugger;
                   const tileSize = (bombTile.scale || 1) * TILE_SIZE;
                   const multiplier = index + 1;
                   const [xToCheck, yToCheck] = coordsToCheck(
@@ -171,19 +170,35 @@ export class GameRoom extends Room<GameState> {
                 // Top Left is 0,0
                 const leftExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .reduce(...thang((x, y, offset) => [x - offset, y]))
+                  .reduce(
+                    ...reduceConstructorForExplosionPlacement(
+                      (x, y, offset) => [x - offset, y]
+                    )
+                  )
                   .filter(Boolean) as Explosion[];
                 const topExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .reduce(...thang((x, y, offset) => [x, y - offset]))
+                  .reduce(
+                    ...reduceConstructorForExplosionPlacement(
+                      (x, y, offset) => [x, y - offset]
+                    )
+                  )
                   .filter(Boolean) as Explosion[];
                 const rightExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .reduce(...thang((x, y, offset) => [x + offset, y]))
+                  .reduce(
+                    ...reduceConstructorForExplosionPlacement(
+                      (x, y, offset) => [x + offset, y]
+                    )
+                  )
                   .filter(Boolean) as Explosion[];
                 const bottomExplosion = new Array(bombExplosionLength)
                   .fill(2)
-                  .reduce(...thang((x, y, offset) => [x, y + offset]))
+                  .reduce(
+                    ...reduceConstructorForExplosionPlacement(
+                      (x, y, offset) => [x, y + offset]
+                    )
+                  )
                   .filter(Boolean) as Explosion[];
 
                 for (const bombExplosionArr of [
