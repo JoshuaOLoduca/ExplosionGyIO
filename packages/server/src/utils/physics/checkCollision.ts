@@ -1,7 +1,7 @@
 import { BaseTile } from "../../schemas/GameState";
 import { getTileCollision } from "./getTileCollision";
 
-export function willCollide(
+export function checkCollision(
   x: number,
   y: number,
   tiles: BaseTile[],

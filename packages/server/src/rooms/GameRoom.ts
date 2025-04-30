@@ -4,7 +4,7 @@ import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
 } from "../utils/roomLayoutGenerator";
-import { isInsideTile, willCollide, getTileUnderCoord } from "../utils/physics";
+import { checkCollision, getTileUnderCoord } from "../utils/physics";
 
 export const TILE_SIZE = 16;
 const BLOCKS_IN_WIDTH = 19;
@@ -137,7 +137,7 @@ export class GameRoom extends Room<GameState> {
         // disable diagnal input if it would collide.
         // this retains full speed if user is walking into a wall.
         // W
-        const topCollide = willCollide(
+        const topCollide = checkCollision(
           player.x,
           player.y - movementDelta,
           tileCollisionList,
@@ -148,7 +148,7 @@ export class GameRoom extends Room<GameState> {
           message.up = false;
         }
         // A
-        const leftCollide = willCollide(
+        const leftCollide = checkCollision(
           player.x - movementDelta,
           player.y,
           tileCollisionList,
@@ -159,7 +159,7 @@ export class GameRoom extends Room<GameState> {
           message.left = false;
         }
         // S
-        const downCollide = willCollide(
+        const downCollide = checkCollision(
           player.x,
           player.y + movementDelta,
           tileCollisionList,
@@ -170,7 +170,7 @@ export class GameRoom extends Room<GameState> {
           message.down = false;
         }
         // D
-        const rightCollide = willCollide(
+        const rightCollide = checkCollision(
           player.x + movementDelta,
           player.y,
           tileCollisionList,
