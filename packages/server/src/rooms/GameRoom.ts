@@ -145,7 +145,7 @@ export class GameRoom extends Room<GameState> {
                   const explosion = new Explosion();
                   explosion.x = foundTile.x;
                   explosion.y = foundTile.y;
-                  explosion.imageId = "bomb_explosion_1";
+                  explosion.imageId = "explosion_2";
                   arr.push(explosion);
 
                   return arr;
@@ -186,7 +186,19 @@ export class GameRoom extends Room<GameState> {
                   leftExplosion,
                 ]) {
                   if (bombExplosionArr.length >= 1) {
-                    bombExplosionArr.at(-1)!.imageId = "bomb_explosion_2";
+                    bombExplosionArr.at(-1)!.imageId = "explosion_3";
+                  }
+
+                  switch (bombExplosionArr) {
+                    case rightExplosion:
+                      rightExplosion.forEach((bomb: any) => (bomb.angle = -90));
+                      break;
+                    case topExplosion:
+                      topExplosion.forEach((bomb: any) => (bomb.angle = -180));
+                      break;
+                    case leftExplosion:
+                      leftExplosion.forEach((bomb: any) => (bomb.angle = 90));
+                      break;
                   }
                 }
 

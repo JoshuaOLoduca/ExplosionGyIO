@@ -12,6 +12,9 @@ export class BaseTile extends Schema {
 
   @type("string")
   imageId = "";
+
+  @type("int16")
+  angle = 0;
 }
 
 export class Explosion extends BaseTile {

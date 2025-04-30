@@ -78,7 +78,8 @@ export class Game extends Scene {
             console.log(item);
             this.add
               .sprite(item.x, item.y, "gameSprites", item.imageId)
-              .setScale(bomb.scale || 1)
+              .setAngle(item.angle)
+              .setScale(tile.scale || 1)
               .setInteractive();
           });
 
