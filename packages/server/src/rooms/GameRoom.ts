@@ -133,14 +133,10 @@ export class GameRoom extends Room<GameState> {
           player.x,
           player.y
         );
-        const playerInsideCollisionTile =
-          !!tileUnderPlayer &&
-          isInsideTile(player.x, player.y, tileUnderPlayer);
-
+        const insideOfTile = tileUnderPlayer?.bomb;
         // disable diagnal input if it would collide.
         // this retains full speed if user is walking into a wall.
         // W
-
         const topCollide = willCollide(
           player.x,
           player.y - movementDelta,
@@ -148,7 +144,7 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (topCollide && topCollide !== tileUnderPlayer?.bomb) {
+        if (topCollide && topCollide !== insideOfTile) {
           message.up = false;
         }
         // A
@@ -159,8 +155,9 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (leftCollide && leftCollide !== tileUnderPlayer?.bomb)
+        if (leftCollide && leftCollide !== insideOfTile) {
           message.left = false;
+        }
         // S
         const downCollide = willCollide(
           player.x,
@@ -169,8 +166,9 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (downCollide && downCollide !== tileUnderPlayer?.bomb)
+        if (downCollide && downCollide !== insideOfTile) {
           message.down = false;
+        }
         // D
         const rightCollide = willCollide(
           player.x + movementDelta,
@@ -179,7 +177,7 @@ export class GameRoom extends Room<GameState> {
           undefined,
           true
         );
-        if (rightCollide && rightCollide !== tileUnderPlayer?.bomb)
+        if (rightCollide && rightCollide !== insideOfTile)
           message.right = false;
 
         // Normalize input
