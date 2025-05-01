@@ -74,6 +74,22 @@ export class GameRoom extends Room<GameState> {
       this.COLLISION_TILES.includes(tile.imageId)
     );
 
+    const fixedTimeStep = 1000 / 60;
+
+    let elapsedTime = 0;
+    this.setSimulationInterval((deltaTime) => {
+      elapsedTime += deltaTime;
+      while (elapsedTime >= fixedTimeStep) {
+        elapsedTime -= fixedTimeStep;
+        this.fixedTick(
+          deltaTime,
+          arrOfGrassTiles,
+          tileCollisionListPrimary,
+          options
+        );
+      }
+    });
+
     this.onMessage(
       0,
       (
@@ -94,6 +110,7 @@ export class GameRoom extends Room<GameState> {
   }
 
   fixedTick(
+    deltaTime: number,
     arrOfGrassTiles: BaseTile[],
     tileCollisionListPrimary: BaseTile[],
     options: tGameOptions
