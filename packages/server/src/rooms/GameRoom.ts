@@ -93,8 +93,10 @@ export class GameRoom extends Room<GameState> {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
 
+        const bombTileList = Array.from(this.BOMBS);
+
         const tileCollisionList = Array.from(tileCollisionListPrimary).concat(
-          Array.from(this.BOMBS).filter((bomb) => !!bomb.fuse)
+          bombTileList.filter((bomb) => !!bomb.fuse)
         );
 
         // ////////////////////////////////////
@@ -152,7 +154,7 @@ export class GameRoom extends Room<GameState> {
                     return arr;
                   }
 
-                  const explosion = new Explosion();
+                  const explosion = new Explosion(bomb);
                   explosion.x = foundTile.x;
                   explosion.y = foundTile.y;
                   explosion.imageId = "explosion_2";
@@ -263,7 +265,7 @@ export class GameRoom extends Room<GameState> {
                       break;
                   }
                 }
-                const centerExplosion = new Explosion();
+                const centerExplosion = new Explosion(bomb);
                 centerExplosion.x = bombTile.x;
                 centerExplosion.y = bombTile.y;
                 centerExplosion.scale = bombTile.scale || 1;
@@ -377,6 +379,9 @@ export class GameRoom extends Room<GameState> {
           bomb.explosions.toArray()
         );
         if (explosionTiles.length) {
+          // //////////////////////
+          //     Player Damage
+          // //////////////////////
           const damaged =
             checkCollision(
               player.x,
@@ -392,6 +397,31 @@ export class GameRoom extends Room<GameState> {
           if (damaged instanceof Explosion && damaged.lingerMs > 0) {
             player.addDamage(damaged.damage);
           }
+
+          // //////////////////////
+          //     Damage To Bombs
+          // //////////////////////
+          const bombsWithLifeAndHit = bombTileList
+            .map(
+              (bomb) =>
+                [
+                  bomb,
+                  explosionTiles.find(
+                    (explTile) =>
+                      explTile.parent?.id !== bomb.id &&
+                      isInsideTile(bomb.x, bomb.y, explTile)
+                  )!,
+                ] as const
+            )
+            .filter(([bomb, explTile]) => bomb.fuse && explTile);
+          bombsWithLifeAndHit.forEach(([bomb, explod]) => {
+            if (!bomb.data.has(explod.id)) {
+              bomb.data.set(explod.id, true);
+              bomb.fuse = +Math.max(bomb.fuse - explod.damage * 750, 1).toFixed(
+                0
+              );
+            }
+          });
         }
       }
     );
