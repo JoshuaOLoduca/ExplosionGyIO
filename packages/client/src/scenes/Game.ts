@@ -134,7 +134,7 @@ export class Game extends Scene {
     renderPlayerMovement.call(this);
   }
   elapsedTime = 0;
-  fixedTimeStep = 1000 / 60;
+  fixedTimeStep = 1000 / (60 * 2);
   update(time: number, delta: number): void {
     // skip loop if not connected yet.
     if (!this.room) {

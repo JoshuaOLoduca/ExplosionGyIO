@@ -46,6 +46,8 @@ export class GameRoom extends Room<GameState> {
   ];
   BOMBS = new Set<Bomb>();
 
+  lastUpdate = Date.now();
+
   onCreate(options: tGameOptions): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
 
@@ -115,6 +117,7 @@ export class GameRoom extends Room<GameState> {
     tileCollisionListPrimary: BaseTile[],
     options: tGameOptions
   ) {
+    this.lastUpdate = Date.now();
     const bombTileList = Array.from(this.BOMBS);
 
     const tileCollisionList = Array.from(tileCollisionListPrimary).concat(
@@ -133,7 +136,22 @@ export class GameRoom extends Room<GameState> {
       .flatMap((player) => {
         const container: [Player, (typeof Player.prototype.inputQueue)[0]][] =
           [];
-        const input = player.inputQueue.shift();
+        const oldestInput = player.inputQueue.at(0);
+        if (!oldestInput || oldestInput[0] > this.lastUpdate) return container;
+
+        let input = player.inputQueue.shift();
+        let input2 = input;
+        while (
+          input &&
+          input?.[0] <= this.lastUpdate &&
+          player.inputQueue.length
+        ) {
+          const nextInput = player.inputQueue.at(0);
+          if (!nextInput) break;
+          if (nextInput[0] <= this.lastUpdate) {
+            [input, input2] = [player.inputQueue.shift(), input];
+          }
+        }
         if (input) container.push([player, input]);
 
         return container;
