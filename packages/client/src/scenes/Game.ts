@@ -111,7 +111,7 @@ export class Game extends Scene {
     }
   }
 
-  update(time: number, delta: number): void {
+  fixedTick(time: number, delta: number) {
     if (!this.room) return;
     if (DEBUG) {
       this.data
@@ -132,6 +132,20 @@ export class Game extends Scene {
     //   Render Player Movement
     // //////////////////////////
     renderPlayerMovement.call(this);
+  }
+  elapsedTime = 0;
+  fixedTimeStep = 1000 / (60 * 1);
+  update(time: number, delta: number): void {
+    // skip loop if not connected yet.
+    if (!this.room) {
+      return;
+    }
+
+    this.elapsedTime += delta;
+    while (this.elapsedTime >= this.fixedTimeStep) {
+      this.elapsedTime -= this.fixedTimeStep;
+      this.fixedTick(time, this.fixedTimeStep);
+    }
   }
 
   async connect() {
