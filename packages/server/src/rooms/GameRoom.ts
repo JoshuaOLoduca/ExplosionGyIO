@@ -139,20 +139,23 @@ export class GameRoom extends Room<GameState> {
         const oldestInput = player.inputQueue.at(0);
         if (!oldestInput || oldestInput[0] > this.lastUpdate) return container;
 
-        let input = player.inputQueue.shift();
-        let input2 = input;
-        while (
-          input &&
-          input?.[0] <= this.lastUpdate &&
-          player.inputQueue.length
-        ) {
-          const nextInput = player.inputQueue.at(0);
-          if (!nextInput) break;
-          if (nextInput[0] <= this.lastUpdate) {
-            [input, input2] = [player.inputQueue.shift(), input];
+        /**
+         * Will use the current length to check the array, and shift is an o(n) operation.
+         */
+        let toRemove = 0;
+        const input = player.inputQueue.find((currentInput, index, arr) => {
+          if (
+            currentInput[0] <= this.lastUpdate &&
+            (!arr[index + 1] || arr[index + 1][0] > this.lastUpdate)
+          ) {
+            toRemove = index;
+            return true;
           }
-        }
+          return false;
+        });
+
         if (input) container.push([player, input]);
+        if (toRemove) player.inputQueue.splice(0, toRemove + 1);
 
         return container;
       })
