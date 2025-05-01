@@ -128,11 +128,18 @@ export class GameRoom extends Room<GameState> {
     //  They will be.
     // ////////////////////////////////////
 
-    const allMessagesInOrder = (
-      Array.from(this.state.players.values()).flatMap((player) =>
-        player.inputQueue.map((iq) => [player, iq])
-      ) as any as [Player, (typeof Player.prototype.inputQueue)[0]][]
-    ).sort(([_, [timeA]], [__, [timeB]]) => timeA - timeB);
+    // Process inputs on order we recieved it
+    const allMessagesInOrder = Array.from(this.state.players.values())
+      .flatMap((player) => {
+        const container: [Player, (typeof Player.prototype.inputQueue)[0]][] =
+          [];
+        let input;
+        while ((input = player.inputQueue.shift())) {
+          container.push([player, input]);
+        }
+        return container;
+      })
+      .sort(([_, [timeA]], [__, [timeB]]) => timeA - timeB);
 
     allMessagesInOrder.forEach(([player, [_, message]]) => {
       if (message.placeBomb) {
