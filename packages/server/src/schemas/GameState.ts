@@ -38,6 +38,17 @@ export class Explosion extends BaseTile {
 }
 
 export class Player extends BaseTile {
+  inputQueue: [
+    time: number,
+    message: {
+      up: boolean;
+      left: boolean;
+      down: boolean;
+      right: boolean;
+      placeBomb: boolean;
+    }
+  ][] = [];
+
   @type("string")
   sprite = "p";
 

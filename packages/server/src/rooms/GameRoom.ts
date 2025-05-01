@@ -1,5 +1,5 @@
 import { Client, Room } from "colyseus";
-import { Bomb, GameState, Player, Tile } from "../schemas/GameState";
+import { BaseTile, Bomb, GameState, Player, Tile } from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
@@ -25,6 +25,11 @@ function getImageId(tile: tRoomTile) {
   }
 }
 
+type tGameOptions = {
+  screenWidth: number;
+  screenHeight: number;
+};
+
 export class GameRoom extends Room<GameState> {
   state = new GameState();
   maxClients = 25; // Current Discord limit is 25
@@ -41,10 +46,7 @@ export class GameRoom extends Room<GameState> {
   ];
   BOMBS = new Set<Bomb>();
 
-  onCreate(options: {
-    screenWidth: number;
-    screenHeight: number;
-  }): void | Promise<any> {
+  onCreate(options: tGameOptions): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
 
     this.initialMap = roomLayoutGenerator(11, 19, 0.1);
@@ -86,54 +88,69 @@ export class GameRoom extends Room<GameState> {
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
-
-        const bombTileList = Array.from(this.BOMBS);
-
-        const tileCollisionList = Array.from(tileCollisionListPrimary).concat(
-          bombTileList.filter((bomb) => !!bomb.fuse)
-        );
-
-        // ////////////////////////////////////
-        //           BOMB
-        //  before movement so it places the
-        //  bomb where the user IS, not where
-        //  They will be.
-        // ////////////////////////////////////
-
-        if (message.placeBomb) {
-          manageBombPlacement.call(this, arrOfGrassTiles, player);
-        }
-
-        // ///////////////////////////
-        //         MOVEMENT
-        // ///////////////////////////
-        managePlayerMovement(
-          options,
-          arrOfGrassTiles,
-          player,
-          tileCollisionList,
-          message
-        );
-
-        // /////////////////////////
-        //    Damage Collision
-        // /////////////////////////
-        const explosionTiles = Array.from(this.BOMBS).flatMap((bomb) =>
-          bomb.explosions.toArray()
-        );
-        if (explosionTiles.length) {
-          // //////////////////////
-          //     Player Damage
-          // //////////////////////
-          manageDamageToPlayers(player, explosionTiles);
-
-          // //////////////////////
-          //     Damage To Bombs
-          // //////////////////////
-          manageBombDamageToBomb(bombTileList, explosionTiles);
-        }
+        player.inputQueue.push([Date.now(), message]);
       }
     );
+  }
+
+  fixedTick(
+    arrOfGrassTiles: BaseTile[],
+    tileCollisionListPrimary: BaseTile[],
+    options: tGameOptions
+  ) {
+    const bombTileList = Array.from(this.BOMBS);
+
+    const tileCollisionList = Array.from(tileCollisionListPrimary).concat(
+      bombTileList.filter((bomb) => !!bomb.fuse)
+    );
+
+    // ////////////////////////////////////
+    //           BOMB
+    //  before movement so it places the
+    //  bomb where the user IS, not where
+    //  They will be.
+    // ////////////////////////////////////
+
+    const allMessagesInOrder = (
+      Array.from(this.state.players.values()).flatMap((player) =>
+        player.inputQueue.map((iq) => [player, iq])
+      ) as any as [Player, (typeof Player.prototype.inputQueue)[0]][]
+    ).sort(([_, [timeA]], [__, [timeB]]) => timeA - timeB);
+
+    allMessagesInOrder.forEach(([player, [_, message]]) => {
+      if (message.placeBomb) {
+        manageBombPlacement.call(this, arrOfGrassTiles, player);
+      }
+
+      // ///////////////////////////
+      //         MOVEMENT
+      // ///////////////////////////
+      managePlayerMovement(
+        options,
+        arrOfGrassTiles,
+        player,
+        tileCollisionList,
+        message
+      );
+
+      // /////////////////////////
+      //    Damage Collision
+      // /////////////////////////
+      const explosionTiles = Array.from(this.BOMBS).flatMap((bomb) =>
+        bomb.explosions.toArray()
+      );
+      if (explosionTiles.length) {
+        // //////////////////////
+        //     Player Damage
+        // //////////////////////
+        manageDamageToPlayers(player, explosionTiles);
+
+        // //////////////////////
+        //     Damage To Bombs
+        // //////////////////////
+        manageBombDamageToBomb(bombTileList, explosionTiles);
+      }
+    });
   }
 
   onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
