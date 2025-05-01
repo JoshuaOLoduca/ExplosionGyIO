@@ -1,24 +1,18 @@
 import { Client, Room } from "colyseus";
-import {
-  BaseTile,
-  Bomb,
-  Explosion,
-  GameState,
-  Player,
-  Tile,
-} from "../schemas/GameState";
+import { Bomb, GameState, Player, Tile } from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
 } from "../utils/roomLayoutGenerator";
 import {
-  checkCollision,
-  getTileUnderCoord,
-  isInsideTile,
-} from "../utils/physics";
+  manageBombDamageToBomb,
+  manageDamageToPlayers,
+  managePlayerMovement,
+  manageBombPlacement,
+} from "../utils/gameManagement";
 
 export const TILE_SIZE = 16;
-const BLOCKS_IN_WIDTH = 19;
+export const BLOCKS_IN_WIDTH = 19;
 
 function getImageId(tile: tRoomTile) {
   switch (tile) {
@@ -107,270 +101,19 @@ export class GameRoom extends Room<GameState> {
         // ////////////////////////////////////
 
         if (message.placeBomb) {
-          const bombTile = getTileUnderCoord(
-            arrOfGrassTiles,
-            player.x,
-            player.y
-          );
-          if (bombTile && !bombTile.bomb) {
-            const bomb = new Bomb();
-            bomb.owner = player;
-            bomb.imageId = "bomb_big_1";
-
-            bomb.x = bombTile.x;
-            bomb.y = bombTile.y;
-            bomb.fuse = 1000 * 2;
-            bomb.scale = (bombTile.scale || 2) / 2;
-
-            bombTile.bomb = bomb;
-
-            // For collision tracking
-            this.BOMBS.add(bomb);
-
-            const reduceConstructorForExplosionPlacement = (
-              coordsToCheck: (
-                x: number,
-                y: number,
-                offset: number
-              ) => [x: number, y: number]
-            ) => {
-              return [
-                (arr: (Explosion | null)[], _: unknown, index: number) => {
-                  const tileSize = (bombTile.scale || 1) * TILE_SIZE;
-                  const multiplier = index + 1;
-                  const [xToCheck, yToCheck] = coordsToCheck(
-                    bombTile.x,
-                    bombTile.y,
-                    tileSize * multiplier
-                  );
-                  const foundTile = getTileUnderCoord(
-                    arrOfGrassTiles,
-                    xToCheck,
-                    yToCheck
-                  );
-
-                  if (!foundTile || arr[index - 1] === null) {
-                    arr.push(null);
-                    return arr;
-                  }
-
-                  const explosion = new Explosion(bomb);
-                  explosion.x = foundTile.x;
-                  explosion.y = foundTile.y;
-                  explosion.imageId = "explosion_2";
-                  arr.push(explosion);
-
-                  return arr;
-                },
-                [],
-              ] as const;
-            };
-
-            // TODO: use date object for more reliable time change
-            // SetInterval can be off by some u/n seconds due to the scheduler being busy.
-            const bombFuse = setInterval(() => {
-              bomb.fuse -= 1;
-              if (bomb.fuse <= 0) {
-                const bombExplosionLength = 2;
-                const bombPower = 1;
-                // Top Left is 0,0
-                const leftExplosion = new Array(bombExplosionLength)
-                  .fill(2)
-                  .reduce(
-                    ...reduceConstructorForExplosionPlacement(
-                      (x, y, offset) => [x - offset, y]
-                    )
-                  )
-                  .filter(Boolean) as Explosion[];
-                const topExplosion = new Array(bombExplosionLength)
-                  .fill(2)
-                  .reduce(
-                    ...reduceConstructorForExplosionPlacement(
-                      (x, y, offset) => [x, y - offset]
-                    )
-                  )
-                  .filter(Boolean) as Explosion[];
-                const rightExplosion = new Array(bombExplosionLength)
-                  .fill(2)
-                  .reduce(
-                    ...reduceConstructorForExplosionPlacement(
-                      (x, y, offset) => [x + offset, y]
-                    )
-                  )
-                  .filter(Boolean) as Explosion[];
-                const bottomExplosion = new Array(bombExplosionLength)
-                  .fill(2)
-                  .reduce(
-                    ...reduceConstructorForExplosionPlacement(
-                      (x, y, offset) => [x, y + offset]
-                    )
-                  )
-                  .filter(Boolean) as Explosion[];
-
-                for (const bombExplosionArr of [
-                  topExplosion,
-                  rightExplosion,
-                  bottomExplosion,
-                  leftExplosion,
-                ]) {
-                  if (bombExplosionArr.length >= 1) {
-                    bombExplosionArr.at(-1)!.imageId = "explosion_3";
-                  }
-
-                  switch (bombExplosionArr) {
-                    case bottomExplosion:
-                      bottomExplosion.forEach((bomb) => {
-                        if (
-                          Math.random() > 0.5 &&
-                          bomb === bottomExplosion.at(-1)
-                        ) {
-                          bomb.imageId = "bomb_extended_explosion_1";
-                          bomb.angle = -90;
-                        } else bomb.angle = 0;
-                      });
-                      break;
-                    case rightExplosion:
-                      rightExplosion.forEach((bomb) => {
-                        if (
-                          Math.random() > 0.5 &&
-                          bomb === rightExplosion.at(-1)
-                        ) {
-                          bomb.imageId = "bomb_extended_explosion_1";
-                          bomb.angle = 180;
-                        } else bomb.angle = -90;
-                      });
-                      break;
-                    case topExplosion:
-                      topExplosion.forEach((bomb) => {
-                        if (
-                          Math.random() > 0.5 &&
-                          bomb === topExplosion.at(-1)
-                        ) {
-                          bomb.imageId = "bomb_extended_explosion_1";
-                          bomb.angle = 90;
-                        } else bomb.angle = -180;
-                      });
-
-                      break;
-                    case leftExplosion:
-                      leftExplosion.forEach((bomb) => {
-                        if (
-                          Math.random() > 0.5 &&
-                          bomb === leftExplosion.at(-1)
-                        ) {
-                          bomb.imageId = "bomb_extended_explosion_1";
-                          bomb.angle = 0;
-                        } else bomb.angle = 90;
-                      });
-                      break;
-                  }
-                }
-                const centerExplosion = new Explosion(bomb);
-                centerExplosion.x = bombTile.x;
-                centerExplosion.y = bombTile.y;
-                centerExplosion.scale = bombTile.scale || 1;
-                centerExplosion.imageId = "bomb_extended_explosion_core";
-
-                const bombs = [
-                  centerExplosion,
-                  ...topExplosion,
-                  ...rightExplosion,
-                  ...bottomExplosion,
-                  ...leftExplosion,
-                ] as Explosion[];
-                bombs.forEach((bomb) => {
-                  if (bomb) bomb.damage = bombPower;
-                });
-
-                bomb.explosions.push(...bombs);
-                clearInterval(bombFuse);
-
-                const updateRate = 25;
-
-                const bombExplosionLinger = setInterval(() => {
-                  centerExplosion.lingerMs -= updateRate;
-                  if (centerExplosion.lingerMs <= 0) {
-                    clearInterval(bombExplosionLinger);
-                    bomb.explosions.clear();
-                    bombTile.bomb = undefined;
-                    this.BOMBS.delete(bomb);
-                  }
-                }, updateRate);
-              }
-            }, 1);
-          }
+          manageBombPlacement.bind(this)(arrOfGrassTiles, player);
         }
 
         // ///////////////////////////
         //         MOVEMENT
         // ///////////////////////////
-        let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 15;
-
-        const tileUnderPlayer = getTileUnderCoord(
-          arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),
-          player.x,
-          player.y
-        );
-        const insideOfTile = tileUnderPlayer?.bomb;
-        // disable diagnal input if it would collide.
-        // this retains full speed if user is walking into a wall.
-        // W
-        const topCollide = checkCollision(
-          player.x,
-          player.y - movementDelta,
+        managePlayerMovement(
+          options,
+          arrOfGrassTiles,
+          player,
           tileCollisionList,
-          undefined,
-          true
+          message
         );
-        if (topCollide && topCollide !== insideOfTile) {
-          message.up = false;
-        }
-        // A
-        const leftCollide = checkCollision(
-          player.x - movementDelta,
-          player.y,
-          tileCollisionList,
-          undefined,
-          true
-        );
-        if (leftCollide && leftCollide !== insideOfTile) {
-          message.left = false;
-        }
-        // S
-        const downCollide = checkCollision(
-          player.x,
-          player.y + movementDelta,
-          tileCollisionList,
-          undefined,
-          true
-        );
-        if (downCollide && downCollide !== insideOfTile) {
-          message.down = false;
-        }
-        // D
-        const rightCollide = checkCollision(
-          player.x + movementDelta,
-          player.y,
-          tileCollisionList,
-          undefined,
-          true
-        );
-        if (rightCollide && rightCollide !== insideOfTile)
-          message.right = false;
-
-        // Normalize input
-        const MOVING_DIAGNAL =
-          (message.up || message.down) && (message.left || message.right);
-        if (MOVING_DIAGNAL) movementDelta = movementDelta / 2;
-
-        // W
-        if (message.up) player.y -= movementDelta;
-        // A
-        if (message.left) player.x -= movementDelta;
-        // S
-        if (message.down) player.y += movementDelta;
-        // D
-        if (message.right) player.x += movementDelta;
 
         // /////////////////////////
         //    Damage Collision
@@ -382,46 +125,12 @@ export class GameRoom extends Room<GameState> {
           // //////////////////////
           //     Player Damage
           // //////////////////////
-          const damaged =
-            checkCollision(
-              player.x,
-              player.y,
-              explosionTiles,
-              undefined,
-              true
-            ) ||
-            explosionTiles.find((expTile) =>
-              isInsideTile(player.x, player.y, expTile)
-            );
-
-          if (damaged instanceof Explosion && damaged.lingerMs > 0) {
-            player.addDamage(damaged.damage);
-          }
+          manageDamageToPlayers(player, explosionTiles);
 
           // //////////////////////
           //     Damage To Bombs
           // //////////////////////
-          const bombsWithLifeAndHit = bombTileList
-            .map(
-              (bomb) =>
-                [
-                  bomb,
-                  explosionTiles.find(
-                    (explTile) =>
-                      explTile.parent !== bomb &&
-                      isInsideTile(bomb.x, bomb.y, explTile)
-                  )!,
-                ] as const
-            )
-            .filter(([bomb, explTile]) => bomb.fuse && explTile);
-          bombsWithLifeAndHit.forEach(([bomb, explod]) => {
-            if (!bomb.data.has(explod.id)) {
-              bomb.data.set(explod.id, true);
-              bomb.fuse = +Math.max(bomb.fuse - explod.damage * 750, 1).toFixed(
-                0
-              );
-            }
-          });
+          manageBombDamageToBomb(bombTileList, explosionTiles);
         }
       }
     );
