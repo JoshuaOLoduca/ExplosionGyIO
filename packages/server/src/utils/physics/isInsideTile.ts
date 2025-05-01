@@ -17,7 +17,7 @@ export function isInsideTile(
   const rightWall = tile.x + tilePixelSizeFromCentre;
   const topWall = tile.y - tilePixelSizeFromCentre;
   const bottomWall = tile.y + tilePixelSizeFromCentre;
-  if (leftWall <= x && rightWall >= x) return true;
-  if (topWall <= y && bottomWall >= y) return true;
+  if (leftWall <= x && rightWall >= x && topWall <= y && bottomWall >= y)
+    return true;
   return false;
 }
