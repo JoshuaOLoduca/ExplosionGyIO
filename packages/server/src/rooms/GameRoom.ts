@@ -408,7 +408,7 @@ export class GameRoom extends Room<GameState> {
                   bomb,
                   explosionTiles.find(
                     (explTile) =>
-                      explTile.parent?.id !== bomb.id &&
+                      explTile.parent !== bomb &&
                       isInsideTile(bomb.x, bomb.y, explTile)
                   )!,
                 ] as const
