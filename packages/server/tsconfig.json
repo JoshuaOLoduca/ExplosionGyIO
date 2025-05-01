@@ -9,6 +9,7 @@
       "forceConsistentCasingInFileNames": true,
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
+      "sourceMap": true
 
     },
     "include": ["src/**/*.ts", "./environment.d.ts"],

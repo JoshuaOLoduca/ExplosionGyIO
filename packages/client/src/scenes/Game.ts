@@ -13,6 +13,7 @@ export class Game extends Scene {
     left: false,
     down: false,
     right: false,
+    placeBomb: false,
   };
 
   constructor() {
@@ -27,22 +28,112 @@ export class Game extends Scene {
     const $ = getStateCallbacks(this.room);
     const colyseusRoom = this;
 
-    $(this.room.state).tiles.onAdd((draggable: any, tileId: string) => {
-      if (draggable.imageId === "crate") {
+    $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
+      if (tile.imageId === "crate") {
         const image = this.add
-          .sprite(draggable.x, draggable.y, "gameSprites", "grass")
+          .sprite(tile.x, tile.y, "gameSprites", "grass")
           .setInteractive();
-        image.setScale(draggable?.scale || 6.225);
+        image.setScale(tile?.scale || 6.225);
         const image2 = this.add
-          .sprite(draggable.x, draggable.y, "gameSprites", "crate")
+          .sprite(tile.x, tile.y, "gameSprites", "crate")
           .setInteractive();
-        image2.setScale((draggable?.scale || 6.225) * 0.95);
+        image2.setScale((tile?.scale || 6.225) * 0.95);
       } else {
         const image = this.add
-          .sprite(draggable.x, draggable.y, "gameSprites", draggable.imageId)
+          .sprite(tile.x, tile.y, "gameSprites", tile.imageId)
           .setInteractive();
-        image.setScale(draggable?.scale || 6.225);
+        image.setScale(tile?.scale || 6.225);
       }
+
+      const dataKey = tileId + "bomb";
+      const keysToDestroy: string[] = [];
+      const updateBombState = () => {
+        const { bomb } = tile;
+        // //////////////////////
+        //   Bomb replacement
+        // //////////////////////
+        if (this.data.get(dataKey) !== bomb) {
+          keysToDestroy.forEach((bombExpKey) => {
+            if (this.data.has(bombExpKey)) {
+              this.data.get(bombExpKey)?.destroy();
+              this.data.remove(bombExpKey);
+            }
+          });
+
+          this.data.get(dataKey)?.destroy();
+          this.data.remove(dataKey);
+        }
+
+        // ////////////////////////
+        //     Bomb Rendering
+        // ////////////////////////
+        if (
+          (bomb && !this.data.has(dataKey)) ||
+          this.data.get(dataKey) !== bomb
+        ) {
+          const spriteToAdd = this.add
+            .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
+            .setScale(bomb.scale || 6.225)
+            .setInteractive();
+
+          spriteToAdd.disableInteractive;
+
+          spriteToAdd.anims.create({
+            key: "bomb",
+            duration: bomb.fuse,
+            frames: this.anims.generateFrameNames("gameSprites", {
+              prefix: "bomb_big_",
+              start: 1,
+              end: 6,
+            }),
+          });
+          spriteToAdd.anims.play("bomb");
+
+          $(bomb).onChange(() => {
+            if (spriteToAdd.visible && bomb?.fuse <= 0) {
+              spriteToAdd.setVisible(false);
+              spriteToAdd.disableInteractive(true);
+            }
+          });
+
+          $(bomb.explosions).onAdd((item) => {
+            const bombExplosionKey = (Math.random() * 1000000).toFixed(4);
+            if (item?.imageId.includes("core")) {
+              const originalLinger = item.lingerMs;
+              $(item).listen("lingerMs", (newLinger) => {
+                keysToDestroy.forEach((bombExplosionKey) => {
+                  const explosionSprite = this.data.get(bombExplosionKey);
+                  if (!explosionSprite) return;
+                  explosionSprite.setAlpha(
+                    Math.min(newLinger / originalLinger + 0.25, 1)
+                  );
+                });
+              });
+            }
+            if (!this.data.has(bombExplosionKey)) {
+              keysToDestroy.push(bombExplosionKey);
+
+              this.data.set(
+                bombExplosionKey,
+                this.add
+                  .sprite(item.x, item.y, "gameSprites", item.imageId)
+                  .setAngle(item.angle)
+                  .setScale(tile.scale || 1)
+                  // .setAlpha(0.9)
+                  .setInteractive()
+              );
+            }
+          });
+
+          this.data.set(dataKey, spriteToAdd);
+        }
+      };
+
+      updateBombState();
+
+      $(tile).onChange(() => {
+        updateBombState();
+      });
     });
 
     $(this.room.state).players.onAdd((player, playerId) => {
@@ -75,21 +166,26 @@ export class Game extends Scene {
       )
       .setOrigin(0.5);
 
-    if (DEBUG)
-      this.data.set(
-        "DEBUG-mouse",
-        this.add
-          .text(
-            this.cameras.main.width * 0.5,
-            this.cameras.main.height * 0.05,
-            `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
-            {
-              font: "24px Arial",
-              color: "#000000",
-            }
-          )
-          .setOrigin(0.5)
-      );
+    if (DEBUG) {
+      setTimeout(() => {
+        this.data.set(
+          "DEBUG-mouse",
+          this.add
+            .text(
+              this.cameras.main.width * 0.5,
+              this.cameras.main.height * 0.05,
+              `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
+              {
+                font: "24px Arial",
+                color: "#000000",
+                strokeThickness: 14,
+                stroke: "#fff",
+              }
+            )
+            .setOrigin(0.5)
+        );
+      }, 1000 * 0.5);
+    }
   }
 
   update(time: number, delta: number): void {
@@ -115,6 +211,9 @@ export class Game extends Scene {
     ).isDown;
     this.inputPayload.right = !!this.input.keyboard?.addKey(
       Phaser.Input.Keyboard.KeyCodes.D
+    ).isDown;
+    this.inputPayload.placeBomb = !!this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
     ).isDown;
 
     this.room.send(0, this.inputPayload);
