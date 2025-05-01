@@ -101,7 +101,7 @@ export class GameRoom extends Room<GameState> {
         // ////////////////////////////////////
 
         if (message.placeBomb) {
-          manageBombPlacement.bind(this)(arrOfGrassTiles, player);
+          manageBombPlacement.call(this, arrOfGrassTiles, player);
         }
 
         // ///////////////////////////
