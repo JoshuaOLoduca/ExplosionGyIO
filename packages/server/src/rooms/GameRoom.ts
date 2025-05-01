@@ -133,10 +133,9 @@ export class GameRoom extends Room<GameState> {
       .flatMap((player) => {
         const container: [Player, (typeof Player.prototype.inputQueue)[0]][] =
           [];
-        let input;
-        while ((input = player.inputQueue.shift())) {
-          container.push([player, input]);
-        }
+        const input = player.inputQueue.shift();
+        if (input) container.push([player, input]);
+
         return container;
       })
       .sort(([_, [timeA]], [__, [timeB]]) => timeA - timeB);
