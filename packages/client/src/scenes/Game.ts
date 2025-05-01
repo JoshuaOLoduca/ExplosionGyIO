@@ -1,7 +1,7 @@
 import { Scene } from "phaser";
 import { Room, Client, getStateCallbacks } from "colyseus.js";
 import { getUserName } from "../utils/discordSDK";
-import { createBombUpdateCB } from "../utils/gameManagement";
+import { createBombUpdateCB, managePlayerInput } from "../utils/gameManagement";
 
 const DEBUG = true;
 
@@ -119,23 +119,10 @@ export class Game extends Scene {
         );
     }
 
-    this.inputPayload.up = !!this.input.keyboard?.addKey(
-      Phaser.Input.Keyboard.KeyCodes.W
-    ).isDown;
-    this.inputPayload.left = !!this.input.keyboard?.addKey(
-      Phaser.Input.Keyboard.KeyCodes.A
-    ).isDown;
-    this.inputPayload.down = !!this.input.keyboard?.addKey(
-      Phaser.Input.Keyboard.KeyCodes.S
-    ).isDown;
-    this.inputPayload.right = !!this.input.keyboard?.addKey(
-      Phaser.Input.Keyboard.KeyCodes.D
-    ).isDown;
-    this.inputPayload.placeBomb = !!this.input.keyboard?.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE
-    ).isDown;
-
-    this.room.send(0, this.inputPayload);
+    // //////////////////////////
+    //      Player Input
+    // //////////////////////////
+    managePlayerInput.call(this);
 
     for (let sessionId of this.sessionIds.values()) {
       // interpolate all player entities
