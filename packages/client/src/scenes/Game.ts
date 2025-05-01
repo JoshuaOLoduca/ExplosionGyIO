@@ -1,6 +1,7 @@
 import { Scene } from "phaser";
 import { Room, Client, getStateCallbacks } from "colyseus.js";
 import { getUserName } from "../utils/discordSDK";
+import { createBombUpdateCB } from "../utils/gameManagement";
 
 const DEBUG = true;
 
@@ -45,89 +46,7 @@ export class Game extends Scene {
         image.setScale(tile?.scale || 6.225);
       }
 
-      const dataKey = tileId + "bomb";
-      const keysToDestroy: string[] = [];
-      const updateBombState = () => {
-        const { bomb } = tile;
-        // //////////////////////
-        //   Bomb replacement
-        // //////////////////////
-        if (this.data.get(dataKey) !== bomb) {
-          keysToDestroy.forEach((bombExpKey) => {
-            if (this.data.has(bombExpKey)) {
-              this.data.get(bombExpKey)?.destroy();
-              this.data.remove(bombExpKey);
-            }
-          });
-
-          this.data.get(dataKey)?.destroy();
-          this.data.remove(dataKey);
-        }
-
-        // ////////////////////////
-        //     Bomb Rendering
-        // ////////////////////////
-        if (
-          (bomb && !this.data.has(dataKey)) ||
-          this.data.get(dataKey) !== bomb
-        ) {
-          const spriteToAdd = this.add
-            .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
-            .setScale(bomb.scale || 6.225)
-            .setInteractive();
-
-          spriteToAdd.disableInteractive;
-
-          spriteToAdd.anims.create({
-            key: "bomb",
-            duration: bomb.fuse,
-            frames: this.anims.generateFrameNames("gameSprites", {
-              prefix: "bomb_big_",
-              start: 1,
-              end: 6,
-            }),
-          });
-          spriteToAdd.anims.play("bomb");
-
-          $(bomb).onChange(() => {
-            if (spriteToAdd.visible && bomb?.fuse <= 0) {
-              spriteToAdd.setVisible(false);
-              spriteToAdd.disableInteractive(true);
-            }
-          });
-
-          $(bomb.explosions).onAdd((item) => {
-            const bombExplosionKey = (Math.random() * 1000000).toFixed(4);
-            if (item?.imageId.includes("core")) {
-              const originalLinger = item.lingerMs;
-              $(item).listen("lingerMs", (newLinger) => {
-                keysToDestroy.forEach((bombExplosionKey) => {
-                  const explosionSprite = this.data.get(bombExplosionKey);
-                  if (!explosionSprite) return;
-                  explosionSprite.setAlpha(
-                    Math.min(newLinger / originalLinger + 0.25, 1)
-                  );
-                });
-              });
-            }
-            if (!this.data.has(bombExplosionKey)) {
-              keysToDestroy.push(bombExplosionKey);
-
-              this.data.set(
-                bombExplosionKey,
-                this.add
-                  .sprite(item.x, item.y, "gameSprites", item.imageId)
-                  .setAngle(item.angle)
-                  .setScale(tile.scale || 1)
-                  // .setAlpha(0.9)
-                  .setInteractive()
-              );
-            }
-          });
-
-          this.data.set(dataKey, spriteToAdd);
-        }
-      };
+      const updateBombState = createBombUpdateCB.call(this, $, tile, tileId);
 
       updateBombState();
 
