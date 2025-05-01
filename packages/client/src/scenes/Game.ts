@@ -1,7 +1,11 @@
 import { Scene } from "phaser";
 import { Room, Client, getStateCallbacks } from "colyseus.js";
 import { getUserName } from "../utils/discordSDK";
-import { createBombUpdateCB, managePlayerInput } from "../utils/gameManagement";
+import {
+  renderPlayerMovement,
+  createBombUpdateCB,
+  managePlayerInput,
+} from "../utils/gameManagement";
 
 const DEBUG = true;
 
@@ -124,17 +128,10 @@ export class Game extends Scene {
     // //////////////////////////
     managePlayerInput.call(this);
 
-    for (let sessionId of this.sessionIds.values()) {
-      // interpolate all player entities
-      const entity = this.data.get(sessionId);
-      if (!entity) continue;
-      const { serverX, serverY } = entity.data.values;
-
-      if (serverX !== entity.serverX)
-        entity.x = Phaser.Math.Linear(entity.x, serverX, 0.2);
-      if (serverY !== entity.serverY)
-        entity.y = Phaser.Math.Linear(entity.y, serverY, 0.2);
-    }
+    // //////////////////////////
+    //   Render Player Movement
+    // //////////////////////////
+    renderPlayerMovement.call(this);
   }
 
   async connect() {
