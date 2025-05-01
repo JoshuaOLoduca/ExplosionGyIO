@@ -49,7 +49,28 @@ export class Game extends Scene {
       const keysToDestroy: string[] = [];
       const updateBombState = () => {
         const { bomb } = tile;
-        if (bomb && !this.data.has(dataKey)) {
+        // //////////////////////
+        //   Bomb replacement
+        // //////////////////////
+        if (this.data.get(dataKey) !== bomb) {
+          keysToDestroy.forEach((bombExpKey) => {
+            if (this.data.has(bombExpKey)) {
+              this.data.get(bombExpKey)?.destroy();
+              this.data.remove(bombExpKey);
+            }
+          });
+
+          this.data.get(dataKey)?.destroy();
+          this.data.remove(dataKey);
+        }
+
+        // ////////////////////////
+        //     Bomb Rendering
+        // ////////////////////////
+        if (
+          (bomb && !this.data.has(dataKey)) ||
+          this.data.get(dataKey) !== bomb
+        ) {
           const spriteToAdd = this.add
             .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
             .setScale(bomb.scale || 6.225)
@@ -105,15 +126,6 @@ export class Game extends Scene {
           });
 
           this.data.set(dataKey, spriteToAdd);
-        } else if (!bomb && this.data.has(dataKey)) {
-          keysToDestroy.forEach((bombExpKey) => {
-            if (this.data.has(bombExpKey)) {
-              this.data.get(bombExpKey)?.destroy();
-              this.data.remove(bombExpKey);
-            }
-          });
-          this.data.get(dataKey).destroy();
-          this.data.remove(dataKey);
         }
       };
 
