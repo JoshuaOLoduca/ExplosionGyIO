@@ -140,7 +140,8 @@ export class GameRoom extends Room<GameState> {
         if (!oldestInput || oldestInput[0] > this.lastUpdate) return container;
 
         /**
-         * Will use the current length to check the array, and shift is an o(n) operation.
+         * Will get the index of the found input, and then remove all those elements.
+         * This should be more performant that calling .shift multiple times.
          */
         let toRemove = 0;
         const input = player.inputQueue.find((currentInput, index, arr) => {
