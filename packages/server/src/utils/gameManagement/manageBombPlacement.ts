@@ -9,6 +9,14 @@ export function manageBombPlacement(
 ) {
   const bombTile = getTileUnderCoord(arrOfGrassTiles, player.x, player.y);
   if (bombTile && !bombTile.bomb) {
+    // ///////////////////////
+    //   Enforce Bomb Limit
+    // ///////////////////////
+    const bombsPlacedByPlayer = Array.from(this.BOMBS).filter(
+      (bomb) => bomb.fuse && bomb.owner === player
+    ).length;
+    if (bombsPlacedByPlayer >= player.powerups.get("bombCount")) return;
+
     const bomb = new Bomb();
     bomb.owner = player;
     bomb.imageId = "bomb_big_1";
