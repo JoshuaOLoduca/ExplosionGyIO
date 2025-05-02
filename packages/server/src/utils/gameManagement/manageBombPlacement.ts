@@ -67,8 +67,8 @@ export function manageBombPlacement(
     const bombFuse = setInterval(() => {
       bomb.fuse -= 1;
       if (bomb.fuse <= 0) {
-        const bombExplosionLength = 2;
-        const bombPower = 1;
+        const bombExplosionLength = player.powerups.get("bombSize");
+        const bombPower = player.powerups.get("bombDamage");
         // Top Left is 0,0
         const leftExplosion = new Array(bombExplosionLength)
           .fill(2)

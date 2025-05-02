@@ -45,7 +45,7 @@ type tUserInput = {
   placeBomb: boolean;
 };
 
-const powerUpTypes = ["speed", "bombSize", "bombs", "strength"] as const;
+const powerUpTypes = ["speed", "bombSize", "bombCount", "bombDamage"] as const;
 
 type tPowerUps = (typeof powerUpTypes)[number];
 
