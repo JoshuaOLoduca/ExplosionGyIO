@@ -45,6 +45,19 @@ type tUserInput = {
   placeBomb: boolean;
 };
 
+const powerUpTypes = ["speed", "bombSize", "bombs", "strength"] as const;
+
+type tPowerUps = (typeof powerUpTypes)[number];
+
+class PowerUp extends BaseTile {
+  constructor(type: tPowerUps, parent?: BaseTile) {
+    super(parent);
+    this.type = type;
+  }
+
+  type: tPowerUps;
+}
+
 export type tUserInputQueue = [time: number, message: tUserInput];
 
 export class Player extends BaseTile {
@@ -53,6 +66,39 @@ export class Player extends BaseTile {
     []
   );
   private _lastInputQueueIndex = 0;
+  private _powerUps = new Map<tPowerUps, number>();
+
+  constructor() {
+    super();
+    powerUpTypes.forEach((powerUp) => this._powerUps.set(powerUp, 1));
+  }
+
+  powerups = {
+    change: (powerup: tPowerUps, changeAmount: number) => {
+      this._powerUps.set(powerup, this.powerups.get(powerup) + changeAmount);
+      return true;
+    },
+    set: (powerup: tPowerUps, newValue: number) => {
+      this._powerUps.set(powerup, newValue);
+      return true;
+    },
+    get: (powerup: tPowerUps) => {
+      return this._powerUps.get(powerup) || 0;
+    },
+    debuff: (powerup: tPowerUps, debuffLengthMs: number) => {
+      if (
+        !Number.isFinite(debuffLengthMs) ||
+        !Number.isSafeInteger(debuffLengthMs)
+      ) {
+        debuffLengthMs = 1000 * 3;
+      }
+      const currentPowerValue = this.powerups.get(powerup);
+      this.powerups.set(powerup, Number.NEGATIVE_INFINITY);
+      setTimeout(() => {
+        this.powerups.set(powerup, currentPowerValue);
+      }, debuffLengthMs);
+    },
+  };
 
   input = {
     add: (input: tUserInputQueue) => {
