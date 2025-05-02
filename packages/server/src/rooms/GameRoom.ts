@@ -113,7 +113,7 @@ export class GameRoom extends Room<GameState> {
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
-        player.addInputToQueue([Date.now(), message]);
+        player.input.add([Date.now(), message]);
       }
     );
   }
@@ -142,7 +142,7 @@ export class GameRoom extends Room<GameState> {
     const allMessagesInOrder = Array.from(this.state.players.values())
       .flatMap((player) => {
         const container: [Player, tUserInputQueue][] = [];
-        const input = player.getLatestInput(this.lastUpdate);
+        const input = player.input.get(this.lastUpdate);
         if (input) container.push([player, input]);
 
         return container;
