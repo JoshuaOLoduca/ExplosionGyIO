@@ -49,7 +49,12 @@ const powerUpTypes = ["speed", "bombSize", "bombCount", "bombDamage"] as const;
 
 type tPowerUps = (typeof powerUpTypes)[number];
 
-class PowerUp extends BaseTile {
+export class PowerUp extends BaseTile {
+  static random() {
+    const randomNumber = Math.round(Math.random() * (powerUpTypes.length - 1));
+    return powerUpTypes[randomNumber];
+  }
+
   constructor(type: tPowerUps, parent?: BaseTile) {
     super(parent);
     this.type = type;
@@ -200,4 +205,7 @@ export class GameState extends Schema {
 
   @type({ map: Player })
   players = new MapSchema<Player>();
+  
+  @type({ map: PowerUp })
+  powerUps = new MapSchema<PowerUp>();
 }

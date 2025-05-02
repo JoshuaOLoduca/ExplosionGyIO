@@ -33,6 +33,13 @@ export class Game extends Scene {
     const $ = getStateCallbacks(this.room);
     const colyseusRoom = this;
 
+    $(this.room.state).powerUps.onAdd((powerUp: any, id: string) => {
+      const image = this.add
+        .sprite(powerUp.x, powerUp.y, "gameSprites", powerUp.imageId)
+        .setInteractive();
+      image.setScale(powerUp?.scale || 6.225);
+    });
+
     $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
       if (tile.imageId === "crate") {
         const image = this.add

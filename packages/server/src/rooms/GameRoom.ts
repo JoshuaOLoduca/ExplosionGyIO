@@ -16,6 +16,7 @@ import {
   manageDamageToPlayers,
   managePlayerMovement,
   manageBombPlacement,
+  managePowerUpPlacement,
 } from "../utils/gameManagement";
 
 export const TILE_SIZE = 16;
@@ -52,8 +53,8 @@ export class GameRoom extends Room<GameState> {
     // "bomb_big_6",
   ];
   BOMBS = new Set<Bomb>();
-
   lastUpdate = Date.now();
+  powerupDropCountdownMs = Math.round(Math.random() * (1000 * 45));
 
   onCreate(options: tGameOptions): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
@@ -83,6 +84,7 @@ export class GameRoom extends Room<GameState> {
       this.COLLISION_TILES.includes(tile.imageId)
     );
 
+    const originalPowerUpDropCountdown = this.powerupDropCountdownMs;
     const fixedTimeStep = 1000 / 60;
 
     let elapsedTime = 0;
@@ -90,12 +92,17 @@ export class GameRoom extends Room<GameState> {
       elapsedTime += deltaTime;
       while (elapsedTime >= fixedTimeStep) {
         elapsedTime -= fixedTimeStep;
+        this.powerupDropCountdownMs -= fixedTimeStep;
         this.fixedTick(
           deltaTime,
           arrOfGrassTiles,
           tileCollisionListPrimary,
           options
         );
+        if (this.powerupDropCountdownMs <= 0)
+          this.powerupDropCountdownMs = Math.round(
+            (Math.random() + 0.5) * originalPowerUpDropCountdown
+          );
       }
     });
 
@@ -183,6 +190,9 @@ export class GameRoom extends Room<GameState> {
         manageBombDamageToBomb(bombTileList, explosionTiles);
       }
     });
+
+    if (this.powerupDropCountdownMs <= 0)
+      managePowerUpPlacement.call(this, arrOfGrassTiles);
   }
 
   onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
