@@ -64,11 +64,16 @@ export class Player extends BaseTile {
       this._inputQueue[this._lastInputQueueIndex++] = input;
       return true;
     },
-    get: (epoch: number) => {
+    /**
+     *
+     * @param epochMs Gets the last input before, or at this epoch(in ms) time.
+     * @returns
+     */
+    get: (epochMs: number) => {
       return this._inputQueue.find((currentInput, index, arr) => {
         if (
-          currentInput[0] <= epoch &&
-          (!arr[index + 1] || arr[index + 1][0] > epoch)
+          currentInput[0] <= epochMs &&
+          (!arr[index + 1] || arr[index + 1][0] > epochMs)
         ) {
           return true;
         }
