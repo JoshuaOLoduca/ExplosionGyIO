@@ -15,7 +15,7 @@ export function managePlayerMovement(
     placeBomb: boolean;
   }
 ) {
-  let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 6;
+  let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 12;
 
   const tileUnderPlayer = getTileUnderCoord(
     arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),

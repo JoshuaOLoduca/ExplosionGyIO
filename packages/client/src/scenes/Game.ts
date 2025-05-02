@@ -7,7 +7,7 @@ import {
   managePlayerInput,
 } from "../utils/gameManagement";
 
-const DEBUG = true;
+const DEBUG = false;
 
 export class Game extends Scene {
   room: Room;
@@ -124,11 +124,6 @@ export class Game extends Scene {
     }
 
     // //////////////////////////
-    //      Player Input
-    // //////////////////////////
-    managePlayerInput.call(this);
-
-    // //////////////////////////
     //   Render Player Movement
     // //////////////////////////
     renderPlayerMovement.call(this);
@@ -141,8 +136,14 @@ export class Game extends Scene {
       return;
     }
 
+    // //////////////////////////
+    //      Player Input
+    // //////////////////////////
+    managePlayerInput.call(this);
+
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {
+      managePlayerInput.call(this);
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick(time, this.fixedTimeStep);
     }

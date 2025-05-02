@@ -1,5 +1,12 @@
 import { Client, Room } from "colyseus";
-import { BaseTile, Bomb, GameState, Player, Tile } from "../schemas/GameState";
+import {
+  BaseTile,
+  Bomb,
+  GameState,
+  Player,
+  Tile,
+  tUserInputQueue,
+} from "../schemas/GameState";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
@@ -106,7 +113,7 @@ export class GameRoom extends Room<GameState> {
       ) => {
         const player = this.state.players.get(client.sessionId);
         if (!player) return;
-        player.inputQueue.push([Date.now(), message]);
+        player.addInputToQueue([Date.now(), message]);
       }
     );
   }
@@ -134,29 +141,9 @@ export class GameRoom extends Room<GameState> {
     // Process inputs on order we recieved it
     const allMessagesInOrder = Array.from(this.state.players.values())
       .flatMap((player) => {
-        const container: [Player, (typeof Player.prototype.inputQueue)[0]][] =
-          [];
-        const oldestInput = player.inputQueue.at(0);
-        if (!oldestInput || oldestInput[0] > this.lastUpdate) return container;
-
-        /**
-         * Will get the index of the found input, and then remove all those elements.
-         * This should be more performant that calling .shift multiple times.
-         */
-        let toRemove = 0;
-        const input = player.inputQueue.find((currentInput, index, arr) => {
-          if (
-            currentInput[0] <= this.lastUpdate &&
-            (!arr[index + 1] || arr[index + 1][0] > this.lastUpdate)
-          ) {
-            toRemove = index;
-            return true;
-          }
-          return false;
-        });
-
+        const container: [Player, tUserInputQueue][] = [];
+        const input = player.getLatestInput(this.lastUpdate);
         if (input) container.push([player, input]);
-        if (toRemove) player.inputQueue.splice(0, toRemove + 1);
 
         return container;
       })

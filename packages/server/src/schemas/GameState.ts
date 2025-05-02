@@ -37,17 +37,44 @@ export class Explosion extends BaseTile {
   lingerMs = 500;
 }
 
+type tUserInput = {
+  up: boolean;
+  left: boolean;
+  down: boolean;
+  right: boolean;
+  placeBomb: boolean;
+};
+
+export type tUserInputQueue = [time: number, message: tUserInput];
+
 export class Player extends BaseTile {
-  inputQueue: [
-    time: number,
-    message: {
-      up: boolean;
-      left: boolean;
-      down: boolean;
-      right: boolean;
-      placeBomb: boolean;
+  private _maxInputQueue = 10;
+  private _inputQueue: tUserInputQueue[] = new Array(this._maxInputQueue).fill(
+    []
+  );
+  private _lastInputQueueIndex = 0;
+
+  addInputToQueue(input: tUserInputQueue) {
+    if (!input) return false;
+    if (this._lastInputQueueIndex >= this._maxInputQueue) {
+      this._lastInputQueueIndex = 0;
     }
-  ][] = [];
+
+    this._inputQueue[this._lastInputQueueIndex++] = input;
+    return true;
+  }
+
+  getLatestInput(epoch: number) {
+    return this._inputQueue.find((currentInput, index, arr) => {
+      if (
+        currentInput[0] <= epoch &&
+        (!arr[index + 1] || arr[index + 1][0] > epoch)
+      ) {
+        return true;
+      }
+      return false;
+    });
+  }
 
   @type("string")
   sprite = "p";
