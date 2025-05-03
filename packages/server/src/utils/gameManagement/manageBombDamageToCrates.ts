@@ -22,9 +22,9 @@ export function manageBombDamageToCrate(
     )
     .filter(([crate, explTile]) => crate && explTile);
   cratesHit.forEach(([crate, explod]) => {
-    const stateId = crate.data.get("stateId");
     crate.imageId = "grass";
 
     managePowerUpPlacement.call(this, [crate], 0.5);
+    this.collisionTileSet.delete(crate);
   });
 }
