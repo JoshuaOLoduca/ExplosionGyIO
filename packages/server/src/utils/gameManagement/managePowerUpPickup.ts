@@ -1,4 +1,4 @@
-import { GameRoom } from "../../rooms/GameRoom";
+import { GameRoom, TILE_SIZE } from "../../rooms/GameRoom";
 import { PowerUp, BaseTile, Player } from "../../schemas";
 import { getTileUnderCoord } from "../physics";
 
@@ -10,7 +10,8 @@ export function managePowerUpPickup(
   const tileUnderPlayer = getTileUnderCoord(
     arrOfGrassTiles,
     player.x,
-    player.y
+    player.y,
+    TILE_SIZE / 2
   );
   if (!tileUnderPlayer) return false;
   const powerup = tileUnderPlayer.data.get("powerup");
