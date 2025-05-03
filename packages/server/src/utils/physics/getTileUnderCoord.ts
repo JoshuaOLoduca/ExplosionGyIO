@@ -1,4 +1,4 @@
-import { Tile } from "../../schemas/GameState";
+import { Tile } from "../../schemas";
 
 export function getTileUnderCoord(
   tiles: Tile[],

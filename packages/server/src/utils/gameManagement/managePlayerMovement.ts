@@ -1,5 +1,5 @@
 import { BLOCKS_IN_WIDTH } from "../../rooms/GameRoom";
-import { Player, Tile } from "../../schemas/GameState";
+import { Tile, Player } from "../../schemas";
 import { checkCollision, getTileUnderCoord } from "../physics";
 
 export function managePlayerMovement(

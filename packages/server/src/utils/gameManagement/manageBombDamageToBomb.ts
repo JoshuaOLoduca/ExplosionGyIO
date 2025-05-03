@@ -1,4 +1,4 @@
-import { Bomb, Explosion } from "../../schemas/GameState";
+import { Bomb, Explosion } from "../../schemas";
 import { isInsideTile } from "../physics";
 
 export function manageBombDamageToBomb(

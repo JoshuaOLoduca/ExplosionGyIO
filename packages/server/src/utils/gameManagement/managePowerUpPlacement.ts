@@ -1,5 +1,5 @@
 import { GameRoom } from "../../rooms/GameRoom";
-import { BaseTile, PowerUp } from "../../schemas/GameState";
+import { PowerUp, BaseTile } from "../../schemas";
 
 export function managePowerUpPlacement(
   this: GameRoom,

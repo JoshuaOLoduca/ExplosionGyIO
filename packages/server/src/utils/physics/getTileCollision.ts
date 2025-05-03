@@ -1,4 +1,4 @@
-import { BaseTile } from "../../schemas/GameState";
+import { BaseTile } from "../../schemas";
 
 // TODO: make alternative that finds the closest available x/y that doesnt collide
 export function getTileCollision(

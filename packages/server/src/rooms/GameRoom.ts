@@ -1,12 +1,12 @@
 import { Client, Room } from "colyseus";
 import {
-  BaseTile,
-  Bomb,
-  GameState,
-  Player,
   Tile,
+  Bomb,
+  Player,
   tUserInputQueue,
-} from "../schemas/GameState";
+  BaseTile,
+  GameState,
+} from "../schemas";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,

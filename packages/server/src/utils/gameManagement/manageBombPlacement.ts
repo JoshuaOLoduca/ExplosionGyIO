@@ -1,4 +1,4 @@
-import { BaseTile, Player, Bomb, Explosion } from "../../schemas/GameState";
+import { Bomb, Player, Explosion, BaseTile } from "../../schemas";
 import { getTileUnderCoord } from "../physics";
 import { GameRoom, TILE_SIZE } from "../../rooms/GameRoom";
 
