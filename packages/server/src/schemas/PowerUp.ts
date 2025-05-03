@@ -20,4 +20,6 @@ export class PowerUp extends BaseTile {
   }
 
   type: tPowerUps;
+
+  amount = 1;
 }

@@ -17,6 +17,7 @@ import {
   managePlayerMovement,
   manageBombPlacement,
   managePowerUpPlacement,
+  managePowerUpPickup,
 } from "../utils/gameManagement";
 
 export const TILE_SIZE = 16;
@@ -171,6 +172,11 @@ export class GameRoom extends Room<GameState> {
         tileCollisionList,
         message
       );
+
+      // /////////////////////////
+      //    Power Up Pickup
+      // /////////////////////////
+      managePowerUpPickup.call(this, arrOfGrassTiles, player);
 
       // /////////////////////////
       //    Damage Collision

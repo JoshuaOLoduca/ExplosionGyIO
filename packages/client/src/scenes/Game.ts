@@ -36,7 +36,12 @@ export class Game extends Scene {
     const colyseusRoom = this;
 
     $(this.room.state).powerUps.onAdd((powerUp: any, id: string) => {
-      renderBaseTile.call(this, powerUp);
+      const powerUpSprite = renderBaseTile.call(this, powerUp);
+      this.data.set(id, powerUpSprite);
+    });
+
+    $(this.room.state).powerUps.onRemove((powerUp: any, id: string) => {
+      this.data.get(id)?.destroy();
     });
 
     $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
