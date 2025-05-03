@@ -12,8 +12,7 @@ export function managePowerUpPlacement(
     const powerUp = new PowerUp(PowerUp.random());
     powerUp.x = grassTile.x;
     powerUp.y = grassTile.y;
-    powerUp.imageId = "cp_stand_down";
-    powerUp.scale = (grassTile.scale || 2) * 0.65;
+    powerUp.scale = ((grassTile.scale || 2) / 128) * 0.65;
     grassTile.data.set("powerup", powerUp);
     this.state.powerUps.set("powerup" + grassTile.x + grassTile.y, powerUp);
   });

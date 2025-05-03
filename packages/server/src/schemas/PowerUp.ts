@@ -17,6 +17,7 @@ export class PowerUp extends BaseTile {
   constructor(type: tPowerUps, parent?: BaseTile) {
     super(parent);
     this.type = type;
+    this.imageId = type;
   }
 
   type: tPowerUps;

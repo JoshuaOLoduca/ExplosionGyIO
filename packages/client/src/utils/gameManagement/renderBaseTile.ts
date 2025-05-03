@@ -10,8 +10,14 @@ export enum eRenderDepth {
 
 export function renderBaseTile(this: Game, tile) {
   const { imageId } = tile;
+  const notInAtlas = this.textures.exists(imageId);
   const image = this.add
-    .sprite(tile.x, tile.y, "gameSprites", imageId)
+    .sprite(
+      tile.x,
+      tile.y,
+      notInAtlas ? imageId : "gameSprites",
+      notInAtlas ? undefined : imageId
+    )
     .setInteractive();
   image.setScale(tile?.scale || 6.225);
   if (tile.angle) image.setAngle(tile.angle);
