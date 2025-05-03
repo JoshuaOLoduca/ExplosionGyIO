@@ -17,6 +17,9 @@ export function manageBombPlacement(
     ).length;
     if (bombsPlacedByPlayer >= player.powerups.get("bombCount")) return;
 
+    const bombExplosionLength = player.powerups.get("bombSize");
+    const bombPower = player.powerups.get("bombDamage");
+
     const bomb = new Bomb();
     bomb.owner = player;
     bomb.imageId = "bomb_big_1";
@@ -81,8 +84,6 @@ export function manageBombPlacement(
     const bombFuse = setInterval(() => {
       bomb.fuse -= 1;
       if (bomb.fuse <= 0) {
-        const bombExplosionLength = player.powerups.get("bombSize");
-        const bombPower = player.powerups.get("bombDamage");
         // Top Left is 0,0
         const leftExplosion = new Array(bombExplosionLength)
           .fill(2)
