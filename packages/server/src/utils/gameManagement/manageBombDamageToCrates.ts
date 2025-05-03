@@ -26,5 +26,6 @@ export function manageBombDamageToCrate(
 
     managePowerUpPlacement.call(this, [crate], 0.5);
     this.collisionTileSet.delete(crate);
+    this.grassTileSet.add(crate);
   });
 }

@@ -58,6 +58,7 @@ export class GameRoom extends Room<GameState> {
   lastUpdate = Date.now();
   powerupDropCountdownMs = Math.round(1000 * 45);
   collisionTileSet = new Set<BaseTile>();
+  grassTileSet = new Set<Tile>();
 
   onCreate(options: tGameOptions): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
@@ -84,6 +85,8 @@ export class GameRoom extends Room<GameState> {
     const arrOfGrassTiles = arrOfTileState.filter((tile) =>
       tile.imageId.includes("grass")
     );
+    // Initialize Grass tiles Cache
+    arrOfGrassTiles.forEach(this.grassTileSet.add, this.grassTileSet);
 
     const tileCollisionListPrimary = arrOfTileState.filter((tile) =>
       this.COLLISION_TILES.includes(tile.imageId)
@@ -105,7 +108,7 @@ export class GameRoom extends Room<GameState> {
         this.powerupDropCountdownMs -= fixedTimeStep;
         this.fixedTick(
           deltaTime,
-          arrOfGrassTiles,
+          Array.from(this.grassTileSet),
           Array.from(this.collisionTileSet),
           options
         );
