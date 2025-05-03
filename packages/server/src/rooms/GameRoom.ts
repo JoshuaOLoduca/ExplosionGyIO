@@ -55,7 +55,7 @@ export class GameRoom extends Room<GameState> {
   ];
   BOMBS = new Set<Bomb>();
   lastUpdate = Date.now();
-  powerupDropCountdownMs = Math.round(Math.random() * (1000 * 45));
+  powerupDropCountdownMs = Math.round(1000 * 45);
 
   onCreate(options: tGameOptions): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
