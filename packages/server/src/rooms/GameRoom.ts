@@ -19,6 +19,7 @@ import {
   managePowerUpPlacement,
   managePowerUpPickup,
 } from "../utils/gameManagement";
+import { manageBombDamageToCrate } from "../utils/gameManagement/manageBombDamageToCrates";
 
 export const TILE_SIZE = 16;
 export const BLOCKS_IN_WIDTH = 19;
@@ -72,7 +73,9 @@ export class GameRoom extends Room<GameState> {
         tileObject.imageId = getImageId(tile);
         tileObject.scale = ratio;
 
-        this.state.tiles.set(sliceIndex + tile + tileIndex, tileObject);
+        const id = sliceIndex + tile + tileIndex;
+        tileObject.data.set("stateId", id);
+        this.state.tiles.set(id, tileObject);
       });
     });
     // TODO: calculate/cache this array on state tile change instead
@@ -185,6 +188,17 @@ export class GameRoom extends Room<GameState> {
         bomb.explosions.toArray()
       );
       if (explosionTiles.length) {
+        // //////////////////////
+        //     Crate Damage
+        // //////////////////////
+        manageBombDamageToCrate.call(
+          this,
+          Array.from(this.state.tiles.values()).filter((tile) =>
+            tile.imageId.includes("crate")
+          ),
+          explosionTiles
+        );
+
         // //////////////////////
         //     Player Damage
         // //////////////////////

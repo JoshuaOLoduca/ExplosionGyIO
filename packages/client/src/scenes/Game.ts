@@ -45,9 +45,11 @@ export class Game extends Scene {
     });
 
     $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
-      if (tile.imageId === "crate") {
+      const initAsCrate = tile.imageId === "crate";
+      let crateSprite;
+      if (initAsCrate) {
         renderBaseTile.call(this, { ...tile, imageId: "grass" });
-        renderBaseTile.call(this, {
+        crateSprite = renderBaseTile.call(this, {
           ...tile,
           imageId: "crate",
           scale: (tile.scale || 1) * 0.9,
@@ -62,6 +64,9 @@ export class Game extends Scene {
 
       $(tile).onChange(() => {
         updateBombState();
+        if (initAsCrate && tile.imageId !== "crate") {
+          crateSprite?.destroy();
+        }
       });
     });
 
