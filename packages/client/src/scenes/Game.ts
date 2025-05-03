@@ -8,7 +8,14 @@ import {
   renderBaseTile,
 } from "../utils/gameManagement";
 
-const DEBUG = false;
+const DEBUG = true;
+export enum eRenderDepth {
+  BACKGROUND,
+  PLAYER,
+  WALL,
+  BOMB,
+  HUD,
+}
 
 export class Game extends Scene {
   room: Room;
@@ -40,14 +47,18 @@ export class Game extends Scene {
 
     $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
       if (tile.imageId === "crate") {
-        renderBaseTile.call(this, { ...tile, imageId: "grass" });
-        renderBaseTile.call(this, {
-          ...tile,
-          imageId: "crate",
-          scale: (tile.scale || 1) * 0.9,
-        });
+        renderBaseTile
+          .call(this, { ...tile, imageId: "grass" })
+          .setData(eRenderDepth.BACKGROUND);
+        renderBaseTile
+          .call(this, {
+            ...tile,
+            imageId: "crate",
+            scale: (tile.scale || 1) * 0.9,
+          })
+          .setData(eRenderDepth.WALL);
       } else {
-        renderBaseTile.call(this, tile);
+        renderBaseTile.call(this, tile).setData(eRenderDepth.WALL);
       }
 
       const updateBombState = createBombUpdateCB.call(this, $, tile, tileId);
@@ -61,7 +72,9 @@ export class Game extends Scene {
 
     $(this.room.state).players.onAdd((player, playerId) => {
       if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
-      const playerSprite = this.add.circle(player.x, player.y, 32, 0xff0000);
+      const playerSprite = this.add
+        .circle(player.x, player.y, 32, 0xff0000)
+        .setDepth(eRenderDepth.PLAYER);
       this.data.set(playerId, playerSprite);
 
       $(player).onChange(() => {
@@ -90,24 +103,23 @@ export class Game extends Scene {
       .setOrigin(0.5);
 
     if (DEBUG) {
-      setTimeout(() => {
-        this.data.set(
-          "DEBUG-mouse",
-          this.add
-            .text(
-              this.cameras.main.width * 0.5,
-              this.cameras.main.height * 0.05,
-              `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
-              {
-                font: "24px Arial",
-                color: "#000000",
-                strokeThickness: 14,
-                stroke: "#fff",
-              }
-            )
-            .setOrigin(0.5)
-        );
-      }, 1000 * 0.5);
+      this.data.set(
+        "DEBUG-mouse",
+        this.add
+          .text(
+            this.cameras.main.width * 0.5,
+            this.cameras.main.height * 0.05,
+            `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
+            {
+              font: "24px Arial",
+              color: "#000000",
+              strokeThickness: 14,
+              stroke: "#fff",
+            }
+          )
+          .setOrigin(0.5)
+          .setDepth(200)
+      );
     }
   }
 

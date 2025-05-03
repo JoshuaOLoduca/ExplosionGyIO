@@ -1,5 +1,6 @@
 import { getStateCallbacks } from "colyseus.js";
 import { Game } from "../../scenes/Game";
+import { renderBaseTile } from "./renderBaseTile";
 
 export function createBombUpdateCB(
   this: Game,
@@ -30,10 +31,7 @@ export function createBombUpdateCB(
     //     Bomb Rendering
     // ////////////////////////
     if ((bomb && !this.data.has(dataKey)) || this.data.get(dataKey) !== bomb) {
-      const spriteToAdd = this.add
-        .sprite(bomb.x, bomb.y, "gameSprites", bomb.imageId)
-        .setScale(bomb.scale || 6.225)
-        .setInteractive();
+      const spriteToAdd = renderBaseTile.call(this, bomb);
 
       spriteToAdd.disableInteractive;
 
@@ -74,12 +72,8 @@ export function createBombUpdateCB(
 
           this.data.set(
             bombExplosionKey,
-            this.add
-              .sprite(item.x, item.y, "gameSprites", item.imageId)
-              .setAngle(item.angle)
-              .setScale(tile.scale || 1)
-              // .setAlpha(0.9)
-              .setInteractive()
+            renderBaseTile.call(this, item).setScale(tile.scale || 1)
+            // .setAlpha(0.9)
           );
         }
       });
