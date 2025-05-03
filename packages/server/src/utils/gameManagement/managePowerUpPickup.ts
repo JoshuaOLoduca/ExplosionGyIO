@@ -19,6 +19,7 @@ export function managePowerUpPickup(
   player.powerups.change(powerup.type, powerup.amount);
 
   this.state.powerUps.delete("powerup" + tileUnderPlayer.x + tileUnderPlayer.y);
+  tileUnderPlayer.data.delete("powerup");
 
   return true;
 }
