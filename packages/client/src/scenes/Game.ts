@@ -6,16 +6,10 @@ import {
   createBombUpdateCB,
   managePlayerInput,
   renderBaseTile,
+  eRenderDepth,
 } from "../utils/gameManagement";
 
 const DEBUG = true;
-export enum eRenderDepth {
-  BACKGROUND,
-  PLAYER,
-  WALL,
-  BOMB,
-  HUD,
-}
 
 export class Game extends Scene {
   room: Room;
@@ -47,18 +41,14 @@ export class Game extends Scene {
 
     $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
       if (tile.imageId === "crate") {
-        renderBaseTile
-          .call(this, { ...tile, imageId: "grass" })
-          .setData(eRenderDepth.BACKGROUND);
-        renderBaseTile
-          .call(this, {
-            ...tile,
-            imageId: "crate",
-            scale: (tile.scale || 1) * 0.9,
-          })
-          .setData(eRenderDepth.WALL);
+        renderBaseTile.call(this, { ...tile, imageId: "grass" });
+        renderBaseTile.call(this, {
+          ...tile,
+          imageId: "crate",
+          scale: (tile.scale || 1) * 0.9,
+        });
       } else {
-        renderBaseTile.call(this, tile).setData(eRenderDepth.WALL);
+        renderBaseTile.call(this, tile);
       }
 
       const updateBombState = createBombUpdateCB.call(this, $, tile, tileId);

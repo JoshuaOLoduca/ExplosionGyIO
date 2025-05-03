@@ -1,4 +1,12 @@
-import { eRenderDepth, Game } from "../../scenes/Game";
+import { Game } from "../../scenes/Game";
+
+export enum eRenderDepth {
+  BACKGROUND,
+  PLAYER,
+  WALL,
+  BOMB,
+  HUD,
+}
 
 export function renderBaseTile(this: Game, tile) {
   const { imageId } = tile;
