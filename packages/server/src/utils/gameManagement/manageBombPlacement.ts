@@ -38,6 +38,7 @@ export function manageBombPlacement(
         offset: number
       ) => [x: number, y: number]
     ) => {
+      let hitCrate = false;
       return [
         (arr: (Explosion | null)[], _: unknown, index: number) => {
           const tileSize = (bombTile.scale || 1) * TILE_SIZE;
@@ -48,15 +49,20 @@ export function manageBombPlacement(
             tileSize * multiplier
           );
           const foundTile = getTileUnderCoord(
-            arrOfGrassTiles,
+            arrOfGrassTiles.concat(
+              Array.from(this.state.tiles.values()).filter((tile) =>
+                tile.imageId.includes("crate")
+              )
+            ),
             xToCheck,
             yToCheck
           );
 
-          if (!foundTile || arr[index - 1] === null) {
+          if (!foundTile || arr[index - 1] === null || hitCrate) {
             arr.push(null);
             return arr;
           }
+          if (foundTile.imageId.includes("crate")) hitCrate = true;
 
           const explosion = new Explosion(bomb);
           explosion.x = foundTile.x;
