@@ -82,20 +82,16 @@ export class GameRoom extends Room<GameState> {
     });
     // TODO: calculate/cache this array on state tile change instead
     const arrOfTileState = [...this.state.tiles.values()];
-    const arrOfGrassTiles = arrOfTileState.filter((tile) =>
-      tile.imageId.includes("grass")
-    );
-    // Initialize Grass tiles Cache
-    arrOfGrassTiles.forEach(this.grassTileSet.add, this.grassTileSet);
 
-    const tileCollisionListPrimary = arrOfTileState.filter((tile) =>
-      this.COLLISION_TILES.includes(tile.imageId)
-    );
+    // Initialize Grass tiles Cache
+    arrOfTileState
+      .filter((tile) => tile.imageId.includes("grass"))
+      .forEach(this.grassTileSet.add, this.grassTileSet);
+
     // Initialize collisions
-    tileCollisionListPrimary.forEach(
-      this.collisionTileSet.add,
-      this.collisionTileSet
-    );
+    arrOfTileState
+      .filter((tile) => this.COLLISION_TILES.includes(tile.imageId))
+      .forEach(this.collisionTileSet.add, this.collisionTileSet);
 
     const originalPowerUpDropCountdown = this.powerupDropCountdownMs;
     const fixedTimeStep = 1000 / 60;
