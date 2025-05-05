@@ -22,6 +22,7 @@ This Game is designed to work both in the [Discord Activities](https://discord.c
 <br>
 Breakdown of contributions: <br>
 Josh - Code!<br>
+
 [Matt Hackett of Lost Decade Games, Cem Kalyoncu, and /usr/share](https://opengameart.org/content/bomb-party-the-complete-set) - Placeholder art<br>
 [game-icons.net](https://game-icons.net/) - Powerup Icons<br>
 
@@ -49,7 +50,7 @@ Josh - Code!<br>
 
 ### History
 
-> ExplosionGyIO has been my "Why hasnt this been done yet" idea for the past year, but havent had the time to start work on it until recently. \  
+> ExplosionGyIO has been my "Why hasnt this been done yet" idea for the past year, but havent had the time to start work on it until recently. \
 > The goal is to first create an MVP that is fun, and usable by discord activities.
 
 <!-- ## Gifs/Pictures
