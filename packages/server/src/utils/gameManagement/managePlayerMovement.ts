@@ -1,6 +1,6 @@
 import { BLOCKS_IN_WIDTH } from "../../rooms/GameRoom";
 import { Tile, Player } from "../../schemas";
-import { checkCollision, getTileUnderCoord } from "../physics";
+import { checkCollision, getTileUnderCoord, isInsideTile } from "../physics";
 
 export function managePlayerMovement(
   options: { screenWidth: number; screenHeight: number },
@@ -24,7 +24,11 @@ export function managePlayerMovement(
     player.x,
     player.y
   );
-  const insideOfTile = tileUnderPlayer?.bomb;
+  const insideOfTile =
+    tileUnderPlayer?.bomb ||
+    tileCollisionList.find((colTile) =>
+      isInsideTile(player.x, player.y, colTile)
+    );
   // disable diagnal input if it would collide.
   // this retains full speed if user is walking into a wall.
   // W
