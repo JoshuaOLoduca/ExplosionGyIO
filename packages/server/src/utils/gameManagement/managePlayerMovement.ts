@@ -1,6 +1,9 @@
 import { BLOCKS_IN_WIDTH } from "../../rooms/GameRoom";
 import { Tile, Player } from "../../schemas";
+import math from "../math";
 import { checkCollision, getTileUnderCoord, isInsideTile } from "../physics";
+
+const logBase2 = math.createBaseLog(2);
 
 export function managePlayerMovement(
   options: { screenWidth: number; screenHeight: number },
@@ -16,8 +19,9 @@ export function managePlayerMovement(
   }
 ) {
   let movementDelta =
-    (options.screenWidth / BLOCKS_IN_WIDTH / 8) *
-    (player.powerups.get("speed") / 5);
+    ((options.screenWidth / BLOCKS_IN_WIDTH / 8) *
+      logBase2(player.powerups.get("speed") + 1)) /
+    5;
 
   const tileUnderPlayer = getTileUnderCoord(
     arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),
