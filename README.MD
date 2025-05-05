@@ -49,7 +49,9 @@ Josh - Code!\
 ### History
 
 > ExplosionGyIO has been my "Why hasnt this been done yet" idea for the past year, but havent had the time to start work on it until recently. \
-> The goal is to first create an MVP that is fun, and usable by discord activities.
+> The goal is to first create an MVP that is fun, and usable by discord activities. \
+
+> Although there are a lot of available tools for game dev, I tend to keep things minimal while learning. This means dealing with collisions manually/in-house. This could change after the MVP is finished.
 
 <!-- ## Gifs/Pictures
 
