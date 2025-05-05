@@ -17,14 +17,12 @@
 
 A classicly inspired party game, designed with modern day interactions in mind!
 
-<br>
 This Game is designed to work both in the [Discord Activities](https://discord.com/developers/docs/activities/overview) (OAuth), and in the browser. The end goal is to create a .IO game that allows for large player size lobbies that support drop-in joining.
-<br>
-Breakdown of contributions: <br>
-Josh - Code!<br>
 
-[Matt Hackett of Lost Decade Games, Cem Kalyoncu, and /usr/share](https://opengameart.org/content/bomb-party-the-complete-set) - Placeholder art<br>
-[game-icons.net](https://game-icons.net/) - Powerup Icons<br>
+Breakdown of contributions:\
+Josh - Code!\
+[Matt Hackett of Lost Decade Games, Cem Kalyoncu, and /usr/share](https://opengameart.org/content/bomb-party-the-complete-set) - Placeholder art\
+[game-icons.net](https://game-icons.net/) - Powerup Icons
 
 ### Technical details
 
