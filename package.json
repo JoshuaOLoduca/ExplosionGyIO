@@ -1,8 +1,8 @@
 {
-  "name": "discord-multiplayer-template",
+  "name": "explosion-gyio",
   "private": true,
-  "version": "0.0.1",
-  "description": "A quickstart Phaser template for creating multiplayer Discord Activities",
+  "version": "0.0.2",
+  "description": "An Arcade style game designed with multiplayer in mind!",
   "main": "index.js",
   "scripts": {
     "dev": "pnpm run --filter \"./packages/**\" --parallel dev",
@@ -15,7 +15,7 @@
   "engines": {
     "node": ">=21.0.0"
   },
-  "author": "Phaser Studio Inc <support@phaser.io> (https://www.phaser.io)",
+  "author": "Joshua Loduca <JoshLoduca@gmail.com> (https://Josh.Lodu.ca)",
   "license": "MIT",
   "licenseUrl": "https://www.opensource.org/licenses/mit-license.php",
   "devDependencies": {

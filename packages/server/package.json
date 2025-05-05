@@ -1,6 +1,6 @@
 {
-  "name": "template-discord-colyseus-phaser-server",
-  "version": "0.0.1",
+  "name": "explosion-gyio-server",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
