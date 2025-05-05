@@ -3,7 +3,8 @@ import { Tile, Player } from "../../schemas";
 import math from "../math";
 import { checkCollision, getTileUnderCoord, isInsideTile } from "../physics";
 
-const logBase2 = math.createBaseLog(2);
+const logBase2 = math.createBaseLog(1.5);
+let lastSpeed = 0;
 
 export function managePlayerMovement(
   options: { screenWidth: number; screenHeight: number },
@@ -21,7 +22,7 @@ export function managePlayerMovement(
   let movementDelta =
     ((options.screenWidth / BLOCKS_IN_WIDTH / 8) *
       logBase2(player.powerups.get("speed") + 1)) /
-    5;
+    6.25;
 
   const tileUnderPlayer = getTileUnderCoord(
     arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),
