@@ -4,7 +4,6 @@ import math from "../math";
 import { checkCollision, getTileUnderCoord, isInsideTile } from "../physics";
 
 const speedLogScaling = math.createBaseLog(1.5);
-let lastSpeed = 0;
 
 export function managePlayerMovement(
   options: { screenWidth: number; screenHeight: number },
