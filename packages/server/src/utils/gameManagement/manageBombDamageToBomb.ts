@@ -1,5 +1,8 @@
 import { Bomb, Explosion } from "../../schemas";
+import math from "../math";
 import { isInsideTile } from "../physics";
+
+const bombDamageScaling = math.createBaseLog(2.5);
 
 export function manageBombDamageToBomb(
   bombTileList: Bomb[],
@@ -20,7 +23,10 @@ export function manageBombDamageToBomb(
   bombsWithLifeAndHit.forEach(([bomb, explod]) => {
     if (!bomb.data.has(explod.id)) {
       bomb.data.set(explod.id, true);
-      bomb.fuse = +Math.max(bomb.fuse - explod.damage * 750, 1).toFixed(0);
+      bomb.fuse = +Math.max(
+        bomb.fuse - bombDamageScaling(explod.damage) * 750,
+        1
+      ).toFixed(0);
     }
   });
 }
