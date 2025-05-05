@@ -41,7 +41,12 @@ export function manageBombPlacement(
         offset: number
       ) => [x: number, y: number]
     ) => {
-      let hitCrate = false;
+      /**
+       * Use to stop explosions from continueing beyond interaction of elements.
+       * AKA, allow explosions to overlap with crates, damage them, but not spread further.
+       * Is also used to explode bombs with explosion, but only the first one the line hits.
+       */
+      let stopSpreadEarly = false;
       return [
         (arr: (Explosion | null)[], _: unknown, index: number) => {
           const tileSize = (bombTile.scale || 1) * TILE_SIZE;
@@ -61,11 +66,17 @@ export function manageBombPlacement(
             yToCheck
           );
 
-          if (!foundTile || arr[index - 1] === null || hitCrate) {
+          if (!foundTile || arr[index - 1] === null || stopSpreadEarly) {
             arr.push(null);
             return arr;
           }
-          if (foundTile.imageId.includes("crate")) hitCrate = true;
+          if (foundTile.imageId.includes("crate")) stopSpreadEarly = true;
+          if (
+            !player.powerups.hasExplosionPen() &&
+            foundTile.bomb &&
+            foundTile.bomb.fuse
+          )
+            stopSpreadEarly = true;
 
           const explosion = new Explosion(bomb);
           explosion.x = foundTile.x;

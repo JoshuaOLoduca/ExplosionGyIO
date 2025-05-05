@@ -26,6 +26,9 @@ export class Player extends BaseTile {
   }
 
   powerups = {
+    hasExplosionPen: () => {
+      return false;
+    },
     change: (powerup: tPowerUps, changeAmount: number) => {
       this._powerUps.set(powerup, this.powerups.get(powerup) + changeAmount);
       return true;
