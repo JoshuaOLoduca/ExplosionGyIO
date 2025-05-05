@@ -5,9 +5,11 @@ import {
   renderPlayerMovement,
   createBombUpdateCB,
   managePlayerInput,
+  renderBaseTile,
+  eRenderDepth,
 } from "../utils/gameManagement";
 
-const DEBUG = false;
+const DEBUG = true;
 
 export class Game extends Scene {
   room: Room;
@@ -33,21 +35,27 @@ export class Game extends Scene {
     const $ = getStateCallbacks(this.room);
     const colyseusRoom = this;
 
+    $(this.room.state).powerUps.onAdd((powerUp: any, id: string) => {
+      const powerUpSprite = renderBaseTile.call(this, powerUp);
+      this.data.set(id, powerUpSprite);
+    });
+
+    $(this.room.state).powerUps.onRemove((powerUp: any, id: string) => {
+      this.data.get(id)?.destroy();
+    });
+
     $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
-      if (tile.imageId === "crate") {
-        const image = this.add
-          .sprite(tile.x, tile.y, "gameSprites", "grass")
-          .setInteractive();
-        image.setScale(tile?.scale || 6.225);
-        const image2 = this.add
-          .sprite(tile.x, tile.y, "gameSprites", "crate")
-          .setInteractive();
-        image2.setScale((tile?.scale || 6.225) * 0.95);
+      const initAsCrate = tile.imageId === "crate";
+      let crateSprite;
+      if (initAsCrate) {
+        renderBaseTile.call(this, { ...tile, imageId: "grass" });
+        crateSprite = renderBaseTile.call(this, {
+          ...tile,
+          imageId: "crate",
+          scale: (tile.scale || 1) * 0.9,
+        });
       } else {
-        const image = this.add
-          .sprite(tile.x, tile.y, "gameSprites", tile.imageId)
-          .setInteractive();
-        image.setScale(tile?.scale || 6.225);
+        renderBaseTile.call(this, tile);
       }
 
       const updateBombState = createBombUpdateCB.call(this, $, tile, tileId);
@@ -56,12 +64,17 @@ export class Game extends Scene {
 
       $(tile).onChange(() => {
         updateBombState();
+        if (initAsCrate && tile.imageId !== "crate") {
+          crateSprite?.destroy();
+        }
       });
     });
 
     $(this.room.state).players.onAdd((player, playerId) => {
       if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
-      const playerSprite = this.add.circle(player.x, player.y, 32, 0xff0000);
+      const playerSprite = this.add
+        .circle(player.x, player.y, 32, 0xff0000)
+        .setDepth(eRenderDepth.PLAYER);
       this.data.set(playerId, playerSprite);
 
       $(player).onChange(() => {
@@ -90,24 +103,23 @@ export class Game extends Scene {
       .setOrigin(0.5);
 
     if (DEBUG) {
-      setTimeout(() => {
-        this.data.set(
-          "DEBUG-mouse",
-          this.add
-            .text(
-              this.cameras.main.width * 0.5,
-              this.cameras.main.height * 0.05,
-              `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
-              {
-                font: "24px Arial",
-                color: "#000000",
-                strokeThickness: 14,
-                stroke: "#fff",
-              }
-            )
-            .setOrigin(0.5)
-        );
-      }, 1000 * 0.5);
+      this.data.set(
+        "DEBUG-mouse",
+        this.add
+          .text(
+            this.cameras.main.width * 0.5,
+            this.cameras.main.height * 0.05,
+            `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
+            {
+              font: "24px Arial",
+              color: "#000000",
+              strokeThickness: 14,
+              stroke: "#fff",
+            }
+          )
+          .setOrigin(0.5)
+          .setDepth(200)
+      );
     }
   }
 

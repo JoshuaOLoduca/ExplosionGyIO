@@ -1,6 +1,9 @@
 import { BLOCKS_IN_WIDTH } from "../../rooms/GameRoom";
-import { Player, Tile } from "../../schemas/GameState";
-import { checkCollision, getTileUnderCoord } from "../physics";
+import { Tile, Player } from "../../schemas";
+import math from "../math";
+import { checkCollision, getTileUnderCoord, isInsideTile } from "../physics";
+
+const speedLogScaling = math.createBaseLog(1.5);
 
 export function managePlayerMovement(
   options: { screenWidth: number; screenHeight: number },
@@ -15,14 +18,21 @@ export function managePlayerMovement(
     placeBomb: boolean;
   }
 ) {
-  let movementDelta = options.screenWidth / BLOCKS_IN_WIDTH / 12;
+  let movementDelta =
+    ((options.screenWidth / BLOCKS_IN_WIDTH / 8) *
+      speedLogScaling(player.powerups.get("speed") + 1)) /
+    6.25;
 
   const tileUnderPlayer = getTileUnderCoord(
     arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),
     player.x,
     player.y
   );
-  const insideOfTile = tileUnderPlayer?.bomb;
+  const insideOfTile =
+    tileUnderPlayer?.bomb ||
+    tileCollisionList.find((colTile) =>
+      isInsideTile(player.x, player.y, colTile)
+    );
   // disable diagnal input if it would collide.
   // this retains full speed if user is walking into a wall.
   // W

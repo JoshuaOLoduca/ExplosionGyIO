@@ -1,4 +1,4 @@
-import { Player, Explosion } from "../../schemas/GameState";
+import { Player, Explosion } from "../../schemas";
 import { checkCollision, isInsideTile } from "../physics";
 
 export function manageDamageToPlayers(

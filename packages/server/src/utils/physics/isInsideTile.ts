@@ -1,4 +1,4 @@
-import { BaseTile } from "../../schemas/GameState";
+import { BaseTile } from "../../schemas";
 
 export function isInsideTile(
   x: number,

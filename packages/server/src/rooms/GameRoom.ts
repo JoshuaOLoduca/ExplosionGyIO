@@ -1,12 +1,12 @@
 import { Client, Room } from "colyseus";
 import {
-  BaseTile,
-  Bomb,
-  GameState,
-  Player,
   Tile,
+  Bomb,
+  Player,
   tUserInputQueue,
-} from "../schemas/GameState";
+  BaseTile,
+  GameState,
+} from "../schemas";
 import roomLayoutGenerator, {
   tRoomMatrix,
   tRoomTile,
@@ -16,7 +16,10 @@ import {
   manageDamageToPlayers,
   managePlayerMovement,
   manageBombPlacement,
+  managePowerUpPlacement,
+  managePowerUpPickup,
 } from "../utils/gameManagement";
+import { manageBombDamageToCrate } from "../utils/gameManagement/manageBombDamageToCrates";
 
 export const TILE_SIZE = 16;
 export const BLOCKS_IN_WIDTH = 19;
@@ -52,8 +55,10 @@ export class GameRoom extends Room<GameState> {
     // "bomb_big_6",
   ];
   BOMBS = new Set<Bomb>();
-
   lastUpdate = Date.now();
+  powerupDropCountdownMs = Math.round(1000 * 45);
+  collisionTileSet = new Set<BaseTile>();
+  grassTileSet = new Set<Tile>();
 
   onCreate(options: tGameOptions): void | Promise<any> {
     const ratio = (options.screenWidth / (TILE_SIZE * BLOCKS_IN_WIDTH)) * 1.01;
@@ -70,19 +75,25 @@ export class GameRoom extends Room<GameState> {
         tileObject.imageId = getImageId(tile);
         tileObject.scale = ratio;
 
-        this.state.tiles.set(sliceIndex + tile + tileIndex, tileObject);
+        const id = sliceIndex + tile + tileIndex;
+        tileObject.data.set("stateId", id);
+        this.state.tiles.set(id, tileObject);
       });
     });
     // TODO: calculate/cache this array on state tile change instead
     const arrOfTileState = [...this.state.tiles.values()];
-    const arrOfGrassTiles = arrOfTileState.filter((tile) =>
-      tile.imageId.includes("grass")
-    );
 
-    const tileCollisionListPrimary = arrOfTileState.filter((tile) =>
-      this.COLLISION_TILES.includes(tile.imageId)
-    );
+    // Initialize Grass tiles Cache
+    arrOfTileState
+      .filter((tile) => tile.imageId.includes("grass"))
+      .forEach(this.grassTileSet.add, this.grassTileSet);
 
+    // Initialize collisions
+    arrOfTileState
+      .filter((tile) => this.COLLISION_TILES.includes(tile.imageId))
+      .forEach(this.collisionTileSet.add, this.collisionTileSet);
+
+    const originalPowerUpDropCountdown = this.powerupDropCountdownMs;
     const fixedTimeStep = 1000 / 60;
 
     let elapsedTime = 0;
@@ -90,12 +101,17 @@ export class GameRoom extends Room<GameState> {
       elapsedTime += deltaTime;
       while (elapsedTime >= fixedTimeStep) {
         elapsedTime -= fixedTimeStep;
+        this.powerupDropCountdownMs -= fixedTimeStep;
         this.fixedTick(
           deltaTime,
-          arrOfGrassTiles,
-          tileCollisionListPrimary,
+          Array.from(this.grassTileSet),
+          Array.from(this.collisionTileSet),
           options
         );
+        if (this.powerupDropCountdownMs <= 0)
+          this.powerupDropCountdownMs = Math.round(
+            (Math.random() + 0.5) * originalPowerUpDropCountdown
+          );
       }
     });
 
@@ -166,12 +182,28 @@ export class GameRoom extends Room<GameState> {
       );
 
       // /////////////////////////
+      //    Power Up Pickup
+      // /////////////////////////
+      managePowerUpPickup.call(this, arrOfGrassTiles, player);
+
+      // /////////////////////////
       //    Damage Collision
       // /////////////////////////
       const explosionTiles = Array.from(this.BOMBS).flatMap((bomb) =>
         bomb.explosions.toArray()
       );
       if (explosionTiles.length) {
+        // //////////////////////
+        //     Crate Damage
+        // //////////////////////
+        manageBombDamageToCrate.call(
+          this,
+          Array.from(this.state.tiles.values()).filter((tile) =>
+            tile.imageId.includes("crate")
+          ),
+          explosionTiles
+        );
+
         // //////////////////////
         //     Player Damage
         // //////////////////////
@@ -183,6 +215,9 @@ export class GameRoom extends Room<GameState> {
         manageBombDamageToBomb(bombTileList, explosionTiles);
       }
     });
+
+    if (this.powerupDropCountdownMs <= 0)
+      managePowerUpPlacement.call(this, arrOfGrassTiles);
   }
 
   onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {

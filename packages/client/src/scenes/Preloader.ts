@@ -52,6 +52,22 @@ export class Preloader extends Scene {
     );
 
     this.load.image("logo", "logo.png");
+    this.load.svg("speed", "player-speed-speedometer.svg", {
+      width: 16 * 128,
+      height: 16 * 128,
+    });
+    this.load.svg("bombSize", "bomb-size-explosion-rays.svg", {
+      width: 16 * 128,
+      height: 16 * 128,
+    });
+    this.load.svg("bombCount", "bomb-count-unlit-bomb.svg", {
+      width: 16 * 128,
+      height: 16 * 128,
+    });
+    this.load.svg("bombDamage", "bomb-damage-alt-ball-glow.svg", {
+      width: 16 * 128,
+      height: 16 * 128,
+    });
   }
 
   create() {

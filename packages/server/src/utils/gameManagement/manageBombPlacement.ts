@@ -1,4 +1,4 @@
-import { BaseTile, Player, Bomb, Explosion } from "../../schemas/GameState";
+import { Bomb, Player, Explosion, BaseTile } from "../../schemas";
 import { getTileUnderCoord } from "../physics";
 import { GameRoom, TILE_SIZE } from "../../rooms/GameRoom";
 
@@ -9,6 +9,17 @@ export function manageBombPlacement(
 ) {
   const bombTile = getTileUnderCoord(arrOfGrassTiles, player.x, player.y);
   if (bombTile && !bombTile.bomb) {
+    // ///////////////////////
+    //   Enforce Bomb Limit
+    // ///////////////////////
+    const bombsPlacedByPlayer = Array.from(this.BOMBS).filter(
+      (bomb) => bomb.fuse && bomb.owner === player
+    ).length;
+    if (bombsPlacedByPlayer >= player.powerups.get("bombCount")) return;
+
+    const bombExplosionLength = player.powerups.get("bombSize");
+    const bombPower = player.powerups.get("bombDamage");
+
     const bomb = new Bomb();
     bomb.owner = player;
     bomb.imageId = "bomb_big_1";
@@ -30,6 +41,12 @@ export function manageBombPlacement(
         offset: number
       ) => [x: number, y: number]
     ) => {
+      /**
+       * Use to stop explosions from continueing beyond interaction of elements.
+       * AKA, allow explosions to overlap with crates, damage them, but not spread further.
+       * Is also used to explode bombs with explosion, but only the first one the line hits.
+       */
+      let stopSpreadEarly = false;
       return [
         (arr: (Explosion | null)[], _: unknown, index: number) => {
           const tileSize = (bombTile.scale || 1) * TILE_SIZE;
@@ -40,15 +57,26 @@ export function manageBombPlacement(
             tileSize * multiplier
           );
           const foundTile = getTileUnderCoord(
-            arrOfGrassTiles,
+            arrOfGrassTiles.concat(
+              Array.from(this.state.tiles.values()).filter((tile) =>
+                tile.imageId.includes("crate")
+              )
+            ),
             xToCheck,
             yToCheck
           );
 
-          if (!foundTile || arr[index - 1] === null) {
+          if (!foundTile || arr[index - 1] === null || stopSpreadEarly) {
             arr.push(null);
             return arr;
           }
+          if (foundTile.imageId.includes("crate")) stopSpreadEarly = true;
+          if (
+            !player.powerups.hasExplosionPen() &&
+            foundTile.bomb &&
+            foundTile.bomb.fuse
+          )
+            stopSpreadEarly = true;
 
           const explosion = new Explosion(bomb);
           explosion.x = foundTile.x;
@@ -67,8 +95,6 @@ export function manageBombPlacement(
     const bombFuse = setInterval(() => {
       bomb.fuse -= 1;
       if (bomb.fuse <= 0) {
-        const bombExplosionLength = 2;
-        const bombPower = 1;
         // Top Left is 0,0
         const leftExplosion = new Array(bombExplosionLength)
           .fill(2)

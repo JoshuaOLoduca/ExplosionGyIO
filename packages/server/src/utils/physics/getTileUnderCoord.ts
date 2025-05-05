@@ -1,10 +1,11 @@
-import { Tile } from "../../schemas/GameState";
+import { TILE_SIZE as GLOBAL_TILE_SIZE } from "../../rooms/GameRoom";
+import { Tile } from "../../schemas";
 
 export function getTileUnderCoord(
   tiles: Tile[],
   x: number,
   y: number,
-  TILE_SIZE = 16
+  TILE_SIZE = GLOBAL_TILE_SIZE
 ) {
   const tileUnderCoord = tiles.find((tile) => {
     const sizeInPixelsFromCentre = (tile.scale || 1) * (TILE_SIZE / 2);
