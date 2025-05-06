@@ -2,7 +2,7 @@ import { BLOCKS_IN_WIDTH, TILE_SIZE } from "../../rooms/GameRoom";
 import { Tile, Player } from "../../schemas";
 import math from "../math";
 import {
-  checkBoxCollision,
+  checkBoxCollisionAlongPath,
   checkCollision,
   getTileUnderCoord,
   isInsideTile,
@@ -23,11 +23,12 @@ export function managePlayerMovement(
     placeBomb: boolean;
   }
 ) {
-  let movementDelta =
+  const getPlayerSpeed = (playerSpeedPowerup: number) =>
     ((options.screenWidth / BLOCKS_IN_WIDTH / 8) *
-      speedLogScaling(player.powerups.get("speed") + 1)) /
+      speedLogScaling(playerSpeedPowerup)) /
     6.25;
 
+  let movementDelta = getPlayerSpeed(player.powerups.get("speed") + 1);
   const originalPlayerCoords = { x: player.x, y: player.y };
   const playerSize =
     (TILE_SIZE / 2) *
@@ -102,4 +103,32 @@ export function managePlayerMovement(
   if (message.down) player.y += movementDelta;
   // D
   if (message.right) player.x += movementDelta;
+
+  const stepSize = getPlayerSpeed(2);
+
+  const collisions = checkBoxCollisionAlongPath(
+    playerSize,
+    tileCollisionList,
+    originalPlayerCoords,
+    player,
+    stepSize
+  );
+
+  if (collisions)
+    for (let [collisinSide] of collisions) {
+      switch (collisinSide) {
+        case "top":
+          player.y += stepSize;
+          break;
+        case "right":
+          player.x -= stepSize;
+          break;
+        case "bottom":
+          player.y -= stepSize;
+          break;
+        case "left":
+          player.x += stepSize;
+          break;
+      }
+    }
 }
