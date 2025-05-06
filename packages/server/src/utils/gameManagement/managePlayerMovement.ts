@@ -104,9 +104,9 @@ export function managePlayerMovement(
   // D
   if (message.right) player.x += movementDelta;
 
-  const stepSize = getPlayerSpeed(2);
+  const stepSize = getPlayerSpeed(2) / 2;
 
-  const collisions = checkBoxCollisionAlongPath(
+  const foundCollisions = checkBoxCollisionAlongPath(
     playerSize,
     tileCollisionList,
     originalPlayerCoords,
@@ -114,21 +114,23 @@ export function managePlayerMovement(
     stepSize
   );
 
-  if (collisions)
+  if (foundCollisions) {
+    const [collisions, collisionCoord] = foundCollisions;
     for (let [collisinSide] of collisions) {
       switch (collisinSide) {
         case "top":
-          player.y += stepSize;
+          player.y = collisionCoord.y + stepSize;
           break;
         case "right":
-          player.x -= stepSize;
+          player.x = collisionCoord.x - stepSize;
           break;
         case "bottom":
-          player.y -= stepSize;
+          player.y = collisionCoord.y - stepSize;
           break;
         case "left":
-          player.x += stepSize;
+          player.x = collisionCoord.x + stepSize;
           break;
       }
     }
+  }
 }

@@ -46,7 +46,7 @@ export function checkBoxCollisionAlongPath(
       },
       collisionTiles
     );
-    if (foundCollisions) return foundCollisions;
+    if (foundCollisions) return [foundCollisions, pathStart] as const;
 
     if (pathStart.y !== pathEnd.y)
       pathStart.y += pathStartYAboveEndY ? stepSize : -stepSize;
