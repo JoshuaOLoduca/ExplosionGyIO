@@ -1,23 +1,21 @@
 import { Tile } from "../../schemas";
 import { isInsideTile } from "./isInsideTile";
 
-type tCoord = { x: number; y: number };
+export type tCoord = { x: number; y: number };
+export type tBox = {
+  top: tCoord;
+  right: tCoord;
+  bottom: tCoord;
+  left: tCoord;
+};
 
 /**
- * 
- * @param box 
- * @param collisionTiles 
+ *
+ * @param box
+ * @param collisionTiles
  * @returns false if array is length 0, otherwise return array of which sides have collisions
  */
-export function checkBoxCollision(
-  box: {
-    top: tCoord;
-    right: tCoord;
-    bottom: tCoord;
-    left: tCoord;
-  },
-  collisionTiles: Tile[]
-) {
+export function checkBoxCollision(box: tBox, collisionTiles: Tile[]) {
   const loopObj = Object.entries(box) as [keyof typeof box, tCoord][];
   const foundCollisions: [keyof typeof box, tCoord][] = [];
 
