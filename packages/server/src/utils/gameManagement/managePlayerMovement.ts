@@ -1,7 +1,12 @@
-import { BLOCKS_IN_WIDTH } from "../../rooms/GameRoom";
+import { BLOCKS_IN_WIDTH, TILE_SIZE } from "../../rooms/GameRoom";
 import { Tile, Player } from "../../schemas";
 import math from "../math";
-import { checkCollision, getTileUnderCoord, isInsideTile } from "../physics";
+import {
+  checkBoxCollision,
+  checkCollision,
+  getTileUnderCoord,
+  isInsideTile,
+} from "../physics";
 
 const speedLogScaling = math.createBaseLog(1.5);
 
@@ -23,6 +28,12 @@ export function managePlayerMovement(
       speedLogScaling(player.powerups.get("speed") + 1)) /
     6.25;
 
+  const originalPlayerCoords = { x: player.x, y: player.y };
+  const playerSize =
+    (TILE_SIZE / 2) *
+    (player?.scale || tileCollisionList.at(0)?.scale || 1) *
+    0.5;
+
   const tileUnderPlayer = getTileUnderCoord(
     arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),
     player.x,
@@ -40,7 +51,7 @@ export function managePlayerMovement(
     player.x,
     player.y - movementDelta,
     tileCollisionList,
-    undefined,
+    playerSize,
     true
   );
   if (topCollide && topCollide !== insideOfTile) {
@@ -51,7 +62,7 @@ export function managePlayerMovement(
     player.x - movementDelta,
     player.y,
     tileCollisionList,
-    undefined,
+    playerSize,
     true
   );
   if (leftCollide && leftCollide !== insideOfTile) {
@@ -62,7 +73,7 @@ export function managePlayerMovement(
     player.x,
     player.y + movementDelta,
     tileCollisionList,
-    undefined,
+    playerSize,
     true
   );
   if (downCollide && downCollide !== insideOfTile) {
@@ -73,7 +84,7 @@ export function managePlayerMovement(
     player.x + movementDelta,
     player.y,
     tileCollisionList,
-    undefined,
+    playerSize,
     true
   );
   if (rightCollide && rightCollide !== insideOfTile) message.right = false;
