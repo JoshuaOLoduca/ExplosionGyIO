@@ -68,10 +68,14 @@ export class GameRoom extends Room<GameState> {
       mapSlice.forEach((tile, tileIndex) => {
         const tileObject = new Tile();
 
-        tileObject.x =
-          (tileIndex + 0.5) * (options.screenWidth / BLOCKS_IN_WIDTH);
-        tileObject.y =
-          (sliceIndex + 0.5) * (options.screenWidth / BLOCKS_IN_WIDTH);
+        tileObject.x = +(
+          (tileIndex + 0.5) *
+          (options.screenWidth / BLOCKS_IN_WIDTH)
+        ).toFixed(0);
+        tileObject.y = +(
+          (sliceIndex + 0.5) *
+          (options.screenWidth / BLOCKS_IN_WIDTH)
+        ).toFixed(0);
         tileObject.imageId = getImageId(tile);
         tileObject.scale = ratio;
 
