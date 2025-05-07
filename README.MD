@@ -28,7 +28,7 @@ Josh - Code!\
 
 - [/] Classic Arcade gameplay
   - [/] In house developed physics/collision system
-    - [/] Box Collision Check
+    - [x] Box Collision Check
 - [/] Multiplayer!
   - [x] Server Authoritative design
   - [/] Join By Browser
