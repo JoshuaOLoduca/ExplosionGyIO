@@ -29,6 +29,7 @@ export function managePlayerMovement(
     6.25;
 
   let movementDelta = getPlayerSpeed(player.powerups.get("speed") + 1);
+  const wallCheckMoveStep = getPlayerSpeed(2);
   const originalPlayerCoords = { x: player.x, y: player.y };
   const playerSize =
     (TILE_SIZE / 2) *
@@ -55,7 +56,7 @@ export function managePlayerMovement(
   if (message.up) {
     const topCollide = checkCollision(
       player.x,
-      player.y - movementDelta,
+      player.y - wallCheckMoveStep,
       filteredCollisionList,
       playerSize,
       true
@@ -66,7 +67,7 @@ export function managePlayerMovement(
   // A
   if (message.left) {
     const leftCollide = checkCollision(
-      player.x - movementDelta,
+      player.x - wallCheckMoveStep,
       player.y,
       filteredCollisionList,
       playerSize,
@@ -79,7 +80,7 @@ export function managePlayerMovement(
   if (message.down) {
     const downCollide = checkCollision(
       player.x,
-      player.y + movementDelta,
+      player.y + wallCheckMoveStep,
       filteredCollisionList,
       playerSize,
       true
@@ -90,7 +91,7 @@ export function managePlayerMovement(
   // D
   if (message.right) {
     const rightCollide = checkCollision(
-      player.x + movementDelta,
+      player.x + wallCheckMoveStep,
       player.y,
       filteredCollisionList,
       playerSize,
