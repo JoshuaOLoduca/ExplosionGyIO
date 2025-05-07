@@ -52,48 +52,51 @@ export function managePlayerMovement(
   // disable diagnal input if it would collide.
   // this retains full speed if user is walking into a wall.
   // W
-  const topCollide = checkCollision(
-    player.x,
-    player.y - movementDelta,
-    filteredCollisionList,
-    playerSize,
-    true
-  );
-  if (topCollide) {
-    message.up = false;
+  if (message.up) {
+    const topCollide = checkCollision(
+      player.x,
+      player.y - movementDelta,
+      filteredCollisionList,
+      playerSize,
+      true
+    );
+    if (topCollide) message.up = false;
   }
+
   // A
-  const leftCollide = checkCollision(
-    player.x - movementDelta,
-    player.y,
-    filteredCollisionList,
-    playerSize,
-    true
-  );
-  if (leftCollide) {
-    message.left = false;
+  if (message.left) {
+    const leftCollide = checkCollision(
+      player.x - movementDelta,
+      player.y,
+      filteredCollisionList,
+      playerSize,
+      true
+    );
+    if (leftCollide) message.left = false;
   }
+
   // S
-  const downCollide = checkCollision(
-    player.x,
-    player.y + movementDelta,
-    filteredCollisionList,
-    playerSize,
-    true
-  );
-  if (downCollide) {
-    message.down = false;
+  if (message.down) {
+    const downCollide = checkCollision(
+      player.x,
+      player.y + movementDelta,
+      filteredCollisionList,
+      playerSize,
+      true
+    );
+    if (downCollide) message.down = false;
   }
+
   // D
-  const rightCollide = checkCollision(
-    player.x + movementDelta,
-    player.y,
-    filteredCollisionList,
-    playerSize,
-    true
-  );
-  if (rightCollide) {
-    message.right = false;
+  if (message.right) {
+    const rightCollide = checkCollision(
+      player.x + movementDelta,
+      player.y,
+      filteredCollisionList,
+      playerSize,
+      true
+    );
+    if (rightCollide) message.right = false;
   }
 
   // Normalize input
