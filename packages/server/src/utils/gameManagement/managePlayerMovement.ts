@@ -46,10 +46,9 @@ export function managePlayerMovement(
       isInsideTile(player.x, player.y, colTile)
     );
 
-  const filteredCollisionList =
-    insideOfTile instanceof Bomb
-      ? tileCollisionList.filter((tile) => tile !== insideOfTile)
-      : tileCollisionList;
+  const filteredCollisionList = insideOfTile
+    ? tileCollisionList.filter((tile) => tile !== insideOfTile)
+    : tileCollisionList;
   // disable diagnal input if it would collide.
   // this retains full speed if user is walking into a wall.
   // W
@@ -60,7 +59,7 @@ export function managePlayerMovement(
     playerSize,
     true
   );
-  if (topCollide && topCollide !== insideOfTile) {
+  if (topCollide) {
     message.up = false;
   }
   // A
@@ -71,7 +70,7 @@ export function managePlayerMovement(
     playerSize,
     true
   );
-  if (leftCollide && leftCollide !== insideOfTile) {
+  if (leftCollide) {
     message.left = false;
   }
   // S
@@ -82,7 +81,7 @@ export function managePlayerMovement(
     playerSize,
     true
   );
-  if (downCollide && downCollide !== insideOfTile) {
+  if (downCollide) {
     message.down = false;
   }
   // D
@@ -93,7 +92,7 @@ export function managePlayerMovement(
     playerSize,
     true
   );
-  if (rightCollide && rightCollide !== insideOfTile) {
+  if (rightCollide) {
     message.right = false;
   }
 
