@@ -29,12 +29,12 @@ export function managePlayerMovement(
     6.25;
 
   let movementDelta = getPlayerSpeed(player.powerups.get("speed") + 1);
-  const wallCheckMoveStep = getPlayerSpeed(2);
   const originalPlayerCoords = { x: player.x, y: player.y };
   const playerSize =
     (TILE_SIZE / 2) *
     (player?.scale || tileCollisionList.at(0)?.scale || 1) *
     0.5;
+  const wallCheckMoveStep = playerSize * 0.4;
 
   const tileUnderPlayer = getTileUnderCoord(
     arrOfGrassTiles.filter((grassTile) => !!grassTile.bomb),
