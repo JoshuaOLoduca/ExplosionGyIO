@@ -1,5 +1,5 @@
 import { BLOCKS_IN_WIDTH, TILE_SIZE } from "../../rooms/GameRoom";
-import { Tile, Player } from "../../schemas";
+import { Tile, Player, Bomb } from "../../schemas";
 import math from "../math";
 import {
   checkBoxCollisionAlongPath,
@@ -45,13 +45,18 @@ export function managePlayerMovement(
     tileCollisionList.find((colTile) =>
       isInsideTile(player.x, player.y, colTile)
     );
+
+  const filteredCollisionList =
+    insideOfTile instanceof Bomb
+      ? tileCollisionList.filter((tile) => tile !== insideOfTile)
+      : tileCollisionList;
   // disable diagnal input if it would collide.
   // this retains full speed if user is walking into a wall.
   // W
   const topCollide = checkCollision(
     player.x,
     player.y - movementDelta,
-    tileCollisionList,
+    filteredCollisionList,
     playerSize,
     true
   );
@@ -62,7 +67,7 @@ export function managePlayerMovement(
   const leftCollide = checkCollision(
     player.x - movementDelta,
     player.y,
-    tileCollisionList,
+    filteredCollisionList,
     playerSize,
     true
   );
@@ -73,7 +78,7 @@ export function managePlayerMovement(
   const downCollide = checkCollision(
     player.x,
     player.y + movementDelta,
-    tileCollisionList,
+    filteredCollisionList,
     playerSize,
     true
   );
@@ -84,7 +89,7 @@ export function managePlayerMovement(
   const rightCollide = checkCollision(
     player.x + movementDelta,
     player.y,
-    tileCollisionList,
+    filteredCollisionList,
     playerSize,
     true
   );
@@ -110,7 +115,7 @@ export function managePlayerMovement(
 
   const foundCollisions = checkBoxCollisionAlongPath(
     playerSize,
-    tileCollisionList,
+    filteredCollisionList,
     originalPlayerCoords,
     player,
     stepSize
@@ -118,6 +123,7 @@ export function managePlayerMovement(
 
   if (foundCollisions) {
     const [collisions, collisionCoord] = foundCollisions;
+
     for (let [collisinSide] of collisions) {
       switch (collisinSide) {
         case "top":
