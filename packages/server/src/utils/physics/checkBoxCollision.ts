@@ -3,9 +3,13 @@ import { isInsideTile } from "./isInsideTile";
 
 export type tCoord = { x: number; y: number };
 export type tBox = {
+  topLeft?: tCoord;
   top: tCoord;
+  topRight?: tCoord;
   right: tCoord;
+  bottomLeft?: tCoord;
   bottom: tCoord;
+  bottomRight?: tCoord;
   left: tCoord;
 };
 

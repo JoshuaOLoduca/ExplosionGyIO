@@ -126,20 +126,39 @@ export function managePlayerMovement(
 
   if (foundCollisions) {
     const [collisions, collisionCoord] = foundCollisions;
+    player.x = collisionCoord.x;
+    player.y = collisionCoord.y;
 
     for (let [collisinSide] of collisions) {
       switch (collisinSide) {
         case "top":
-          player.y = collisionCoord.y + stepSize;
+          player.y += stepSize;
           break;
         case "right":
-          player.x = collisionCoord.x - stepSize;
+          player.x -= stepSize;
           break;
         case "bottom":
-          player.y = collisionCoord.y - stepSize;
+          player.y -= stepSize;
           break;
         case "left":
-          player.x = collisionCoord.x + stepSize;
+          player.x += stepSize;
+          break;
+
+        case "topLeft":
+          player.y += stepSize;
+          player.x += stepSize;
+          break;
+        case "topRight":
+          player.y += stepSize;
+          player.x -= stepSize;
+          break;
+        case "bottomLeft":
+          player.y -= stepSize;
+          player.x += stepSize;
+          break;
+        case "bottomRight":
+          player.x -= stepSize;
+          player.y -= stepSize;
           break;
       }
     }
