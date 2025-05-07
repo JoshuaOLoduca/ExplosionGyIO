@@ -28,9 +28,12 @@ Josh - Code!\
 
 - [/] Classic Arcade gameplay
   - [/] In house developed physics/collision system
-- [x] Multiplayer!
+    - [/] Box Collision Check
+- [/] Multiplayer!
   - [x] Server Authoritative design
-- [ ] Lobbies/Discord Activity
+  - [/] Join By Browser
+  - [] Join By Discord
+- [ ] Lobbies
 - [ ] Large player count support per lobby
 
 ## Features
