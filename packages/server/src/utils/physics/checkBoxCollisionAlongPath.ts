@@ -27,7 +27,7 @@ export function checkBoxCollisionAlongPath(
    */
   const pathStartXLeftEndX = pathStart.x < pathEnd.x;
 
-  while (pathStart.x !== pathEnd.x && pathStart.y !== pathEnd.y) {
+  while (pathStart.x !== pathEnd.x || pathStart.y !== pathEnd.y) {
     if (pathStartYAboveEndY && pathStart.y > pathEnd.y) pathStart.y = pathEnd.y;
     else if (!pathStartYAboveEndY && pathStart.y < pathEnd.y)
       pathStart.y = pathEnd.y;

@@ -88,7 +88,9 @@ export function managePlayerMovement(
     playerSize,
     true
   );
-  if (rightCollide && rightCollide !== insideOfTile) message.right = false;
+  if (rightCollide && rightCollide !== insideOfTile) {
+    message.right = false;
+  }
 
   // Normalize input
   const MOVING_DIAGNAL =
