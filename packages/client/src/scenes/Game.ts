@@ -34,6 +34,9 @@ export class Game extends Scene {
 
     const $ = getStateCallbacks(this.room);
 
+    // /////////////////////////
+    //        Power Ups
+    // /////////////////////////
     $(this.room.state).powerUps.onAdd((powerUp: any, id: string) => {
       const powerUpSprite = renderBaseTile.call(this, powerUp);
       this.data.set(id, powerUpSprite);
@@ -43,6 +46,9 @@ export class Game extends Scene {
       this.data.get(id)?.destroy();
     });
 
+    // /////////////////////////
+    //     Map Rendering
+    // /////////////////////////
     $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
       const initAsCrate = tile.imageId === "crate";
       let crateSprite;
@@ -69,6 +75,9 @@ export class Game extends Scene {
       });
     });
 
+    // /////////////////////////
+    //     Player Join/Quit
+    // /////////////////////////
     $(this.room.state).players.onAdd((player, playerId) => {
       if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
       const playerSprite = this.add
@@ -89,19 +98,21 @@ export class Game extends Scene {
       this.sessionIds.delete(playerId);
     });
 
-    this.add
-      .text(
-        this.cameras.main.width * 0.5,
-        this.cameras.main.height * 0.95,
-        `Connected as: ${getUserName()}`,
-        {
-          font: "14px Arial",
-          color: "#000000",
-        }
-      )
-      .setOrigin(0.5);
-
+    // /////////////////////////
+    //         Debug
+    // /////////////////////////
     if (DEBUG) {
+      this.add
+        .text(
+          this.cameras.main.width * 0.5,
+          this.cameras.main.height * 0.95,
+          `Connected as: ${getUserName()}`,
+          {
+            font: "14px Arial",
+            color: "#000000",
+          }
+        )
+        .setOrigin(0.5);
       this.data.set(
         "DEBUG-mouse",
         this.add
