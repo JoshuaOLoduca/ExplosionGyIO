@@ -8,6 +8,12 @@ import {
   renderBaseTile,
   eRenderDepth,
 } from "../utils/gameManagement";
+import { tPlayer, tPowerUp, tTile } from "explosion-gyio";
+import { Schema } from "@colyseus/schema";
+
+type tPlayerSchema = tPlayer & Schema;
+type tTileSchema = tTile & Schema;
+type tPowerUpSchema = tPowerUp & Schema;
 
 const DEBUG = true;
 
@@ -37,19 +43,21 @@ export class Game extends Scene {
     // /////////////////////////
     //        Power Ups
     // /////////////////////////
-    $(this.room.state).powerUps.onAdd((powerUp: any, id: string) => {
+    $(this.room.state).powerUps.onAdd((powerUp: tPowerUpSchema, id: string) => {
       const powerUpSprite = renderBaseTile.call(this, powerUp);
       this.data.set(id, powerUpSprite);
     });
 
-    $(this.room.state).powerUps.onRemove((powerUp: any, id: string) => {
-      this.data.get(id)?.destroy();
-    });
+    $(this.room.state).powerUps.onRemove(
+      (powerUp: tPowerUpSchema, id: string) => {
+        this.data.get(id)?.destroy();
+      }
+    );
 
     // /////////////////////////
     //     Map Rendering
     // /////////////////////////
-    $(this.room.state).tiles.onAdd((tile: any, tileId: string) => {
+    $(this.room.state).tiles.onAdd((tile: tTileSchema, tileId: string) => {
       const initAsCrate = tile.imageId === "crate";
       let crateSprite;
       if (initAsCrate) {
@@ -76,27 +84,32 @@ export class Game extends Scene {
     });
 
     // /////////////////////////
-    //     Player Join/Quit
+    //  Player Join/Quit/Change
     // /////////////////////////
-    $(this.room.state).players.onAdd((player, playerId) => {
-      if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
-      const playerSprite = this.add
-        .circle(player.x, player.y, 32, 0xff0000)
-        .setDepth(eRenderDepth.PLAYER);
-      this.data.set(playerId, playerSprite);
+    $(this.room.state).players.onAdd(
+      (player: tPlayerSchema, playerId: string) => {
+        if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
+        const playerSprite = this.add
+          .circle(player.x, player.y, 32, 0xff0000)
+          .setDepth(eRenderDepth.PLAYER);
+        this.data.set(playerId, playerSprite);
 
-      $(player).onChange(() => {
-        const playerSprite = this.data.get(playerId);
-        if (!playerSprite) return;
-        playerSprite.setData("serverX", player.x);
-        playerSprite.setData("serverY", player.y);
-      });
-    });
+        $(player).onChange(() => {
+          const playerSprite = this.data.get(playerId);
+          if (!playerSprite) return;
+          playerSprite.setData("serverX", player.x);
+          playerSprite.setData("serverY", player.y);
+        });
+      }
+    );
 
-    $(this.room.state).players.onRemove((player, playerId) => {
-      this.data.get(playerId)?.destroy();
-      this.sessionIds.delete(playerId);
-    });
+    $(this.room.state).players.onRemove(
+      (player: tPlayerSchema, playerId: string) => {
+        this.data.get(playerId)?.destroy();
+        this.data.remove(playerId);
+        this.sessionIds.delete(playerId);
+      }
+    );
 
     // /////////////////////////
     //         Debug

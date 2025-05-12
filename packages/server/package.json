@@ -29,6 +29,7 @@
     "uwebsockets-express": "^1.2.2"
   },
   "devDependencies": {
+    "@types/explosion-gyio": "file:../types",
     "@types/express": "^4.17.11",
     "@types/node": "^20.12.11",
     "nodemon": "^3.0.3",

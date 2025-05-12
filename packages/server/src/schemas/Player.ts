@@ -1,18 +1,11 @@
 import { type } from "@colyseus/schema";
 import { BaseTile } from "./BaseTile";
 import { powerUpTypes, tPowerUps } from "./PowerUp";
-
-type tUserInput = {
-  up: boolean;
-  left: boolean;
-  down: boolean;
-  right: boolean;
-  placeBomb: boolean;
-};
+import type { tPlayer, tUserInput } from "explosion-gyio";
 
 export type tUserInputQueue = [time: number, message: tUserInput];
 
-export class Player extends BaseTile {
+export class Player extends BaseTile implements tPlayer {
   private _maxInputQueue = 10;
   private _inputQueue: tUserInputQueue[] = new Array(this._maxInputQueue).fill(
     []
