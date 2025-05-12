@@ -165,9 +165,9 @@ export class Game extends Scene {
 
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {
-      managePlayerInput.call(this);
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick(time, this.fixedTimeStep);
+      managePlayerInput.call(this);
     }
   }
 
