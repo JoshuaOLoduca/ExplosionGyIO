@@ -33,7 +33,6 @@ export class Game extends Scene {
     await this.connect();
 
     const $ = getStateCallbacks(this.room);
-    const colyseusRoom = this;
 
     $(this.room.state).powerUps.onAdd((powerUp: any, id: string) => {
       const powerUpSprite = renderBaseTile.call(this, powerUp);
