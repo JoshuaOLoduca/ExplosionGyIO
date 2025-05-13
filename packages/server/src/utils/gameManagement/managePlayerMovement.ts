@@ -28,7 +28,7 @@ export function managePlayerMovement(
       speedLogScaling(playerSpeedPowerup)) /
     6.25;
 
-  let movementDelta = getPlayerSpeed(player.powerups.get("speed") + 1);
+  let movementDelta = getPlayerSpeed(player.powerUpsHelper.get("speed") + 1);
   const originalPlayerCoords = { x: player.x, y: player.y };
   const playerSize =
     (TILE_SIZE / 2) *

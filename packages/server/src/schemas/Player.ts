@@ -14,27 +14,30 @@ export class Player extends BaseTile implements tPlayer {
 
   @view()
   @type({ map: "number" })
-  private _powerUps = new MapSchema<number, tPowerUps>();
+  powerUps = new MapSchema<number, tPowerUps>();
 
   constructor() {
     super();
-    powerUpTypes.forEach((powerUp) => this._powerUps.set(powerUp, 1));
+    powerUpTypes.forEach((powerUp) => this.powerUps.set(powerUp, 1));
   }
 
-  powerups = {
+  powerUpsHelper = {
     hasExplosionPen: () => {
       return false;
     },
     change: (powerup: tPowerUps, changeAmount: number) => {
-      this._powerUps.set(powerup, this.powerups.get(powerup) + changeAmount);
+      this.powerUps.set(
+        powerup,
+        this.powerUpsHelper.get(powerup) + changeAmount
+      );
       return true;
     },
     set: (powerup: tPowerUps, newValue: number) => {
-      this._powerUps.set(powerup, newValue);
+      this.powerUps.set(powerup, newValue);
       return true;
     },
     get: (powerup: tPowerUps) => {
-      return this._powerUps.get(powerup) || 0;
+      return this.powerUps.get(powerup) || 0;
     },
     debuff: (powerup: tPowerUps, debuffLengthMs: number) => {
       if (
@@ -43,10 +46,10 @@ export class Player extends BaseTile implements tPlayer {
       ) {
         debuffLengthMs = 1000 * 3;
       }
-      const currentPowerValue = this.powerups.get(powerup);
-      this.powerups.set(powerup, Number.NEGATIVE_INFINITY);
+      const currentPowerValue = this.powerUpsHelper.get(powerup);
+      this.powerUpsHelper.set(powerup, Number.NEGATIVE_INFINITY);
       setTimeout(() => {
-        this.powerups.set(powerup, currentPowerValue);
+        this.powerUpsHelper.set(powerup, currentPowerValue);
       }, debuffLengthMs);
     },
   };

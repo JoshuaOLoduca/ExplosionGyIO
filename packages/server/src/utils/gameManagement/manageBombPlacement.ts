@@ -15,10 +15,10 @@ export function manageBombPlacement(
     const bombsPlacedByPlayer = Array.from(this.BOMBS).filter(
       (bomb) => bomb.fuse && bomb.owner === player
     ).length;
-    if (bombsPlacedByPlayer >= player.powerups.get("bombCount")) return;
+    if (bombsPlacedByPlayer >= player.powerUpsHelper.get("bombCount")) return;
 
-    const bombExplosionLength = player.powerups.get("bombSize");
-    const bombPower = player.powerups.get("bombDamage");
+    const bombExplosionLength = player.powerUpsHelper.get("bombSize");
+    const bombPower = player.powerUpsHelper.get("bombDamage");
 
     const bomb = new Bomb();
     bomb.owner = player;
@@ -72,7 +72,7 @@ export function manageBombPlacement(
           }
           if (foundTile.imageId.includes("crate")) stopSpreadEarly = true;
           if (
-            !player.powerups.hasExplosionPen() &&
+            !player.powerUpsHelper.hasExplosionPen() &&
             foundTile.bomb &&
             foundTile.bomb.fuse
           )
