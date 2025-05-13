@@ -112,6 +112,9 @@ export class Game extends Scene {
     $(this.room.state).players.onAdd(
       (player: tPlayerSchema, playerId: string) => {
         if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
+        // resyncronizes the private variables to their typed name
+        player.powerUps = (player as any)._powerUps;
+
         const playerSprite = this.add
           .circle(player.x, player.y, 32, 0xff0000)
           .setDepth(eRenderDepth.PLAYER);
