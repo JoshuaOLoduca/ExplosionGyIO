@@ -34,49 +34,39 @@ export class Game extends Scene {
     placeBomb: false,
   };
   HUD: { health: Phaser.GameObjects.Text; bombCount: Phaser.GameObjects.Text };
-  playerStats = {
+  private _playerStats = {
     maxHealth: 0,
-    _bombCount: 1,
-    get bombCount() {
-      return this._bombCount;
-    },
-    // These sets get replaced with constructor.
-    // Purely here to get rid of TS warnings
-    set bombCount(num: number) {
-      this._bombCount = num;
-    },
-    _bombPlaced: 0,
-    get bombPlaced() {
-      return this._bombPlaced;
-    },
-    // These sets get replaced with constructor.
-    // Purely here to get rid of TS warnings
-    set bombPlaced(num: number) {
-      this._bombPlaced = num;
-    },
+    bombCount: 1,
+    bombPlaced: 0,
   };
+
+  playerStats: typeof this._playerStats;
 
   constructor() {
     super("Game");
 
-    const updateBombPlacedHud = () => {
-      if (this.HUD.bombCount)
-        this.HUD.bombCount.setText(
-          HUD.BOMB.repeat(
-            this.playerStats.bombCount - this.playerStats.bombPlaced
-          )
-        );
-    };
-    Object.defineProperty(this.playerStats, "bombPlaced", {
-      set: (num: number) => {
-        this.playerStats._bombPlaced = num;
-        updateBombPlacedHud();
-      },
-    });
-    Object.defineProperty(this.playerStats, "bombCount", {
-      set: (num: number) => {
-        this.playerStats._bombCount = num;
-        updateBombPlacedHud();
+    this.playerStats = new Proxy(this._playerStats, {
+      set: (obj, prop: keyof typeof this._playerStats, value) => {
+        const returnValue = Reflect.set(obj, prop, value);
+
+        switch (prop) {
+          case "bombCount":
+          case "bombPlaced":
+            if (this.HUD.bombCount)
+              this.HUD.bombCount.setText(
+                HUD.BOMB.repeat(
+                  // Prevent it from going below 0. Can happen due to bombPlaced being updated before bombCount.
+                  Math.max(
+                    this.playerStats.bombCount - this.playerStats.bombPlaced,
+                    0
+                  )
+                )
+              );
+            break;
+          case "maxHealth":
+            break;
+        }
+        return returnValue;
       },
     });
   }
@@ -125,7 +115,7 @@ export class Game extends Scene {
     });
 
     $(this.room.state).powerUps.onRemove(
-      (powerUp: tPowerUpSchema, id: string) => {
+      (_powerUp: tPowerUpSchema, id: string) => {
         this.data.get(id)?.destroy();
       }
     );
@@ -213,7 +203,7 @@ export class Game extends Scene {
     );
 
     $(this.room.state).players.onRemove(
-      (player: tPlayerSchema, playerId: string) => {
+      (_player: tPlayerSchema, playerId: string) => {
         this.data.get(playerId)?.destroy();
         this.data.remove(playerId);
         this.sessionIds.delete(playerId);
@@ -255,7 +245,7 @@ export class Game extends Scene {
     }
   }
 
-  fixedTick(time: number, delta: number) {
+  fixedTick(_time: number, _delta: number) {
     if (!this.room) return;
     if (DEBUG) {
       this.data
