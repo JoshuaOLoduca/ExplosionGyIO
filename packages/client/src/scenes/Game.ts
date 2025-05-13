@@ -31,6 +31,9 @@ export class Game extends Scene {
     placeBomb: false,
   };
   HUD: { health: Phaser.GameObjects.Text };
+  playerStats = {
+    maxHealth: 0,
+  };
 
   constructor() {
     super("Game");
@@ -116,8 +119,8 @@ export class Game extends Scene {
 
         if (playerId === this.room.sessionId) {
           this.HUD.health.setText(HEALTH_HEART.repeat(player.health));
+          this.playerStats.maxHealth = player.health;
         }
-        let maxHealth = player.health;
 
         $(player).onChange(() => {
           const playerSprite = this.data.get(playerId);
@@ -126,7 +129,10 @@ export class Game extends Scene {
           playerSprite.setData("serverY", player.y);
 
           if (playerId === this.room.sessionId) {
-            if (player.health > maxHealth) maxHealth = player.health;
+            if (player.health > this.playerStats.maxHealth)
+              this.playerStats.maxHealth = player.health;
+
+            const { maxHealth } = this.playerStats;
             this.HUD.health.setText(
               HEALTH_HEART.repeat(player.health) +
                 HEALTH_MISSING_HEART.repeat(maxHealth - player.health)
