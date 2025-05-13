@@ -45,6 +45,9 @@ export class Game extends Scene {
   constructor() {
     super("Game");
 
+    /**
+     * Listen for updates to player stats, and update the HUD accordingly
+     */
     this.playerStats = new Proxy(this._playerStats, {
       set: (obj, prop: keyof typeof this._playerStats, value) => {
         const returnValue = Reflect.set(obj, prop, value);
