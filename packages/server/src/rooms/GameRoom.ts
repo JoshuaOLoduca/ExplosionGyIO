@@ -20,6 +20,7 @@ import {
   managePowerUpPickup,
 } from "../utils/gameManagement";
 import { manageBombDamageToCrate } from "../utils/gameManagement/manageBombDamageToCrates";
+import { StateView } from "@colyseus/schema";
 
 export const TILE_SIZE = 16;
 export const BLOCKS_IN_WIDTH = 19;
@@ -240,6 +241,10 @@ export class GameRoom extends Room<GameState> {
     player.y = spawnTile.y;
 
     this.state.players.set(client.sessionId, player);
+
+    // Allows the connected user to get their powerup state, and ONLY them.
+    if (!client.view) client.view = new StateView();
+    if (!client.view.has(player)) client.view.add(player);
   }
 
   onLeave(client: Client, consented: boolean): void | Promise<any> {

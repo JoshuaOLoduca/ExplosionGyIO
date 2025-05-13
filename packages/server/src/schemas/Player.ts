@@ -1,4 +1,4 @@
-import { type } from "@colyseus/schema";
+import { MapSchema, type, view } from "@colyseus/schema";
 import { BaseTile } from "./BaseTile";
 import { powerUpTypes, tPowerUps } from "./PowerUp";
 import type { tPlayer, tUserInput } from "explosion-gyio";
@@ -11,7 +11,10 @@ export class Player extends BaseTile implements tPlayer {
     []
   );
   private _lastInputQueueIndex = 0;
-  private _powerUps = new Map<tPowerUps, number>();
+
+  @view()
+  @type({ map: "number" })
+  private _powerUps = new MapSchema<number, tPowerUps>();
 
   constructor() {
     super();

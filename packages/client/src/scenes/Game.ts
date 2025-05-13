@@ -128,6 +128,7 @@ export class Game extends Scene {
           playerSprite.setData("serverX", player.x);
           playerSprite.setData("serverY", player.y);
 
+          debugger;
           if (playerId === this.room.sessionId) {
             if (player.health > this.playerStats.maxHealth)
               this.playerStats.maxHealth = player.health;
