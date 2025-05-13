@@ -9,14 +9,17 @@ import {
   eRenderDepth,
 } from "../utils/gameManagement";
 import { tPlayer, tPowerUp, tTile } from "explosion-gyio";
-import { Schema } from "@colyseus/schema";
+import { MapSchema, Schema } from "@colyseus/schema";
 
-type tPlayerSchema = tPlayer<Schema>;
+type tPlayerSchema = tPlayer<Schema, Schema>;
 type tTileSchema = tTile<Schema>;
 type tPowerUpSchema = tPowerUp<Schema>;
 
-const HEALTH_HEART = "💖";
-const HEALTH_MISSING_HEART = "💙";
+const HUD = {
+  HEALTH_HEART: "💖",
+  HEALTH_MISSING_HEART: "💙",
+  BOMB: "💣",
+};
 const DEBUG = true;
 
 export class Game extends Scene {
@@ -30,13 +33,48 @@ export class Game extends Scene {
     right: false,
     placeBomb: false,
   };
-  HUD: { health: Phaser.GameObjects.Text };
+  HUD: { health: Phaser.GameObjects.Text; bombCount: Phaser.GameObjects.Text };
   playerStats = {
     maxHealth: 0,
+    _bombCount: 1,
+    get bombCount() {
+      return this._bombCount;
+    },
+    set bombCount(num: number) {
+      this._bombCount = num;
+    },
+    _bombPlaced: 0,
+    get bombPlaced() {
+      return this._bombPlaced;
+    },
+    set bombPlaced(num: number) {
+      this._bombPlaced = num;
+    },
   };
 
   constructor() {
     super("Game");
+
+    const updateBombPlacedHud = () => {
+      if (this.HUD.bombCount)
+        this.HUD.bombCount.setText(
+          HUD.BOMB.repeat(
+            this.playerStats.bombCount - this.playerStats.bombPlaced
+          )
+        );
+    };
+    Object.defineProperty(this.playerStats, "bombPlaced", {
+      set: (num: number) => {
+        this.playerStats._bombPlaced = num;
+        updateBombPlacedHud();
+      },
+    });
+    Object.defineProperty(this.playerStats, "bombCount", {
+      set: (num: number) => {
+        this.playerStats._bombCount = num;
+        updateBombPlacedHud();
+      },
+    });
   }
 
   async create() {
@@ -49,7 +87,7 @@ export class Game extends Scene {
       health: this.add.text(
         this.cameras.main.width * 0.008,
         this.cameras.main.height * 0.01,
-        HEALTH_HEART.repeat(3),
+        HUD.HEALTH_HEART.repeat(3),
         {
           fontFamily: "Arial Black",
           fontSize: 69,
@@ -59,9 +97,20 @@ export class Game extends Scene {
           align: "center",
         }
       ),
+      bombCount: this.add.text(
+        this.cameras.main.width * 0.25,
+        this.cameras.main.height * 0.01,
+        HUD.BOMB.repeat(1),
+        {
+          fontFamily: "Arial Black",
+          fontSize: 69,
+          align: "center",
+        }
+      ),
     };
 
-    this.HUD.health.setDepth(eRenderDepth.HUD);
+    for (const textElm of Object.values(this.HUD))
+      if ("setDepth" in textElm) textElm.setDepth(eRenderDepth.HUD);
 
     // /////////////////////////
     //        Power Ups
@@ -112,8 +161,6 @@ export class Game extends Scene {
     $(this.room.state).players.onAdd(
       (player: tPlayerSchema, playerId: string) => {
         if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
-        // resyncronizes the private variables to their typed name
-        player.powerUps = (player as any)._powerUps;
 
         const playerSprite = this.add
           .circle(player.x, player.y, 32, 0xff0000)
@@ -121,9 +168,25 @@ export class Game extends Scene {
         this.data.set(playerId, playerSprite);
 
         if (playerId === this.room.sessionId) {
-          this.HUD.health.setText(HEALTH_HEART.repeat(player.health));
+          this.HUD.health.setText(HUD.HEALTH_HEART.repeat(player.health));
           this.playerStats.maxHealth = player.health;
         }
+
+        if (player.powerUps)
+          $(player.powerUps).onChange((value, powerUp) => {
+            if (playerId !== this.room.sessionId) return;
+            switch (powerUp) {
+              case "speed":
+                break;
+              case "bombSize":
+                break;
+              case "bombCount":
+                this.playerStats.bombCount = value;
+                break;
+              case "bombDamage":
+                break;
+            }
+          });
 
         $(player).onChange(() => {
           const playerSprite = this.data.get(playerId);
@@ -137,8 +200,8 @@ export class Game extends Scene {
 
             const { maxHealth } = this.playerStats;
             this.HUD.health.setText(
-              HEALTH_HEART.repeat(player.health) +
-                HEALTH_MISSING_HEART.repeat(maxHealth - player.health)
+              HUD.HEALTH_HEART.repeat(player.health) +
+                HUD.HEALTH_MISSING_HEART.repeat(maxHealth - player.health)
             );
           }
         });

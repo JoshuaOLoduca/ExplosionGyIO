@@ -1,6 +1,8 @@
 import { getStateCallbacks } from "colyseus.js";
 import { Game } from "../../scenes/Game";
 import { renderBaseTile } from "./renderBaseTile";
+import { tBomb, tExplosion } from "explosion-gyio";
+import { ArraySchema, Schema } from "@colyseus/schema";
 
 export function createBombUpdateCB(
   this: Game,
@@ -11,7 +13,11 @@ export function createBombUpdateCB(
   const keysToDestroy: string[] = [];
   const dataKey = tileId + "bomb";
   const updateBombState = () => {
-    const { bomb } = tile;
+    const { bomb } = tile as {
+      bomb: tBomb<Schema> & {
+        explosions: ArraySchema<tExplosion<Schema>> & Schema;
+      };
+    };
     // //////////////////////
     //   Bomb replacement
     // //////////////////////
@@ -46,10 +52,17 @@ export function createBombUpdateCB(
       });
       spriteToAdd.anims.play("bomb");
 
+      if (bomb.owner?.clientId === this.room.sessionId) {
+        this.playerStats.bombPlaced++;
+      }
+
       $(bomb).onChange(() => {
         if (spriteToAdd.visible && bomb?.fuse <= 0) {
           spriteToAdd.setVisible(false);
           spriteToAdd.disableInteractive(true);
+          if (bomb.owner?.clientId === this.room.sessionId) {
+            this.playerStats.bombPlaced--;
+          }
         }
       });
 
