@@ -15,6 +15,8 @@ type tPlayerSchema = tPlayer<Schema>;
 type tTileSchema = tTile<Schema>;
 type tPowerUpSchema = tPowerUp<Schema>;
 
+const HEALTH_HEART = "💖";
+const HEALTH_MISSING_HEART = "💙";
 const DEBUG = true;
 
 export class Game extends Scene {
@@ -28,6 +30,7 @@ export class Game extends Scene {
     right: false,
     placeBomb: false,
   };
+  HUD: { health: Phaser.GameObjects.Text };
 
   constructor() {
     super("Game");
@@ -39,6 +42,23 @@ export class Game extends Scene {
     await this.connect();
 
     const $ = getStateCallbacks(this.room);
+    this.HUD = {
+      health: this.add.text(
+        this.cameras.main.width * 0.008,
+        this.cameras.main.height * 0.01,
+        HEALTH_HEART.repeat(3),
+        {
+          fontFamily: "Arial Black",
+          fontSize: 69,
+          color: "#ffffff",
+          stroke: "#000000",
+          strokeThickness: 8,
+          align: "center",
+        }
+      ),
+    };
+
+    this.HUD.health.setDepth(eRenderDepth.HUD);
 
     // /////////////////////////
     //        Power Ups
@@ -94,11 +114,24 @@ export class Game extends Scene {
           .setDepth(eRenderDepth.PLAYER);
         this.data.set(playerId, playerSprite);
 
+        if (playerId === this.room.sessionId) {
+          this.HUD.health.setText(HEALTH_HEART.repeat(player.health));
+        }
+        let maxHealth = player.health;
+
         $(player).onChange(() => {
           const playerSprite = this.data.get(playerId);
           if (!playerSprite) return;
           playerSprite.setData("serverX", player.x);
           playerSprite.setData("serverY", player.y);
+
+          if (playerId === this.room.sessionId) {
+            if (player.health > maxHealth) maxHealth = player.health;
+            this.HUD.health.setText(
+              HEALTH_HEART.repeat(player.health) +
+                HEALTH_MISSING_HEART.repeat(maxHealth - player.health)
+            );
+          }
         });
       }
     );
