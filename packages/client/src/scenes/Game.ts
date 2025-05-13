@@ -155,7 +155,6 @@ export class Game extends Scene {
       speed: this.add.text(
         this.cameras.main.width * (1 / 3) * 2,
         this.cameras.main.height * -0.01,
-        // -10,
         HUD.SPEED.repeat(1),
         {
           fontFamily: "Arial Black",
