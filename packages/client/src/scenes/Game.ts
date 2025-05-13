@@ -40,6 +40,8 @@ export class Game extends Scene {
     get bombCount() {
       return this._bombCount;
     },
+    // These sets get replaced with constructor.
+    // Purely here to get rid of TS warnings
     set bombCount(num: number) {
       this._bombCount = num;
     },
@@ -47,6 +49,8 @@ export class Game extends Scene {
     get bombPlaced() {
       return this._bombPlaced;
     },
+    // These sets get replaced with constructor.
+    // Purely here to get rid of TS warnings
     set bombPlaced(num: number) {
       this._bombPlaced = num;
     },
