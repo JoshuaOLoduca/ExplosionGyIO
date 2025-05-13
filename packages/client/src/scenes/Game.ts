@@ -36,6 +36,7 @@ export class Game extends Scene {
   HUD: { health: Phaser.GameObjects.Text; bombCount: Phaser.GameObjects.Text };
   private _playerStats = {
     maxHealth: 0,
+    currentHealth: 3,
     bombCount: 1,
     bombPlaced: 0,
   };
@@ -67,6 +68,17 @@ export class Game extends Scene {
               );
             break;
           case "maxHealth":
+            break;
+          case "currentHealth":
+            {
+              const { maxHealth, currentHealth } = this.playerStats;
+              // Prevent negative values breaking repeat func.
+              const missingHeartLength = Math.max(maxHealth - currentHealth, 0);
+              this.HUD.health.setText(
+                HUD.HEALTH_HEART.repeat(currentHealth) +
+                  HUD.HEALTH_MISSING_HEART.repeat(missingHeartLength)
+              );
+            }
             break;
         }
         return returnValue;
@@ -165,8 +177,8 @@ export class Game extends Scene {
         this.data.set(playerId, playerSprite);
 
         if (playerId === this.room.sessionId) {
-          this.HUD.health.setText(HUD.HEALTH_HEART.repeat(player.health));
           this.playerStats.maxHealth = player.health;
+          this.playerStats.currentHealth = player.health;
         }
 
         if (player.powerUps)
@@ -194,12 +206,8 @@ export class Game extends Scene {
           if (playerId === this.room.sessionId) {
             if (player.health > this.playerStats.maxHealth)
               this.playerStats.maxHealth = player.health;
-
-            const { maxHealth } = this.playerStats;
-            this.HUD.health.setText(
-              HUD.HEALTH_HEART.repeat(player.health) +
-                HUD.HEALTH_MISSING_HEART.repeat(maxHealth - player.health)
-            );
+            if (player.health !== this.playerStats.maxHealth)
+              this.playerStats.currentHealth = player.health;
           }
         });
       }
