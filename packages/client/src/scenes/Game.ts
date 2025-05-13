@@ -9,11 +9,19 @@ import {
   eRenderDepth,
 } from "../utils/gameManagement";
 import { tPlayer, tPowerUp, tTile } from "explosion-gyio";
-import { MapSchema, Schema } from "@colyseus/schema";
+import { Schema } from "@colyseus/schema";
 
 type tPlayerSchema = tPlayer<Schema, Schema>;
 type tTileSchema = tTile<Schema>;
 type tPowerUpSchema = tPowerUp<Schema>;
+
+function splitIntoMatrix(matrixSize: number) {
+  return (acc, item) => {
+    if (acc!.at(-1)!.length >= matrixSize) acc.push("");
+    acc[acc.length - 1] += item;
+    return acc;
+  };
+}
 
 const HUD = {
   HEALTH_HEART: "💖",
@@ -58,11 +66,14 @@ export class Game extends Scene {
     this.playerStats = new Proxy(this._playerStats, {
       set: (obj, prop: keyof typeof this._playerStats, value) => {
         const returnValue = Reflect.set(obj, prop, value);
+        if (!Object.values(this.HUD).length) return returnValue;
 
+        const emojiPerLine = 6;
+        const fixedEmojiLineLength = emojiPerLine * 2;
         switch (prop) {
           case "bombCount":
           case "bombPlaced":
-            if (this.HUD.bombCount)
+            {
               this.HUD.bombCount.setText(
                 HUD.BOMB.repeat(
                   // Prevent it from going below 0. Can happen due to bombPlaced being updated before bombCount.
@@ -71,7 +82,10 @@ export class Game extends Scene {
                     0
                   )
                 )
+                  .split("")
+                  .reduce<string[]>(splitIntoMatrix(fixedEmojiLineLength), [""])
               );
+            }
             break;
           case "maxHealth":
           case "currentHealth":
@@ -80,13 +94,21 @@ export class Game extends Scene {
               // Prevent negative values breaking repeat func.
               const missingHeartLength = Math.max(maxHealth - currentHealth, 0);
               this.HUD.health.setText(
-                HUD.HEALTH_HEART.repeat(currentHealth) +
+                (
+                  HUD.HEALTH_HEART.repeat(currentHealth) +
                   HUD.HEALTH_MISSING_HEART.repeat(missingHeartLength)
+                )
+                  .split("")
+                  .reduce<string[]>(splitIntoMatrix(fixedEmojiLineLength), [""])
               );
             }
             break;
           case "speed":
-            this.HUD.speed.setText(HUD.SPEED.repeat(value));
+            this.HUD.speed.setText(
+              HUD.SPEED.repeat(value)
+                .split("")
+                .reduce<string[]>(splitIntoMatrix(fixedEmojiLineLength), [""])
+            );
             break;
         }
         return returnValue;
@@ -100,38 +122,46 @@ export class Game extends Scene {
     await this.connect();
 
     const $ = getStateCallbacks(this.room);
+    const HUDPadding = this.cameras.main.width * 0.008;
+    const emojiSize = 69;
+    const emojiHeightSpacing = emojiSize * -0.85;
+    console.log({ emojiHeightSpacing, emojiSize });
     this.HUD = {
       health: this.add.text(
-        this.cameras.main.width * 0.008,
+        HUDPadding,
         this.cameras.main.height * 0.01,
         HUD.HEALTH_HEART.repeat(3),
         {
           fontFamily: "Arial Black",
-          fontSize: 69,
+          fontSize: emojiSize,
           color: "#ffffff",
           stroke: "#000000",
           strokeThickness: 8,
           align: "center",
+          lineSpacing: emojiHeightSpacing,
         }
       ),
       bombCount: this.add.text(
-        this.cameras.main.width * 0.25,
+        this.cameras.main.width * (1 / 3),
         this.cameras.main.height * 0.01,
         HUD.BOMB.repeat(1),
         {
           fontFamily: "Arial Black",
-          fontSize: 69,
+          fontSize: emojiSize,
           align: "center",
+          lineSpacing: emojiHeightSpacing,
         }
       ),
       speed: this.add.text(
-        this.cameras.main.width * 0.5,
-        this.cameras.main.height * 0.01,
+        this.cameras.main.width * (1 / 3) * 2,
+        this.cameras.main.height * -0.01,
+        // -10,
         HUD.SPEED.repeat(1),
         {
           fontFamily: "Arial Black",
-          fontSize: 69,
+          fontSize: emojiSize,
           align: "center",
+          lineSpacing: emojiHeightSpacing,
         }
       ),
     };
