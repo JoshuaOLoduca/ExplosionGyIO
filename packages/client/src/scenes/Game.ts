@@ -11,9 +11,9 @@ import {
 import { tPlayer, tPowerUp, tTile } from "explosion-gyio";
 import { Schema } from "@colyseus/schema";
 
-type tPlayerSchema = tPlayer & Schema;
-type tTileSchema = tTile & Schema;
-type tPowerUpSchema = tPowerUp & Schema;
+type tPlayerSchema = tPlayer<Schema>;
+type tTileSchema = tTile<Schema>;
+type tPowerUpSchema = tPowerUp<Schema>;
 
 const DEBUG = true;
 

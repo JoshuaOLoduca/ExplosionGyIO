@@ -1,5 +1,5 @@
 import { tBaseTile } from "./tBaseTile";
 
-export type tBomb = {
+export type tBomb<T ={}> = {
   fuse: number;
-} & tBaseTile;
+} & tBaseTile<T>;

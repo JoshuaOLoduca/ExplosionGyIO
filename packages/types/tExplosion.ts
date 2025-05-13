@@ -1,6 +1,6 @@
 import { tBaseTile } from "./tBaseTile";
 
-export type tExplosion = {
+export type tExplosion<T = {}> = {
   damage: number;
   lingerMs: number;
-} & tBaseTile;
+} & tBaseTile<T>;
