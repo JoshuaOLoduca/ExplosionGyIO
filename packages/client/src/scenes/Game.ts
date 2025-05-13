@@ -19,6 +19,7 @@ const HUD = {
   HEALTH_HEART: "💖",
   HEALTH_MISSING_HEART: "💙",
   BOMB: "💣",
+  SPEED: "👟",
 };
 const DEBUG = true;
 
@@ -33,12 +34,17 @@ export class Game extends Scene {
     right: false,
     placeBomb: false,
   };
-  HUD: { health: Phaser.GameObjects.Text; bombCount: Phaser.GameObjects.Text };
+  HUD: {
+    health: Phaser.GameObjects.Text;
+    bombCount: Phaser.GameObjects.Text;
+    speed: Phaser.GameObjects.Text;
+  };
   private _playerStats = {
     maxHealth: 0,
     currentHealth: 3,
     bombCount: 1,
     bombPlaced: 0,
+    speed: 1,
   };
 
   playerStats: typeof this._playerStats;
@@ -68,7 +74,6 @@ export class Game extends Scene {
               );
             break;
           case "maxHealth":
-            break;
           case "currentHealth":
             {
               const { maxHealth, currentHealth } = this.playerStats;
@@ -79,6 +84,9 @@ export class Game extends Scene {
                   HUD.HEALTH_MISSING_HEART.repeat(missingHeartLength)
               );
             }
+            break;
+          case "speed":
+            this.HUD.speed.setText(HUD.SPEED.repeat(value));
             break;
         }
         return returnValue;
@@ -110,6 +118,16 @@ export class Game extends Scene {
         this.cameras.main.width * 0.25,
         this.cameras.main.height * 0.01,
         HUD.BOMB.repeat(1),
+        {
+          fontFamily: "Arial Black",
+          fontSize: 69,
+          align: "center",
+        }
+      ),
+      speed: this.add.text(
+        this.cameras.main.width * 0.5,
+        this.cameras.main.height * 0.01,
+        HUD.SPEED.repeat(1),
         {
           fontFamily: "Arial Black",
           fontSize: 69,
@@ -186,6 +204,7 @@ export class Game extends Scene {
             if (playerId !== this.room.sessionId) return;
             switch (powerUp) {
               case "speed":
+                this.playerStats.speed = value;
                 break;
               case "bombSize":
                 break;
