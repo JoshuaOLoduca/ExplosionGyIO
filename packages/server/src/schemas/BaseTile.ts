@@ -1,6 +1,7 @@
 import { Schema, type } from "@colyseus/schema";
+import type { tBaseTile } from "explosion-gyio";
 
-export class BaseTile extends Schema {
+export class BaseTile extends Schema implements tBaseTile {
   constructor(parent?: BaseTile) {
     super();
     this.parent = parent;

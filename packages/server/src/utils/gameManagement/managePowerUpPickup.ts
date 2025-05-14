@@ -17,7 +17,7 @@ export function managePowerUpPickup(
   const powerup = tileUnderPlayer.data.get("powerup");
   if (!powerup || !(powerup instanceof PowerUp)) return false;
 
-  player.powerups.change(powerup.type, powerup.amount);
+  player.powerUpsHelper.change(powerup.type, powerup.amount);
 
   this.state.powerUps.delete("powerup" + tileUnderPlayer.x + tileUnderPlayer.y);
   tileUnderPlayer.data.delete("powerup");

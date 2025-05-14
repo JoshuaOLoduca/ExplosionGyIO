@@ -8,6 +8,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@colyseus/schema": "^3.0.36",
+    "@types/explosion-gyio": "file:../types",
     "typescript": "^5.3.3",
     "vite": "^5.0.8"
   },
