@@ -125,20 +125,22 @@ export class Game extends Scene {
     const HUDPadding = this.cameras.main.width * 0.008;
     const emojiSize = 69;
     const emojiHeightSpacing = emojiSize * -0.85;
-    console.log({ emojiHeightSpacing, emojiSize });
+    const HUDStyleSettings = {
+      fontFamily: "Arial Black",
+      fontSize: emojiSize,
+      align: "center",
+      lineSpacing: emojiHeightSpacing,
+    };
     this.HUD = {
       health: this.add.text(
         HUDPadding,
         this.cameras.main.height * 0.01,
         HUD.HEALTH_HEART.repeat(3),
         {
-          fontFamily: "Arial Black",
-          fontSize: emojiSize,
+          ...HUDStyleSettings,
           color: "#ffffff",
           stroke: "#000000",
           strokeThickness: 8,
-          align: "center",
-          lineSpacing: emojiHeightSpacing,
         }
       ),
       bombCount: this.add.text(
@@ -146,10 +148,7 @@ export class Game extends Scene {
         this.cameras.main.height * 0.01,
         HUD.BOMB.repeat(1),
         {
-          fontFamily: "Arial Black",
-          fontSize: emojiSize,
-          align: "center",
-          lineSpacing: emojiHeightSpacing,
+          ...HUDStyleSettings,
         }
       ),
       speed: this.add.text(
@@ -157,10 +156,7 @@ export class Game extends Scene {
         this.cameras.main.height * -0.01,
         HUD.SPEED.repeat(1),
         {
-          fontFamily: "Arial Black",
-          fontSize: emojiSize,
-          align: "center",
-          lineSpacing: emojiHeightSpacing,
+          ...HUDStyleSettings,
         }
       ),
     };
@@ -217,7 +213,6 @@ export class Game extends Scene {
     $(this.room.state).players.onAdd(
       (player: tPlayerSchema, playerId: string) => {
         if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
-
         const playerSprite = this.add
           .circle(player.x, player.y, 32, 0xff0000)
           .setDepth(eRenderDepth.PLAYER);
@@ -226,6 +221,18 @@ export class Game extends Scene {
         if (playerId === this.room.sessionId) {
           this.playerStats.maxHealth = player.health;
           this.playerStats.currentHealth = player.health;
+        } else {
+          const offset = (player.scale || 1) * (16 * 2);
+          // Initialize player health above head
+          const healthHud = this.add.text(
+            player.x - offset,
+            player.y + offset,
+            HUD.HEALTH_HEART.repeat(player.health)
+              .split("")
+              .reduce(splitIntoMatrix(3 * 2), [""])
+          );
+          healthHud.setDepth(eRenderDepth.HUD);
+          this.data.set(playerId + "healthHud", healthHud);
         }
 
         if (player.powerUps)
@@ -256,6 +263,17 @@ export class Game extends Scene {
               this.playerStats.maxHealth = player.health;
             if (player.health !== this.playerStats.maxHealth)
               this.playerStats.currentHealth = player.health;
+          } else {
+            const textOb = this.data.get(
+              playerId + "healthHud"
+            ) as Phaser.GameObjects.Text;
+            if (player.health * 2 !== textOb.text.length) {
+              textOb.setText(
+                HUD.HEALTH_HEART.repeat(player.health)
+                  .split("")
+                  .reduce(splitIntoMatrix(3 * 2), [""])
+              );
+            }
           }
         });
       }
