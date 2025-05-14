@@ -9,5 +9,8 @@ export type tPlayer<T = {}, MapT = Map<tPowerUps, number>> = {
   clientId: string;
   health: number;
   invincible: number;
+  /**
+   * Optional because only the player can see their own powerups
+   */
   powerUps?: Map<tPowerUps, number> & MapT;
 } & tBaseTile<T>;
