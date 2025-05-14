@@ -232,6 +232,8 @@ export class Game extends Scene {
               .reduce(splitIntoMatrix(3 * 2), [""])
           );
           healthHud.setDepth(eRenderDepth.HUD);
+          healthHud.setDataEnabled();
+          healthHud.setData("padding", offset);
           this.data.set(playerId + "healthHud", healthHud);
         }
 
@@ -282,7 +284,9 @@ export class Game extends Scene {
     $(this.room.state).players.onRemove(
       (_player: tPlayerSchema, playerId: string) => {
         this.data.get(playerId)?.destroy();
+        this.data.get(playerId + "healthHud")?.destroy();
         this.data.remove(playerId);
+        this.data.remove(playerId + "healthHud");
         this.sessionIds.delete(playerId);
       }
     );
