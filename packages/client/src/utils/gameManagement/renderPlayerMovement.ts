@@ -13,12 +13,12 @@ export function renderPlayerMovement(this: Game) {
     if (serverX !== entity.serverX) {
       const newX = Phaser.Math.Linear(entity.x, serverX, 0.2);
       entity.x = newX;
-      if (healthHud) healthHud.setX(newX - healthHud.data.get("padding"));
+      if (healthHud) healthHud.setX(newX - healthHud.data.get("paddingX"));
     }
     if (serverY !== entity.serverY) {
       const newY = Phaser.Math.Linear(entity.y, serverY, 0.2);
       entity.y = newY;
-      if (healthHud) healthHud.setY(newY + healthHud.data.get("padding"));
+      if (healthHud) healthHud.setY(newY + healthHud.data.get("paddingY"));
     }
   }
 }

@@ -224,16 +224,22 @@ export class Game extends Scene {
         } else {
           const offset = (player.scale || 1) * (16 * 2);
           // Initialize player health above head
+          let paddingX = offset * 1.5;
+          const paddingY = offset * 1.1;
           const healthHud = this.add.text(
-            player.x - offset,
-            player.y + offset,
+            // offset doesnt do much, as its overwritten by renderPlayerMovement.ts
+            player.x - paddingX,
+            player.y + paddingY,
             HUD.HEALTH_HEART.repeat(player.health)
               .split("")
-              .reduce(splitIntoMatrix(3 * 2), [""])
+              .reduce(splitIntoMatrix(3 * 2), [""]),
+            { fontSize: 24 }
           );
           healthHud.setDepth(eRenderDepth.HUD);
           healthHud.setDataEnabled();
-          healthHud.setData("padding", offset);
+          paddingX = healthHud.displayWidth / 2;
+          healthHud.setData("paddingX", paddingX);
+          healthHud.setData("paddingY", paddingY);
           this.data.set(playerId + "healthHud", healthHud);
         }
 
