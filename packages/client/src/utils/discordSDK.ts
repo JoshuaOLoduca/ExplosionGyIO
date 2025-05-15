@@ -1,4 +1,8 @@
-import { CommandResponse, DiscordSDK, DiscordSDKMock } from "@discord/embedded-app-sdk";
+import {
+  CommandResponse,
+  DiscordSDK,
+  DiscordSDKMock,
+} from "@discord/embedded-app-sdk";
 type Auth = CommandResponse<"authenticate">;
 let auth: Auth;
 
@@ -8,8 +12,10 @@ const isEmbedded = queryParams.get("frame_id") != null;
 let discordSdk: DiscordSDK | DiscordSDKMock;
 
 const initiateDiscordSDK = async () => {
+  const discordClientID = import.meta.env.VITE_DISCORD_CLIENT_ID;
+
   if (isEmbedded) {
-    discordSdk = new DiscordSDK(import.meta.env.VITE_CLIENT_ID);
+    discordSdk = new DiscordSDK(discordClientID);
     await discordSdk.ready();
   } else {
     // We're using session storage for user_id, guild_id, and channel_id
@@ -22,7 +28,11 @@ const initiateDiscordSDK = async () => {
     const mockGuildId = getOverrideOrRandomSessionValue("guild_id");
     const mockChannelId = getOverrideOrRandomSessionValue("channel_id");
 
-    discordSdk = new DiscordSDKMock(import.meta.env.VITE_CLIENT_ID, mockGuildId, mockChannelId);
+    discordSdk = new DiscordSDKMock(
+      discordClientID,
+      mockGuildId,
+      mockChannelId
+    );
     const discriminator = String(mockUserId.charCodeAt(0) % 5);
 
     discordSdk._updateCommandMocks({
@@ -56,8 +66,10 @@ const authorizeDiscordUser = async () => {
     return;
   }
 
+  const discordClientID = import.meta.env.VITE_DISCORD_CLIENT_ID;
+
   const { code } = await discordSdk.commands.authorize({
-    client_id: import.meta.env.VITE_CLIENT_ID,
+    client_id: discordClientID,
     response_type: "code",
     state: "",
     prompt: "none",
@@ -96,7 +108,9 @@ enum SessionStorageQueryParam {
   channel_id = "channel_id",
 }
 
-function getOverrideOrRandomSessionValue(queryParam: `${SessionStorageQueryParam}`) {
+function getOverrideOrRandomSessionValue(
+  queryParam: `${SessionStorageQueryParam}`
+) {
   const overrideValue = queryParams.get(queryParam);
   if (overrideValue != null) {
     return overrideValue;

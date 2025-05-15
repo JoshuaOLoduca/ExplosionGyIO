@@ -2,8 +2,7 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default ({ mode }) => {
-
-  const isLocalhost = process.env.NODE_ENV === 'development';
+  const isLocalhost = process.env.NODE_ENV === "development";
 
   return defineConfig({
     envDir: "../../",
@@ -31,10 +30,10 @@ export default ({ mode }) => {
           secure: false,
           ws: true,
           rewrite: (path) => path.replace(/^\/.proxy\/api/, ""),
-        }
+        },
       },
       hmr: {
-        clientPort: isLocalhost ? 3000 : 443, 
+        clientPort: isLocalhost ? 3000 : 443,
       },
     },
   });
