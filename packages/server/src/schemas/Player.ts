@@ -109,6 +109,7 @@ export class Player extends BaseTile implements tPlayer {
      */
     invincibleUpdateRateMs = 25
   ) {
+    damageAmount = Math.max(Math.min(damageAmount, this.health), 0);
     if (this.invincible === 0 && this.health > 0) {
       this.health -= damageAmount;
       this.invincible = invincibleLengthMs;
