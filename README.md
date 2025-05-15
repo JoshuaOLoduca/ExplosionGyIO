@@ -32,8 +32,10 @@ Josh - Code!\
 - [/] Multiplayer!
   - [x] Server Authoritative design
   - [/] Join By Browser
-  - [] Join By Discord
+  - [x] Join By Discord
 - [ ] Lobbies
+  - [] Lobby creation/custimization
+  - [] Lobby browser
 - [ ] Large player count support per lobby
 
 ## Features
