@@ -241,6 +241,25 @@ export class Game extends Scene {
           healthHud.setData("paddingX", paddingX);
           healthHud.setData("paddingY", paddingY);
           this.data.set(playerId + "healthHud", healthHud);
+
+          const usernamePaddingY = paddingY * 1.5;
+          const usernameHud = this.add.text(
+            // offset doesnt do much, as its overwritten by renderPlayerMovement.ts
+            player.x - paddingX,
+            player.y - usernamePaddingY,
+            player.username,
+            {
+              fontSize: 24,
+              color: "#000",
+              stroke: "#ffffff",
+              strokeThickness: 8,
+            }
+          );
+          usernameHud.setDepth(eRenderDepth.HUD);
+          usernameHud.setDataEnabled();
+          usernameHud.setData("paddingX", usernameHud.displayWidth / 2);
+          usernameHud.setData("paddingY", usernamePaddingY);
+          this.data.set(playerId + "usernameHud", usernameHud);
         }
 
         if (player.powerUps)
@@ -291,8 +310,10 @@ export class Game extends Scene {
       (_player: tPlayerSchema, playerId: string) => {
         this.data.get(playerId)?.destroy();
         this.data.get(playerId + "healthHud")?.destroy();
+        this.data.get(playerId + "usernameHud")?.destroy();
         this.data.remove(playerId);
         this.data.remove(playerId + "healthHud");
+        this.data.remove(playerId + "usernameHud");
         this.sessionIds.delete(playerId);
       }
     );

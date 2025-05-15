@@ -99,7 +99,8 @@ const getUserName = () => {
     return "User";
   }
 
-  return auth.user.username;
+  return auth.user.global_name || auth.user.username;
+};
 };
 
 enum SessionStorageQueryParam {
