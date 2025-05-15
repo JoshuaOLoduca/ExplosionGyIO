@@ -216,6 +216,22 @@ export class Game extends Scene {
 
         if (player.imageId.startsWith("http")) {
           this.load.image(playerId, player.imageId);
+          this.load.once("filecomplete-image-" + playerId, () => {
+            const newSprite = this.add.sprite(
+              playerSprite.x,
+              playerSprite.y,
+              this.textures.get(playerId)
+            );
+            const mask = playerSprite.createGeometryMask();
+            newSprite.setDisplaySize(
+              playerSprite.displayWidth * 1.05,
+              playerSprite.displayHeight * 1.05
+            );
+            newSprite.setMask(mask);
+            newSprite.setDepth(eRenderDepth.PLAYER);
+            playerSprite.data.set("image", newSprite);
+          });
+
           this.load.start();
         }
 
@@ -286,28 +302,12 @@ export class Game extends Scene {
             }
           });
 
-        let loadingImage = true;
         $(player).onChange(() => {
           const playerSprite = this.data.get(
             playerId
           ) as Phaser.GameObjects.Arc;
           if (!playerSprite) return;
-          if (loadingImage && this.textures.exists(playerId)) {
-            loadingImage = false;
-            const newSprite = this.add.sprite(
-              playerSprite.x,
-              playerSprite.y,
-              this.textures.get(playerId)
-            );
-            const mask = playerSprite.createGeometryMask();
-            newSprite.setDisplaySize(
-              playerSprite.displayWidth * 1.05,
-              playerSprite.displayHeight * 1.05
-            );
-            newSprite.setMask(mask);
-            newSprite.setDepth(eRenderDepth.PLAYER);
-            playerSprite.data.set("image", newSprite);
-          }
+
           playerSprite.setData("serverX", player.x);
           playerSprite.setData("serverY", player.y);
 
