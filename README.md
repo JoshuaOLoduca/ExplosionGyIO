@@ -34,8 +34,8 @@ Josh - Code!\
   - [/] Join By Browser
   - [x] Join By Discord
 - [ ] Lobbies
-  - [] Lobby creation/custimization
-  - [] Lobby browser
+  - [ ] Lobby creation/custimization
+  - [ ] Lobby browser
 - [ ] Large player count support per lobby
 
 ## Features
