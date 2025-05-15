@@ -301,17 +301,21 @@ export class Game extends Scene {
     //         Debug
     // /////////////////////////
     if (DEBUG) {
+      const debugStyle: Parameters<typeof this.add.text>["3"] = {
+        font: "24px Arial",
+        color: "#000000",
+        strokeThickness: 14,
+        stroke: "#fff",
+      };
       this.add
         .text(
           this.cameras.main.width * 0.5,
           this.cameras.main.height * 0.95,
           `Connected as: ${getUserName()}`,
-          {
-            font: "14px Arial",
-            color: "#000000",
-          }
+          debugStyle
         )
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(eRenderDepth.HUD);
       this.data.set(
         "DEBUG-mouse",
         this.add
@@ -319,12 +323,7 @@ export class Game extends Scene {
             this.cameras.main.width * 0.5,
             this.cameras.main.height * 0.05,
             `X: ${this.input.mousePointer.x} || Y: ${this.input.mousePointer.y}`,
-            {
-              font: "24px Arial",
-              color: "#000000",
-              strokeThickness: 14,
-              stroke: "#fff",
-            }
+            debugStyle
           )
           .setOrigin(0.5)
           .setDepth(200)
