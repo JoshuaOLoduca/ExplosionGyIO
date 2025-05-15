@@ -103,7 +103,7 @@ export class Player extends BaseTile implements tPlayer {
 
   addDamage(
     damageAmount: number,
-    invincibleLengthMs = 300,
+    invincibleLengthMs = 1_000,
     /**
      * How often to calculate how much active invincibility is left
      */
