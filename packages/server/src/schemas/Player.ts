@@ -88,6 +88,9 @@ export class Player extends BaseTile implements tPlayer {
   @type("string")
   clientId = "";
 
+  @type("string")
+  username = (Math.random() * 10000).toFixed(0);
+
   @type("uint8")
   health = 3;
 
@@ -100,12 +103,13 @@ export class Player extends BaseTile implements tPlayer {
 
   addDamage(
     damageAmount: number,
-    invincibleLengthMs = 300,
+    invincibleLengthMs = 1_000,
     /**
      * How often to calculate how much active invincibility is left
      */
     invincibleUpdateRateMs = 25
   ) {
+    damageAmount = Math.max(Math.min(damageAmount, this.health), 0);
     if (this.invincible === 0 && this.health > 0) {
       this.health -= damageAmount;
       this.invincible = invincibleLengthMs;

@@ -237,6 +237,8 @@ export class GameRoom extends Room<GameState> {
 
     const player = new Player();
     player.clientId = client.sessionId;
+    if (options.userName) player.username = options.userName;
+    if (options.avatar) player.imageId = options.avatar.url;
     player.x = spawnTile.x;
     player.y = spawnTile.y;
 
