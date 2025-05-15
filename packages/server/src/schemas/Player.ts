@@ -88,6 +88,9 @@ export class Player extends BaseTile implements tPlayer {
   @type("string")
   clientId = "";
 
+  @type("string")
+  username = Math.random().toFixed(0);
+
   @type("uint8")
   health = 3;
 

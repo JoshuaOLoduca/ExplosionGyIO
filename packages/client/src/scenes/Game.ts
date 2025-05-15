@@ -307,11 +307,12 @@ export class Game extends Scene {
         strokeThickness: 14,
         stroke: "#fff",
       };
+      const userName = getUserName();
       this.add
         .text(
           this.cameras.main.width * 0.5,
           this.cameras.main.height * 0.95,
-          `Connected as: ${getUserName()}`,
+          `Connected as: ${userName}`,
           debugStyle
         )
         .setOrigin(0.5)
@@ -382,6 +383,7 @@ export class Game extends Scene {
         // Let's send our client screen dimensions to the server for initial positioning
         screenWidth: this.game.config.width,
         screenHeight: this.game.config.height,
+        userName: getUserName(),
       });
 
       this.room.onMessage("", (message) => {
