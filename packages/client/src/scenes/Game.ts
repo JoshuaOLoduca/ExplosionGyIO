@@ -301,8 +301,8 @@ export class Game extends Scene {
             );
             const mask = playerSprite.createGeometryMask();
             newSprite.setDisplaySize(
-              playerSprite.displayWidth,
-              playerSprite.displayHeight
+              playerSprite.displayWidth * 1.05,
+              playerSprite.displayHeight * 1.05
             );
             newSprite.setMask(mask);
             newSprite.setDepth(eRenderDepth.PLAYER);
