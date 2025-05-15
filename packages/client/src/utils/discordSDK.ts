@@ -101,6 +101,17 @@ const getUserName = () => {
 
   return auth.user.global_name || auth.user.username;
 };
+
+const getProfileImage = () => {
+  if (!auth || !auth.user.avatar) {
+    return null;
+  }
+
+  return {
+    url: `https://cdn.discordapp.com/avatars/${auth.user.id}/${auth.user.avatar}`,
+    userId: auth.user.id,
+    avatarHash: auth.user.avatar,
+  };
 };
 
 enum SessionStorageQueryParam {
@@ -128,4 +139,10 @@ function getOverrideOrRandomSessionValue(
   return randomString;
 }
 
-export { discordSdk, initiateDiscordSDK, authorizeDiscordUser, getUserName };
+export {
+  discordSdk,
+  initiateDiscordSDK,
+  authorizeDiscordUser,
+  getUserName,
+  getProfileImage,
+};

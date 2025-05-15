@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import { Room, Client, getStateCallbacks } from "colyseus.js";
-import { getUserName } from "../utils/discordSDK";
+import { getProfileImage, getUserName } from "../utils/discordSDK";
 import {
   renderPlayerMovement,
   createBombUpdateCB,
@@ -213,9 +213,16 @@ export class Game extends Scene {
     $(this.room.state).players.onAdd(
       (player: tPlayerSchema, playerId: string) => {
         if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
+
+        if (player.imageId.startsWith("http")) {
+          this.load.image(playerId, player.imageId);
+          this.load.start();
+        }
+
         const playerSprite = this.add
           .circle(player.x, player.y, 32, 0xff0000)
           .setDepth(eRenderDepth.PLAYER);
+
         this.data.set(playerId, playerSprite);
 
         if (playerId === this.room.sessionId) {
@@ -279,9 +286,27 @@ export class Game extends Scene {
             }
           });
 
+        let loadingImage = true;
         $(player).onChange(() => {
-          const playerSprite = this.data.get(playerId);
+          const playerSprite = this.data.get(
+            playerId
+          ) as Phaser.GameObjects.Arc;
           if (!playerSprite) return;
+          if (loadingImage && this.textures.exists(playerId)) {
+            loadingImage = false;
+            const newSprite = this.add.sprite(
+              playerSprite.x,
+              playerSprite.y,
+              this.textures.get(playerId)
+            );
+            const mask = playerSprite.createGeometryMask();
+            newSprite.setDisplaySize(
+              playerSprite.displayWidth,
+              playerSprite.displayHeight
+            );
+            newSprite.setMask(mask);
+            newSprite.setDepth(eRenderDepth.PLAYER);
+          }
           playerSprite.setData("serverX", player.x);
           playerSprite.setData("serverY", player.y);
 
@@ -405,6 +430,7 @@ export class Game extends Scene {
         screenWidth: this.game.config.width,
         screenHeight: this.game.config.height,
         userName: getUserName(),
+        avatar: getProfileImage(),
       });
 
       this.room.onMessage("", (message) => {
