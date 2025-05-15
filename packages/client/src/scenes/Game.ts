@@ -306,6 +306,7 @@ export class Game extends Scene {
             );
             newSprite.setMask(mask);
             newSprite.setDepth(eRenderDepth.PLAYER);
+            playerSprite.data.set("image", newSprite);
           }
           playerSprite.setData("serverX", player.x);
           playerSprite.setData("serverY", player.y);
