@@ -379,8 +379,16 @@ export class Game extends Scene {
     }
   }
 
-  fixedTick(_time: number, _delta: number) {
+  /**
+   * Things we want to send to the server.
+   * Its at a fixed rate so we dont DDoS ourselves with our own players
+   */
+  fixedTick() {
     if (!this.room) return;
+
+    // Send player Input to the server
+    managePlayerInput.call(this);
+
     if (DEBUG) {
       this.data
         .get("DEBUG-mouse")
@@ -390,30 +398,32 @@ export class Game extends Scene {
           )} || Y: ${this.input.mousePointer.y.toFixed(2)}`
         );
     }
-
-    // //////////////////////////
-    //   Render Player Movement
-    // //////////////////////////
-    renderPlayerMovement.call(this);
   }
   elapsedTime = 0;
-  fixedTimeStep = 1000 / (60 * 1);
+  /**
+   * How many updates to send per second
+   */
+  fixedTimeStep = 1000 / (60 * 10);
   update(time: number, delta: number): void {
     // skip loop if not connected yet.
     if (!this.room) {
       return;
     }
 
-    // //////////////////////////
-    //      Player Input
-    // //////////////////////////
-    managePlayerInput.call(this);
+    /**
+     * // //////////////////////////
+     * / /  Render Player Movement
+     * // //////////////////////////
+     *
+     * Always sync it every update, as the timestep is taken care of by the server.
+     * This decreases percieved latency for the users.
+     */
+    renderPlayerMovement.call(this);
 
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {
       this.elapsedTime -= this.fixedTimeStep;
-      this.fixedTick(time, this.fixedTimeStep);
-      managePlayerInput.call(this);
+      this.fixedTick();
     }
   }
 
