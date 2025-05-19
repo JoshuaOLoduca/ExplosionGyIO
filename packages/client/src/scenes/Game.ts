@@ -403,7 +403,7 @@ export class Game extends Scene {
   /**
    * How many updates to send per second
    */
-  fixedTimeStep = 1000 / (60 * 10);
+  fixedTimeStep = 1000 / (60 * 20);
   update(time: number, delta: number): void {
     // skip loop if not connected yet.
     if (!this.room) {

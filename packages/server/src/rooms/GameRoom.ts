@@ -163,7 +163,7 @@ export class GameRoom extends Room<GameState> {
     const allMessagesInOrder = Array.from(this.state.players.values())
       .flatMap((player) => {
         const container: [Player, tUserInputQueue][] = [];
-        const input = player.input.get(this.lastUpdate);
+        const input = player.input.get();
         if (input) container.push([player, input]);
 
         return container;

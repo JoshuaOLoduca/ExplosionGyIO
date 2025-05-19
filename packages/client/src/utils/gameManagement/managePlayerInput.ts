@@ -1,6 +1,7 @@
 import { Game } from "../../scenes/Game";
 
 export function managePlayerInput(this: Game) {
+  const oldPlayload = Object.entries(this.inputPayload);
   this.inputPayload.up = !!this.input.keyboard?.addKey(
     Phaser.Input.Keyboard.KeyCodes.W
   ).isDown;
@@ -17,5 +18,7 @@ export function managePlayerInput(this: Game) {
     Phaser.Input.Keyboard.KeyCodes.SPACE
   ).isDown;
 
-  this.room.send(0, this.inputPayload);
+  if (oldPlayload.some(([key, state]) => this.inputPayload[key] !== state)) {
+    this.room.send(0, this.inputPayload);
+  }
 }

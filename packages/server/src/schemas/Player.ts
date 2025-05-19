@@ -7,10 +7,13 @@ export type tUserInputQueue = [time: number, message: tUserInput];
 
 export class Player extends BaseTile implements tPlayer {
   private _maxInputQueue = 10;
-  private _inputQueue: tUserInputQueue[] = new Array(this._maxInputQueue).fill(
-    []
-  );
-  private _lastInputQueueIndex = 0;
+  private _inputQueue: tUserInputQueue[] = new Array(this._maxInputQueue)
+    .fill([])
+    .map(() => [
+      Date.now(),
+      { down: false, left: false, placeBomb: false, right: false, up: false },
+    ]);
+  private _lastInputQueueIndex = 1;
 
   @view()
   @type({ map: "number" })
@@ -66,19 +69,25 @@ export class Player extends BaseTile implements tPlayer {
     },
     /**
      *
-     * @param epochMs Gets the last input before, or at this epoch(in ms) time.
+     * @param epochMs Gets the last input before, or at this epoch(in ms) time. If empty, gets the latest movement update
      * @returns
      */
-    get: (epochMs: number) => {
-      return this._inputQueue.find((currentInput, index, arr) => {
-        if (
-          currentInput[0] <= epochMs &&
-          (!arr[index + 1] || arr[index + 1][0] > epochMs)
-        ) {
-          return true;
-        }
-        return false;
-      });
+    get: (epochMs?: number) => {
+      if (epochMs)
+        return this._inputQueue.find((currentInput, index, arr) => {
+          if (
+            currentInput[0] <= epochMs &&
+            (!arr[index + 1] || arr[index + 1][0] > epochMs)
+          ) {
+            return true;
+          }
+          return false;
+        });
+
+      return this._inputQueue.reduce<tUserInputQueue>((prev, current) => {
+        if (prev?.[0] > (current?.[0] || 0)) return prev;
+        return current;
+      }, this._inputQueue.at(0)!);
     },
   };
 
