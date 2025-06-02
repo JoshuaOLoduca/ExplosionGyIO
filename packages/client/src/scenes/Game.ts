@@ -15,6 +15,10 @@ type tPlayerSchema = tPlayer<Schema, Schema>;
 type tTileSchema = tTile<Schema>;
 type tPowerUpSchema = tPowerUp<Schema>;
 
+enum eEmitTypes {
+  MOVE = "move",
+}
+
 function splitIntoMatrix(matrixSize: number) {
   return (acc, item) => {
     if (acc!.at(-1)!.length >= matrixSize) acc.push("");
@@ -228,7 +232,7 @@ export class Game extends Scene {
                   x: target.x,
                   y: target.y,
                 };
-                target.emit("moved", emitArgs);
+                target.emit(eEmitTypes.MOVE, emitArgs);
               }
             } catch (error) {
             } finally {
@@ -255,7 +259,7 @@ export class Game extends Scene {
             newSprite.setMask(mask);
             newSprite.setDepth(eRenderDepth.PLAYER);
             playerSprite.data.set("image", newSprite);
-            playerSprite.on("moved", function ({ y, x }) {
+            playerSprite.on(eEmitTypes.MOVE, function ({ y, x }) {
               newSprite.y = y;
               newSprite.x = x;
             });
@@ -289,7 +293,7 @@ export class Game extends Scene {
             healthHud.setY(y + paddingYHud);
           };
           updateHealthPos(player);
-          playerSprite.on("moved", updateHealthPos);
+          playerSprite.on(eEmitTypes.MOVE, updateHealthPos);
           this.data.set(playerId + "healthHud", healthHud);
 
           const usernamePaddingY = paddingY * 1.5;
