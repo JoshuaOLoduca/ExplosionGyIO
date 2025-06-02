@@ -1,6 +1,9 @@
 import { Game } from "../../scenes/Game";
 
-const bigboicache = new Map<
+/**
+ * To have accurate linear interpulation, we calculate all points at change, then execute 1 movement per iteration.
+ */
+const preCalcPlayerMoveCache = new Map<
   string,
   {
     serverPoint: number;
@@ -19,7 +22,7 @@ function createMoves(
   movementAmount: number,
   key: string
 ) {
-  bigboicache.set(key, {
+  preCalcPlayerMoveCache.set(key, {
     serverPoint,
     moves: new Array(1 / movementAmount)
       .fill(0)
@@ -48,8 +51,8 @@ export function renderPlayerMovement(this: Game) {
     if (
       Number.isFinite(serverX) &&
       serverX !== entity.x &&
-      (!bigboicache.get(sessionId + "x") ||
-        bigboicache.get(sessionId + "x")?.serverPoint !== serverX)
+      (!preCalcPlayerMoveCache.get(sessionId + "x") ||
+        preCalcPlayerMoveCache.get(sessionId + "x")?.serverPoint !== serverX)
     ) {
       createMoves(entity.x, serverX, movementAmount, sessionId + "x");
     }
@@ -60,14 +63,14 @@ export function renderPlayerMovement(this: Game) {
     if (
       Number.isFinite(serverY) &&
       serverY !== entity.y &&
-      (!bigboicache.get(sessionId + "y") ||
-        bigboicache.get(sessionId + "y")?.serverPoint !== serverY)
+      (!preCalcPlayerMoveCache.get(sessionId + "y") ||
+        preCalcPlayerMoveCache.get(sessionId + "y")?.serverPoint !== serverY)
     ) {
       createMoves(entity.y, serverY, movementAmount, sessionId + "y");
     }
 
     // If there are moves cached for our current destination, start translating the player sprite towards it.
-    const xMovement = bigboicache.get(sessionId + "x");
+    const xMovement = preCalcPlayerMoveCache.get(sessionId + "x");
     if (xMovement?.moves.length) {
       const newX = xMovement.moves.pop()!;
 
@@ -75,7 +78,7 @@ export function renderPlayerMovement(this: Game) {
     }
 
     // If there are moves cached for our current destination, start translating the player sprite towards it.
-    const yMovement = bigboicache.get(sessionId + "y");
+    const yMovement = preCalcPlayerMoveCache.get(sessionId + "y");
     if (yMovement?.moves.length) {
       const newY = yMovement.moves.pop()!;
 
