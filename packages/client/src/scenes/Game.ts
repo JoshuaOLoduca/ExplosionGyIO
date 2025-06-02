@@ -218,6 +218,7 @@ export class Game extends Scene {
       (player: tPlayerSchema, playerId: string) => {
         if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
 
+        // Create visual element of player
         const playerSpriteOriginal = this.add
           .circle(player.x, player.y, 32, 0xff0000)
           .setDepth(eRenderDepth.PLAYER);
@@ -243,6 +244,7 @@ export class Game extends Scene {
 
         this.data.set(playerId, playerSprite);
 
+        // Load in discord image
         if (player.imageId.startsWith("http")) {
           this.load.image(playerId, player.imageId);
           this.load.once("filecomplete-image-" + playerId, () => {
@@ -268,10 +270,12 @@ export class Game extends Scene {
           this.load.start();
         }
 
+        // if player data is the currently connected player, update UI variables.
         if (playerId === this.room.sessionId) {
           this.playerStats.maxHealth = player.health;
           this.playerStats.currentHealth = player.health;
         } else {
+          // Render HUDs for other players
           const offset = (player.scale || 1) * (16 * 2);
           // Initialize player health above head
           const paddingY = offset * 1.1;
@@ -335,6 +339,12 @@ export class Game extends Scene {
               case "bombDamage":
                 break;
             }
+          });
+
+        if (player.userInput)
+          $(player.userInput).onChange(() => {
+            if (!player.userInput) return;
+            this.inputPayload = player.userInput;
           });
 
         $(player).onChange(() => {
