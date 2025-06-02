@@ -341,11 +341,10 @@ export class Game extends Scene {
             }
           });
 
-        if (player.userInput)
-          $(player.userInput).onChange(() => {
-            if (!player.userInput) return;
-            this.inputPayload = player.userInput;
-          });
+        // Assign user input once, as its a reference, and will get updates from colosyeus.
+        if (player.userInput) {
+          this.inputPayload = player.userInput;
+        }
 
         $(player).onChange(() => {
           const playerSprite = this.data.get(
