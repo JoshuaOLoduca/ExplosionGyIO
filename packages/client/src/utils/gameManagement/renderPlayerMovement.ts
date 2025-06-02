@@ -39,12 +39,6 @@ export function renderPlayerMovement(this: Game) {
     const entity = this.data.get(sessionId);
     if (!entity) continue;
     const { serverX, serverY } = entity.data.values;
-    const healthHud = this.data.get(sessionId + "healthHud") as
-      | Phaser.GameObjects.Text
-      | undefined;
-    const usernameHud = this.data.get(sessionId + "usernameHud") as
-      | Phaser.GameObjects.Text
-      | undefined;
 
     const movementAmount = 0.1;
 
@@ -78,10 +72,6 @@ export function renderPlayerMovement(this: Game) {
       const newX = xMovement.moves.pop()!;
 
       entity.x = newX;
-      if (entity.data.has("image")) entity.data.get("image").x = newX;
-      if (healthHud) healthHud.setX(newX - healthHud.data.get("paddingX"));
-      if (usernameHud)
-        usernameHud.setX(newX - usernameHud.data.get("paddingX"));
     }
 
     // If there are moves cached for our current destination, start translating the player sprite towards it.
@@ -90,10 +80,6 @@ export function renderPlayerMovement(this: Game) {
       const newY = yMovement.moves.pop()!;
 
       entity.y = newY;
-      if (entity.data.has("image")) entity.data.get("image").y = newY;
-      if (healthHud) healthHud.setY(newY + healthHud.data.get("paddingY"));
-      if (usernameHud)
-        usernameHud.setY(newY - usernameHud.data.get("paddingY"));
     }
   }
 }

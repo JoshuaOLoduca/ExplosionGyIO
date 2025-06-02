@@ -214,6 +214,26 @@ export class Game extends Scene {
       (player: tPlayerSchema, playerId: string) => {
         if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
 
+        const playerSpriteOriginal = this.add
+          .circle(player.x, player.y, 32, 0xff0000)
+          .setDepth(eRenderDepth.PLAYER);
+
+        const playerSprite = new Proxy(playerSpriteOriginal, {
+          set(target, p, newValue, receiver) {
+            const returnVal = Reflect.set(target, p, newValue);
+            try {
+              if (p === "x" || p === "y") {
+                target.emit("moved", { x: target.x, y: target.y });
+              }
+            } catch (error) {
+            } finally {
+              return returnVal;
+            }
+          },
+        });
+
+        this.data.set(playerId, playerSprite);
+
         if (player.imageId.startsWith("http")) {
           this.load.image(playerId, player.imageId);
           this.load.once("filecomplete-image-" + playerId, () => {
@@ -230,16 +250,14 @@ export class Game extends Scene {
             newSprite.setMask(mask);
             newSprite.setDepth(eRenderDepth.PLAYER);
             playerSprite.data.set("image", newSprite);
+            playerSprite.on("moved", function ({ y, x }) {
+              newSprite.y = y;
+              newSprite.x = x;
+            });
           });
 
           this.load.start();
         }
-
-        const playerSprite = this.add
-          .circle(player.x, player.y, 32, 0xff0000)
-          .setDepth(eRenderDepth.PLAYER);
-
-        this.data.set(playerId, playerSprite);
 
         if (playerId === this.room.sessionId) {
           this.playerStats.maxHealth = player.health;
@@ -263,6 +281,12 @@ export class Game extends Scene {
           paddingX = healthHud.displayWidth / 2;
           healthHud.setData("paddingX", paddingX);
           healthHud.setData("paddingY", paddingY);
+          const paddingXHud = paddingX,
+            paddingYHud = paddingY;
+          playerSprite.on("moved", function ({ y, x }) {
+            healthHud.setX(x - paddingXHud);
+            healthHud.setY(y + paddingYHud);
+          });
           this.data.set(playerId + "healthHud", healthHud);
 
           const usernamePaddingY = paddingY * 1.5;
@@ -278,10 +302,15 @@ export class Game extends Scene {
               strokeThickness: 8,
             }
           );
-          usernameHud.setDepth(eRenderDepth.HUD);
+          const usernamePaddingX = usernameHud.displayWidth * 0.5;
           usernameHud.setDataEnabled();
-          usernameHud.setData("paddingX", usernameHud.displayWidth / 2);
-          usernameHud.setData("paddingY", usernamePaddingY);
+          usernameHud.setDepth(eRenderDepth.HUD);
+          usernameHud.setY(player.y - usernamePaddingY);
+          usernameHud.setX(player.x - usernamePaddingX);
+          playerSprite.on("moved", function ({ y, x }) {
+            usernameHud.setY(y - usernamePaddingY);
+            usernameHud.setX(x - usernamePaddingX);
+          });
           this.data.set(playerId + "usernameHud", usernameHud);
         }
 
