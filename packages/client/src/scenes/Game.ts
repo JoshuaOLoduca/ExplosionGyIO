@@ -218,12 +218,17 @@ export class Game extends Scene {
           .circle(player.x, player.y, 32, 0xff0000)
           .setDepth(eRenderDepth.PLAYER);
 
+        type tMoveSubFc = (coords: { x: number; y: number }) => unknown;
         const playerSprite = new Proxy(playerSpriteOriginal, {
           set(target, p, newValue, receiver) {
             const returnVal = Reflect.set(target, p, newValue);
             try {
               if (p === "x" || p === "y") {
-                target.emit("moved", { x: target.x, y: target.y });
+                const emitArgs: Parameters<tMoveSubFc>[0] = {
+                  x: target.x,
+                  y: target.y,
+                };
+                target.emit("moved", emitArgs);
               }
             } catch (error) {
             } finally {
@@ -265,12 +270,10 @@ export class Game extends Scene {
         } else {
           const offset = (player.scale || 1) * (16 * 2);
           // Initialize player health above head
-          let paddingX = offset * 1.5;
           const paddingY = offset * 1.1;
           const healthHud = this.add.text(
-            // offset doesnt do much, as its overwritten by renderPlayerMovement.ts
-            player.x - paddingX,
-            player.y + paddingY,
+            player.x,
+            player.y,
             HUD.HEALTH_HEART.repeat(player.health)
               .split("")
               .reduce(splitIntoMatrix(3 * 2), [""]),
@@ -278,22 +281,21 @@ export class Game extends Scene {
           );
           healthHud.setDepth(eRenderDepth.HUD);
           healthHud.setDataEnabled();
-          paddingX = healthHud.displayWidth / 2;
-          healthHud.setData("paddingX", paddingX);
-          healthHud.setData("paddingY", paddingY);
-          const paddingXHud = paddingX,
-            paddingYHud = paddingY;
-          playerSprite.on("moved", function ({ y, x }) {
+          const paddingXHud = healthHud.displayWidth / 2;
+          const paddingYHud = paddingY;
+
+          const updateHealthPos: tMoveSubFc = function ({ x, y }) {
             healthHud.setX(x - paddingXHud);
             healthHud.setY(y + paddingYHud);
-          });
+          };
+          updateHealthPos(player);
+          playerSprite.on("moved", updateHealthPos);
           this.data.set(playerId + "healthHud", healthHud);
 
           const usernamePaddingY = paddingY * 1.5;
           const usernameHud = this.add.text(
-            // offset doesnt do much, as its overwritten by renderPlayerMovement.ts
-            player.x - paddingX,
-            player.y - usernamePaddingY,
+            player.x,
+            player.y,
             player.username,
             {
               fontSize: 24,
@@ -305,12 +307,12 @@ export class Game extends Scene {
           const usernamePaddingX = usernameHud.displayWidth * 0.5;
           usernameHud.setDataEnabled();
           usernameHud.setDepth(eRenderDepth.HUD);
-          usernameHud.setY(player.y - usernamePaddingY);
-          usernameHud.setX(player.x - usernamePaddingX);
-          playerSprite.on("moved", function ({ y, x }) {
+          const updateHudPos: tMoveSubFc = function ({ x, y }) {
             usernameHud.setY(y - usernamePaddingY);
             usernameHud.setX(x - usernamePaddingX);
-          });
+          };
+          updateHudPos(player);
+          playerSprite.on("moved", updateHudPos);
           this.data.set(playerId + "usernameHud", usernameHud);
         }
 
