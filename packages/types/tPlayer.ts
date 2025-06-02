@@ -1,4 +1,4 @@
-import { tPowerUps } from "../server/src/schemas";
+import { PlayerInput, tPowerUps } from "../server/src/schemas";
 import { tBaseTile } from "./tBaseTile";
 
 /**
@@ -13,5 +13,9 @@ export type tPlayer<T = {}, MapT = Map<tPowerUps, number>> = {
    * Optional because only the player can see their own powerups
    */
   powerUps?: Map<tPowerUps, number> & MapT;
+  /**
+   * Optional because only the player can see their own movement
+   */
+  userInput?: PlayerInput;
   username: string;
 } & tBaseTile<T>;
