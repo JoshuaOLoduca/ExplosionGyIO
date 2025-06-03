@@ -15,6 +15,10 @@ type tPlayerSchema = tPlayer<Schema, Schema>;
 type tTileSchema = tTile<Schema>;
 type tPowerUpSchema = tPowerUp<Schema>;
 
+enum eEmitTypes {
+  MOVE = "move",
+}
+
 function splitIntoMatrix(matrixSize: number) {
   return (acc, item) => {
     if (acc!.at(-1)!.length >= matrixSize) acc.push("");
@@ -214,6 +218,33 @@ export class Game extends Scene {
       (player: tPlayerSchema, playerId: string) => {
         if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
 
+        // Create visual element of player
+        const playerSpriteOriginal = this.add
+          .circle(player.x, player.y, 32, 0xff0000)
+          .setDepth(eRenderDepth.PLAYER);
+
+        type tMoveSubFc = (coords: { x: number; y: number }) => unknown;
+        const playerSprite = new Proxy(playerSpriteOriginal, {
+          set(target, p, newValue, receiver) {
+            const returnVal = Reflect.set(target, p, newValue);
+            try {
+              if (p === "x" || p === "y") {
+                const emitArgs: Parameters<tMoveSubFc>[0] = {
+                  x: target.x,
+                  y: target.y,
+                };
+                target.emit(eEmitTypes.MOVE, emitArgs);
+              }
+            } catch (error) {
+            } finally {
+              return returnVal;
+            }
+          },
+        });
+
+        this.data.set(playerId, playerSprite);
+
+        // Load in discord image
         if (player.imageId.startsWith("http")) {
           this.load.image(playerId, player.imageId);
           this.load.once("filecomplete-image-" + playerId, () => {
@@ -230,29 +261,27 @@ export class Game extends Scene {
             newSprite.setMask(mask);
             newSprite.setDepth(eRenderDepth.PLAYER);
             playerSprite.data.set("image", newSprite);
+            playerSprite.on(eEmitTypes.MOVE, function ({ y, x }) {
+              newSprite.y = y;
+              newSprite.x = x;
+            });
           });
 
           this.load.start();
         }
 
-        const playerSprite = this.add
-          .circle(player.x, player.y, 32, 0xff0000)
-          .setDepth(eRenderDepth.PLAYER);
-
-        this.data.set(playerId, playerSprite);
-
+        // if player data is the currently connected player, update UI variables.
         if (playerId === this.room.sessionId) {
           this.playerStats.maxHealth = player.health;
           this.playerStats.currentHealth = player.health;
         } else {
+          // Render HUDs for other players
           const offset = (player.scale || 1) * (16 * 2);
           // Initialize player health above head
-          let paddingX = offset * 1.5;
           const paddingY = offset * 1.1;
           const healthHud = this.add.text(
-            // offset doesnt do much, as its overwritten by renderPlayerMovement.ts
-            player.x - paddingX,
-            player.y + paddingY,
+            player.x,
+            player.y,
             HUD.HEALTH_HEART.repeat(player.health)
               .split("")
               .reduce(splitIntoMatrix(3 * 2), [""]),
@@ -260,16 +289,21 @@ export class Game extends Scene {
           );
           healthHud.setDepth(eRenderDepth.HUD);
           healthHud.setDataEnabled();
-          paddingX = healthHud.displayWidth / 2;
-          healthHud.setData("paddingX", paddingX);
-          healthHud.setData("paddingY", paddingY);
+          const paddingXHud = healthHud.displayWidth / 2;
+          const paddingYHud = paddingY;
+
+          const updateHealthPos: tMoveSubFc = function ({ x, y }) {
+            healthHud.setX(x - paddingXHud);
+            healthHud.setY(y + paddingYHud);
+          };
+          updateHealthPos(player);
+          playerSprite.on(eEmitTypes.MOVE, updateHealthPos);
           this.data.set(playerId + "healthHud", healthHud);
 
           const usernamePaddingY = paddingY * 1.5;
           const usernameHud = this.add.text(
-            // offset doesnt do much, as its overwritten by renderPlayerMovement.ts
-            player.x - paddingX,
-            player.y - usernamePaddingY,
+            player.x,
+            player.y,
             player.username,
             {
               fontSize: 24,
@@ -278,10 +312,15 @@ export class Game extends Scene {
               strokeThickness: 8,
             }
           );
-          usernameHud.setDepth(eRenderDepth.HUD);
+          const usernamePaddingX = usernameHud.displayWidth * 0.5;
           usernameHud.setDataEnabled();
-          usernameHud.setData("paddingX", usernameHud.displayWidth / 2);
-          usernameHud.setData("paddingY", usernamePaddingY);
+          usernameHud.setDepth(eRenderDepth.HUD);
+          const updateHudPos: tMoveSubFc = function ({ x, y }) {
+            usernameHud.setY(y - usernamePaddingY);
+            usernameHud.setX(x - usernamePaddingX);
+          };
+          updateHudPos(player);
+          playerSprite.on("moved", updateHudPos);
           this.data.set(playerId + "usernameHud", usernameHud);
         }
 
@@ -301,6 +340,11 @@ export class Game extends Scene {
                 break;
             }
           });
+
+        // Assign user input once, as its a reference, and will get updates from colosyeus.
+        if (player.userInput) {
+          this.inputPayload = player.userInput;
+        }
 
         $(player).onChange(() => {
           const playerSprite = this.data.get(
@@ -379,8 +423,16 @@ export class Game extends Scene {
     }
   }
 
-  fixedTick(_time: number, _delta: number) {
+  /**
+   * Things we want to send to the server.
+   * Its at a fixed rate so we dont DDoS ourselves with our own players
+   */
+  fixedTick() {
     if (!this.room) return;
+
+    // Send player Input to the server
+    managePlayerInput.call(this);
+
     if (DEBUG) {
       this.data
         .get("DEBUG-mouse")
@@ -390,30 +442,32 @@ export class Game extends Scene {
           )} || Y: ${this.input.mousePointer.y.toFixed(2)}`
         );
     }
-
-    // //////////////////////////
-    //   Render Player Movement
-    // //////////////////////////
-    renderPlayerMovement.call(this);
   }
   elapsedTime = 0;
-  fixedTimeStep = 1000 / (60 * 1);
+  /**
+   * How many updates to send per second
+   */
+  fixedTimeStep = 1000 / (60 * 20);
   update(time: number, delta: number): void {
     // skip loop if not connected yet.
     if (!this.room) {
       return;
     }
 
-    // //////////////////////////
-    //      Player Input
-    // //////////////////////////
-    managePlayerInput.call(this);
+    /**
+     * // //////////////////////////
+     * / /  Render Player Movement
+     * // //////////////////////////
+     *
+     * Always sync it every update, as the timestep is taken care of by the server.
+     * This decreases percieved latency for the users.
+     */
+    renderPlayerMovement.call(this);
 
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {
       this.elapsedTime -= this.fixedTimeStep;
-      this.fixedTick(time, this.fixedTimeStep);
-      managePlayerInput.call(this);
+      this.fixedTick();
     }
   }
 

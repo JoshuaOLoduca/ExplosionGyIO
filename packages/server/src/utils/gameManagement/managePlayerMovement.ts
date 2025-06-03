@@ -28,6 +28,14 @@ export function managePlayerMovement(
       speedLogScaling(playerSpeedPowerup)) /
     6.25;
 
+  const preventMovement: { [key in keyof typeof message]: boolean } = {
+    down: false,
+    left: false,
+    placeBomb: false,
+    right: false,
+    up: false,
+  };
+
   let movementDelta = getPlayerSpeed(player.powerUpsHelper.get("speed") + 1);
   const originalPlayerCoords = { x: player.x, y: player.y };
   const playerSize =
@@ -61,7 +69,7 @@ export function managePlayerMovement(
       playerSize,
       true
     );
-    if (topCollide) message.up = false;
+    if (topCollide) preventMovement.up = true;
   }
 
   // A
@@ -73,7 +81,7 @@ export function managePlayerMovement(
       playerSize,
       true
     );
-    if (leftCollide) message.left = false;
+    if (leftCollide) preventMovement.left = true;
   }
 
   // S
@@ -85,7 +93,7 @@ export function managePlayerMovement(
       playerSize,
       true
     );
-    if (downCollide) message.down = false;
+    if (downCollide) preventMovement.down = true;
   }
 
   // D
@@ -97,22 +105,25 @@ export function managePlayerMovement(
       playerSize,
       true
     );
-    if (rightCollide) message.right = false;
+    if (rightCollide) preventMovement.right = true;
   }
 
   // Normalize input
   const MOVING_DIAGNAL =
-    (message.up || message.down) && (message.left || message.right);
+    ((message.up && !preventMovement.up) ||
+      (message.down && !preventMovement.down)) &&
+    ((message.left && !preventMovement.left) ||
+      (message.right && !preventMovement.right));
   if (MOVING_DIAGNAL) movementDelta = movementDelta / 2;
 
   // W
-  if (message.up) player.y -= movementDelta;
+  if (message.up && !preventMovement.up) player.y -= movementDelta;
   // A
-  if (message.left) player.x -= movementDelta;
+  if (message.left && !preventMovement.left) player.x -= movementDelta;
   // S
-  if (message.down) player.y += movementDelta;
+  if (message.down && !preventMovement.down) player.y += movementDelta;
   // D
-  if (message.right) player.x += movementDelta;
+  if (message.right && !preventMovement.right) player.x += movementDelta;
 
   const stepSize = getPlayerSpeed(2) / 2;
 

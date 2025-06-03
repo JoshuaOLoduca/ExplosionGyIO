@@ -1,16 +1,48 @@
-import { MapSchema, type, view } from "@colyseus/schema";
+import { MapSchema, Schema, type, view } from "@colyseus/schema";
 import { BaseTile } from "./BaseTile";
 import { powerUpTypes, tPowerUps } from "./PowerUp";
 import type { tPlayer, tUserInput } from "explosion-gyio";
 
 export type tUserInputQueue = [time: number, message: tUserInput];
 
+export class PlayerInput extends Schema implements tUserInput {
+  constructor(data?: tUserInput) {
+    super();
+    for (const untypedKey in data) {
+      const key = untypedKey as keyof typeof data;
+      this[key] = data[key];
+    }
+  }
+
+  @type("boolean")
+  up = false;
+
+  @type("boolean")
+  left = false;
+
+  @type("boolean")
+  down = false;
+
+  @type("boolean")
+  right = false;
+
+  @type("boolean")
+  placeBomb = false;
+
+  update = (inputPayload: tUserInput) => {
+    this.assign(inputPayload as any);
+  }
+}
+
 export class Player extends BaseTile implements tPlayer {
   private _maxInputQueue = 10;
-  private _inputQueue: tUserInputQueue[] = new Array(this._maxInputQueue).fill(
-    []
-  );
-  private _lastInputQueueIndex = 0;
+  private _inputQueue: tUserInputQueue[] = new Array(this._maxInputQueue)
+    .fill([])
+    .map(() => [
+      Date.now(),
+      { down: false, left: false, placeBomb: false, right: false, up: false },
+    ]);
+  private _lastInputQueueIndex = 1;
 
   @view()
   @type({ map: "number" })
@@ -54,6 +86,10 @@ export class Player extends BaseTile implements tPlayer {
     },
   };
 
+  @view()
+  @type(PlayerInput)
+  userInput = new PlayerInput();
+
   input = {
     add: (input: tUserInputQueue) => {
       if (!input) return false;
@@ -66,19 +102,30 @@ export class Player extends BaseTile implements tPlayer {
     },
     /**
      *
-     * @param epochMs Gets the last input before, or at this epoch(in ms) time.
+     * @param epochMs Gets the last input before, or at this epoch(in ms) time. If empty, gets the latest movement update
      * @returns
      */
-    get: (epochMs: number) => {
-      return this._inputQueue.find((currentInput, index, arr) => {
-        if (
-          currentInput[0] <= epochMs &&
-          (!arr[index + 1] || arr[index + 1][0] > epochMs)
-        ) {
-          return true;
-        }
-        return false;
-      });
+    get: (epochMs?: number) => {
+      const playerMovement = epochMs
+        ? this._inputQueue.find((currentInput, index, arr) => {
+            if (
+              currentInput[0] <= epochMs &&
+              (!arr[index + 1] || arr[index + 1][0] > epochMs)
+            ) {
+              return true;
+            }
+            return false;
+          })
+        : this._inputQueue.reduce<tUserInputQueue>((prev, current) => {
+            if (prev?.[0] > (current?.[0] || 0)) return prev;
+            return current;
+          }, this._inputQueue.at(0)!);
+
+      if (playerMovement) {
+        this.userInput.update(playerMovement[1]);
+      }
+
+      return playerMovement;
     },
   };
 
