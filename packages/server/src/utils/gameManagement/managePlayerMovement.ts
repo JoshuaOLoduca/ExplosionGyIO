@@ -1,5 +1,6 @@
+import { tUserInput } from "explosion-gyio";
 import { BLOCKS_IN_WIDTH, TILE_SIZE } from "../../rooms/GameRoom";
-import { Tile, Player, Bomb } from "../../schemas";
+import { Tile, Player } from "../../schemas";
 import math from "../math";
 import {
   checkBoxCollisionAlongPath,
@@ -15,20 +16,14 @@ export function managePlayerMovement(
   arrOfGrassTiles: Tile[],
   player: Player,
   tileCollisionList: Tile[],
-  message: {
-    up: boolean;
-    down: boolean;
-    left: boolean;
-    right: boolean;
-    placeBomb: boolean;
-  }
+  message: tUserInput
 ) {
   const getPlayerSpeed = (playerSpeedPowerup: number) =>
     ((options.screenWidth / BLOCKS_IN_WIDTH / 8) *
       speedLogScaling(playerSpeedPowerup)) /
     6.25;
 
-  const preventMovement: { [key in keyof typeof message]: boolean } = {
+  const preventMovement: typeof message = {
     down: false,
     left: false,
     placeBomb: false,
