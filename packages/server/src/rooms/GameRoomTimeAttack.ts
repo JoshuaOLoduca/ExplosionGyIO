@@ -13,6 +13,8 @@ export class GameRoomTimeAttack extends GameRoom {
     this.gameEvents.emit.on(
       "bomb--explosion__damage-player",
       (bomb, player) => {
+        if (!bomb.owner) return;
+
         if (bomb.owner === player) {
           return this.state.updateScore(
             player.clientId,
@@ -20,8 +22,6 @@ export class GameRoomTimeAttack extends GameRoom {
             "increment"
           );
         }
-
-        if (!bomb.owner) return;
 
         if (!player.isAlive) {
           return this.state.updateScore(
@@ -40,5 +40,14 @@ export class GameRoomTimeAttack extends GameRoom {
         }
       }
     );
+
+    // Handle respawn, AFTER HANDLING SCOREBOARD UPDATE
+    this.gameEvents.emit.on("bomb--explosion__damage-player", (_, player) => {
+      if (!player.isAlive) {
+        player.health = 3;
+        player.invincible = 1000 * 5;
+        this.spawnPlayer(player);
+      }
+    });
   }
 }
