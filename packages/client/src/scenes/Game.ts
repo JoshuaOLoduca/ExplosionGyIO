@@ -8,7 +8,7 @@ import {
   renderBaseTile,
   eRenderDepth,
 } from "../utils/gameManagement";
-import { tGameState } from "explosion-gyio";
+import { tGameState, tGameStateTimeAttack } from "explosion-gyio";
 import { Schema } from "@colyseus/schema";
 
 enum eEmitTypes {
@@ -32,7 +32,7 @@ const HUD = {
 const DEBUG = true;
 
 export class Game extends Scene {
-  room: Room<tGameState<Schema> & Schema>;
+  room: Room<(tGameStateTimeAttack<Schema> | tGameState<Schema>) & Schema>;
 
   sessionIds: Set<string> = new Set();
   inputPayload = {

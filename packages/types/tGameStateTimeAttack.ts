@@ -7,5 +7,5 @@ export type tGameStateTimeAttack<T = {}> = {
    */
   countdown: number;
 
-  score: Map<string, tScoreStats> & T;
+  score: Map<string, tScoreStats<T>> & T;
 } & tGameState<T>;
