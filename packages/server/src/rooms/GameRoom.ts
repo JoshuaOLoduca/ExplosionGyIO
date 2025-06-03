@@ -41,7 +41,7 @@ function getImageId(tile: tRoomTile) {
 type tGameRoom = {
   gameEvents: {
     emit: EventEmitter;
-    config: { [k in tGameEvents]?: boolean };
+    config: { [k in tGameEvents]: boolean };
   };
 };
 
@@ -49,7 +49,16 @@ export class GameRoom extends Room<GameState> implements tGameRoom {
   state = new GameState();
   maxClients = 25; // Current Discord limit is 25
   initialMap: tRoomMatrix = roomLayoutGenerator(3, 3, 0);
-  gameEvents = { emit: new EventEmitter(), config: {} };
+  // Additional typing so config sub-object gets autofill support
+  gameEvents: tGameRoom["gameEvents"] = {
+    emit: new EventEmitter(),
+    // TODO: define this dynamically using the arr the type is made out of, in constructor or here.
+    config: {
+      "bomb--explosion__damage-player": false,
+      "player--bomb__place": false,
+      "player--death__bomb": false,
+    },
+  };
   COLLISION_TILES = [
     "wall",
     "crate",
