@@ -21,6 +21,7 @@ import {
 } from "../utils/gameManagement";
 import { manageBombDamageToCrate } from "../utils/gameManagement/manageBombDamageToCrates";
 import { StateView } from "@colyseus/schema";
+import { tGameOptions } from "../types";
 
 export const TILE_SIZE = 16;
 export const BLOCKS_IN_WIDTH = 19;
@@ -35,11 +36,6 @@ function getImageId(tile: tRoomTile) {
       return "grass" as const;
   }
 }
-
-type tGameOptions = {
-  screenWidth: number;
-  screenHeight: number;
-};
 
 export class GameRoom extends Room<GameState> {
   state = new GameState();
