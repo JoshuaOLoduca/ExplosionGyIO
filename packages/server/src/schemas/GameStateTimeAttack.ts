@@ -27,6 +27,18 @@ export class GameStateTimeAttack
       this.gameLength - Math.trunc(this.timeStart - Date.now() * 0.001);
   };
 
+  updateScore = (
+    playerId: string,
+    property: keyof tScoreStats,
+    type: "increment" | "decrement"
+  ) => {
+    const scoreBoard = this.score.has(playerId)
+      ? this.score.get(playerId)!
+      : this.score.set(playerId, new PlayerScore()).get(playerId)!;
+
+    type === "increment" ? scoreBoard[property]++ : scoreBoard[property]--;
+  };
+
   @type("number")
   countdown: number;
 
