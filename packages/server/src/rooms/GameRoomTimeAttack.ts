@@ -13,7 +13,7 @@ export class GameRoomTimeAttack extends GameRoom {
     this.gameEvents.emit.on(
       "bomb--explosion__damage-player",
       (bomb, player) => {
-        if (bomb.parent === player) {
+        if (bomb.owner === player) {
           return this.state.updateScore(
             player.clientId,
             "missfires",
