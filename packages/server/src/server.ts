@@ -5,8 +5,7 @@ import express, { Application, Request, Response } from "express";
 import { createServer } from "http";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import path from "path";
-
-import { GameRoom } from "./rooms/GameRoom";
+import { GameRoom, GameRoomTimeAttack } from "./rooms";
 
 dotenv.config({ path: "../../.env" });
 
@@ -21,6 +20,7 @@ const server = new Server({
 });
 
 // Game Rooms
+server.define("timeAttack", GameRoomTimeAttack).filterBy(["channelId"]);
 server
   .define("game", GameRoom)
   // filterBy allows us to call joinOrCreate and then hold one game per channel
