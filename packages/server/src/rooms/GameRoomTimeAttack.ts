@@ -51,7 +51,7 @@ export class GameRoomTimeAttack extends GameRoom {
         for (const powerUpKey of player.powerUps.keys()) {
           const currentValue = player.powerUpsHelper.get(powerUpKey);
           const newValue = math.clamp(
-            0,
+            1,
             currentValue,
             Math.trunc(currentValue * 0.5)
           );
