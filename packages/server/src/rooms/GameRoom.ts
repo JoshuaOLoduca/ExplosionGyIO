@@ -13,7 +13,7 @@ import roomLayoutGenerator, {
 } from "../utils/roomLayoutGenerator";
 import {
   manageBombDamageToBomb,
-  manageDamageToPlayers,
+  manageDamageToPlayer,
   managePlayerMovement,
   manageBombPlacement,
   managePowerUpPlacement,
@@ -45,12 +45,9 @@ function getImageId(tile: tRoomTile) {
  * The arr in the value can be left, and we use the `as` to define the arguments
  */
 const eventEmitterMapTyping = {
-  "bomb--explosion__damage-player": [""] as any as [
-    hello: string,
-    world: number
-  ],
-  "player--bomb__place": [""] as any as [hello: string],
-  "player--death__bomb": [""] as any as [hello: string],
+  "bomb--explosion__damage-player": [""] as any as [bomb: Bomb, player: Player],
+  "player--bomb__place": [""] as any as [bomb: Bomb, player: Player],
+  "player--death__bomb": [""] as any as [bomb: Bomb, player: Player],
 } satisfies Record<tGameEvents, any[]>;
 
 type tEventEmitterMap = typeof eventEmitterMapTyping;
@@ -243,7 +240,21 @@ export class GameRoom extends Room<GameState> implements tGameRoom {
         // //////////////////////
         //     Player Damage
         // //////////////////////
-        manageDamageToPlayers(player, explosionTiles);
+        const explosionHurtingPlayer = manageDamageToPlayer(
+          player,
+          explosionTiles
+        );
+        if (
+          this.gameEvents.config["bomb--explosion__damage-player"] &&
+          explosionHurtingPlayer &&
+          explosionHurtingPlayer.parent instanceof Bomb
+        ) {
+          this.gameEvents.emit.emit(
+            "bomb--explosion__damage-player",
+            explosionHurtingPlayer.parent,
+            player
+          );
+        }
 
         // //////////////////////
         //     Damage To Bombs

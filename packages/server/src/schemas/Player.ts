@@ -31,7 +31,7 @@ export class PlayerInput extends Schema implements tUserInput {
 
   update = (inputPayload: tUserInput) => {
     this.assign(inputPayload as any);
-  }
+  };
 }
 
 export class Player extends BaseTile implements tPlayer {
@@ -148,6 +148,13 @@ export class Player extends BaseTile implements tPlayer {
   @type("uint16")
   invincible = 0;
 
+  /**
+   * Applies damage ONLY IF the player is eligable for it. this includes things like iframes and powerups being taken into consideration.
+   * @param damageAmount
+   * @param invincibleLengthMs
+   * @param invincibleUpdateRateMs
+   * @returns
+   */
   addDamage(
     damageAmount: number,
     invincibleLengthMs = 1_000,
@@ -173,6 +180,10 @@ export class Player extends BaseTile implements tPlayer {
           this.invincible = 0;
         }
       }, updateRate);
+
+      return true;
     }
+
+    return false;
   }
 }

@@ -1,7 +1,13 @@
 import { Player, Explosion } from "../../schemas";
 import { checkCollision, isInsideTile } from "../physics";
 
-export function manageDamageToPlayers(
+/**
+ * Returns explosionEntity if player was damaged.
+ * @param player
+ * @param explosionTiles
+ * @returns
+ */
+export function manageDamageToPlayer(
   player: Player,
   explosionTiles: Explosion[]
 ) {
@@ -10,6 +16,8 @@ export function manageDamageToPlayers(
     explosionTiles.find((expTile) => isInsideTile(player.x, player.y, expTile));
 
   if (damaged instanceof Explosion && damaged.lingerMs > 0) {
-    player.addDamage(damaged.damage);
+    if (player.addDamage(damaged.damage)) return damaged;
   }
+
+  return false;
 }
