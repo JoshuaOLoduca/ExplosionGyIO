@@ -6,6 +6,10 @@ export class GameRoomTimeAttack extends GameRoom {
 
   constructor() {
     super();
+    // Enable event emitting
+    this.gameEvents.config["bomb--explosion__damage-player"] = true;
+
+    // Update scoreboard
     this.gameEvents.emit.on(
       "bomb--explosion__damage-player",
       (bomb, player) => {
