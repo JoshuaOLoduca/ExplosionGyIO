@@ -265,8 +265,7 @@ export class GameRoom extends Room<GameState> implements tGameRoom {
       managePowerUpPlacement.call(this, arrOfGrassTiles);
   }
 
-  onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
-    console.log(`Client joined: ${client.sessionId}`);
+  getSpawnTile() {
     const validSpawnTiles = [...this.state.tiles.entries()].filter(([key]) =>
       key.includes(" ")
     );
@@ -275,12 +274,24 @@ export class GameRoom extends Room<GameState> implements tGameRoom {
       Math.floor(Math.random() * validSpawnTiles.length)
     )!;
 
+    return spawnTile;
+  }
+
+  spawnPlayer(player: Player) {
+    const spawnTile = this.getSpawnTile();
+    player.x = spawnTile.x;
+    player.y = spawnTile.y;
+  }
+
+  onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
+    console.log(`Client joined: ${client.sessionId}`);
+
     const player = new Player();
     player.clientId = client.sessionId;
     if (options.userName) player.username = options.userName;
     if (options.avatar) player.imageId = options.avatar.url;
-    player.x = spawnTile.x;
-    player.y = spawnTile.y;
+
+    this.spawnPlayer(player);
 
     this.state.players.set(client.sessionId, player);
 
