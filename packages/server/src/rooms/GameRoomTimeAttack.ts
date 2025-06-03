@@ -1,4 +1,5 @@
 import { GameStateTimeAttack } from "../schemas/GameStateTimeAttack";
+import math from "../utils/math";
 import { GameRoom } from "./GameRoom";
 
 export class GameRoomTimeAttack extends GameRoom {
@@ -47,6 +48,16 @@ export class GameRoomTimeAttack extends GameRoom {
         player.health = 3;
         player.invincible = 1000 * 5;
         this.spawnPlayer(player);
+        for (const powerUpKey of player.powerUps.keys()) {
+          const currentValue = player.powerUpsHelper.get(powerUpKey);
+          const newValue = math.clamp(
+            0,
+            currentValue,
+            Math.trunc(currentValue * 0.5)
+          );
+
+          player.powerUpsHelper.set(powerUpKey, newValue);
+        }
       }
     });
   }
