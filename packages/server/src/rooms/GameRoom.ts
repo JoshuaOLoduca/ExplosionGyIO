@@ -38,9 +38,26 @@ function getImageId(tile: tRoomTile) {
   }
 }
 
+/**
+ * We used an object so that the TS compiler will throw a warning when we dont implement a
+ * function signature for an emitter value.
+ *
+ * The arr in the value can be left, and we use the `as` to define the arguments
+ */
+const eventEmitterMapTyping = {
+  "bomb--explosion__damage-player": [""] as any as [
+    hello: string,
+    world: number
+  ],
+  "player--bomb__place": [""] as any as [hello: string],
+  "player--death__bomb": [""] as any as [hello: string],
+} satisfies Record<tGameEvents, any[]>;
+
+type tEventEmitterMap = typeof eventEmitterMapTyping;
+
 type tGameRoom = {
   gameEvents: {
-    emit: EventEmitter;
+    emit: EventEmitter<tEventEmitterMap>;
     config: { [k in tGameEvents]: boolean };
   };
 };
