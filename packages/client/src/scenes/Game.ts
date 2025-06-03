@@ -358,7 +358,7 @@ export class Game extends Scene {
           if (playerId === this.room.sessionId) {
             if (player.health > this.playerStats.maxHealth)
               this.playerStats.maxHealth = player.health;
-            if (player.health !== this.playerStats.maxHealth)
+            if (player.health !== this.playerStats.currentHealth)
               this.playerStats.currentHealth = player.health;
           } else {
             const textOb = this.data.get(
@@ -480,7 +480,7 @@ export class Game extends Scene {
     const client = new Client(`${url}`);
 
     try {
-      this.room = await client.joinOrCreate("game", {
+      this.room = await client.joinOrCreate("timeAttack", {
         // Let's send our client screen dimensions to the server for initial positioning
         screenWidth: this.game.config.width,
         screenHeight: this.game.config.height,
