@@ -21,7 +21,8 @@ import {
 } from "../utils/gameManagement";
 import { manageBombDamageToCrate } from "../utils/gameManagement/manageBombDamageToCrates";
 import { StateView } from "@colyseus/schema";
-import { tGameOptions } from "../types";
+import { tGameEvents, tGameOptions } from "../types";
+import EventEmitter from "events";
 
 export const TILE_SIZE = 16;
 export const BLOCKS_IN_WIDTH = 19;
@@ -37,10 +38,18 @@ function getImageId(tile: tRoomTile) {
   }
 }
 
-export class GameRoom extends Room<GameState> {
+type tGameRoom = {
+  gameEvents: {
+    emit: EventEmitter;
+    config: { [k in tGameEvents]?: boolean };
+  };
+};
+
+export class GameRoom extends Room<GameState> implements tGameRoom {
   state = new GameState();
   maxClients = 25; // Current Discord limit is 25
   initialMap: tRoomMatrix = roomLayoutGenerator(3, 3, 0);
+  gameEvents = { emit: new EventEmitter(), config: {} };
   COLLISION_TILES = [
     "wall",
     "crate",
