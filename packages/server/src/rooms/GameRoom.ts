@@ -293,4 +293,9 @@ export class GameRoom extends Room<GameState> implements tGameRoom {
     console.log(`Client left: ${client.sessionId}`);
     this.state.players.delete(client.sessionId);
   }
+
+  onBeforeShutdown(): void {
+    super.onBeforeShutdown();
+    this.gameEvents.emit.removeAllListeners();
+  }
 }
