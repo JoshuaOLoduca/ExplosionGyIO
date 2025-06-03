@@ -47,7 +47,6 @@ function getImageId(tile: tRoomTile) {
 const eventEmitterMapTyping = {
   "bomb--explosion__damage-player": [""] as any as [bomb: Bomb, player: Player],
   "player--bomb__place": [""] as any as [bomb: Bomb, player: Player],
-  "player--death__bomb": [""] as any as [bomb: Bomb, player: Player],
 } satisfies Record<tGameEvents, any[]>;
 
 type tEventEmitterMap = typeof eventEmitterMapTyping;
@@ -66,12 +65,11 @@ export class GameRoom extends Room<GameState> implements tGameRoom {
   // Additional typing so config sub-object gets autofill support
   gameEvents: tGameRoom["gameEvents"] = {
     emit: new EventEmitter(),
-    // TODO: define this dynamically using the arr the type is made out of, in constructor or here.
-    config: {
-      "bomb--explosion__damage-player": false,
-      "player--bomb__place": false,
-      "player--death__bomb": false,
-    },
+    config: Object.fromEntries(
+      Object.keys(eventEmitterMapTyping).map<[tGameEvents, false]>(
+        (key) => [key as tGameEvents, false] as const
+      )
+    ) as any,
   };
   COLLISION_TILES = [
     "wall",

@@ -34,6 +34,11 @@ export function manageBombPlacement(
     // For collision tracking
     this.BOMBS.add(bomb);
 
+    // For non-base game updates
+    if (this.gameEvents.config["player--bomb__place"]) {
+      this.gameEvents.emit.emit("player--bomb__place", bomb, player);
+    }
+
     const reduceConstructorForExplosionPlacement = (
       coordsToCheck: (
         x: number,
