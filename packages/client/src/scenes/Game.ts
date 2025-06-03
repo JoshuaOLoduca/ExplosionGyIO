@@ -8,12 +8,8 @@ import {
   renderBaseTile,
   eRenderDepth,
 } from "../utils/gameManagement";
-import { tPlayer, tPowerUp, tTile } from "explosion-gyio";
+import { tGameState } from "explosion-gyio";
 import { Schema } from "@colyseus/schema";
-
-type tPlayerSchema = tPlayer<Schema, Schema>;
-type tTileSchema = tTile<Schema>;
-type tPowerUpSchema = tPowerUp<Schema>;
 
 enum eEmitTypes {
   MOVE = "move",
@@ -36,7 +32,7 @@ const HUD = {
 const DEBUG = true;
 
 export class Game extends Scene {
-  room: Room;
+  room: Room<tGameState<Schema> & Schema>;
 
   sessionIds: Set<string> = new Set();
   inputPayload = {
@@ -171,21 +167,19 @@ export class Game extends Scene {
     // /////////////////////////
     //        Power Ups
     // /////////////////////////
-    $(this.room.state).powerUps.onAdd((powerUp: tPowerUpSchema, id: string) => {
+    $(this.room.state).powerUps.onAdd((powerUp, id) => {
       const powerUpSprite = renderBaseTile.call(this, powerUp);
       this.data.set(id, powerUpSprite);
     });
 
-    $(this.room.state).powerUps.onRemove(
-      (_powerUp: tPowerUpSchema, id: string) => {
-        this.data.get(id)?.destroy();
-      }
-    );
+    $(this.room.state).powerUps.onRemove((_powerUp, id) => {
+      this.data.get(id)?.destroy();
+    });
 
     // /////////////////////////
     //     Map Rendering
     // /////////////////////////
-    $(this.room.state).tiles.onAdd((tile: tTileSchema, tileId: string) => {
+    $(this.room.state).tiles.onAdd((tile, tileId) => {
       const initAsCrate = tile.imageId === "crate";
       let crateSprite;
       if (initAsCrate) {
@@ -214,179 +208,168 @@ export class Game extends Scene {
     // /////////////////////////
     //  Player Join/Quit/Change
     // /////////////////////////
-    $(this.room.state).players.onAdd(
-      (player: tPlayerSchema, playerId: string) => {
-        if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
+    $(this.room.state).players.onAdd((player, playerId) => {
+      if (!this.sessionIds.has(playerId)) this.sessionIds.add(playerId);
 
-        // Create visual element of player
-        const playerSpriteOriginal = this.add
-          .circle(player.x, player.y, 32, 0xff0000)
-          .setDepth(eRenderDepth.PLAYER);
+      // Create visual element of player
+      const playerSpriteOriginal = this.add
+        .circle(player.x, player.y, 32, 0xff0000)
+        .setDepth(eRenderDepth.PLAYER);
 
-        type tMoveSubFc = (coords: { x: number; y: number }) => unknown;
-        const playerSprite = new Proxy(playerSpriteOriginal, {
-          set(target, p, newValue, receiver) {
-            const returnVal = Reflect.set(target, p, newValue);
-            try {
-              if (p === "x" || p === "y") {
-                const emitArgs: Parameters<tMoveSubFc>[0] = {
-                  x: target.x,
-                  y: target.y,
-                };
-                target.emit(eEmitTypes.MOVE, emitArgs);
-              }
-            } catch (error) {
-            } finally {
-              return returnVal;
+      type tMoveSubFc = (coords: { x: number; y: number }) => unknown;
+      const playerSprite = new Proxy(playerSpriteOriginal, {
+        set(target, p, newValue, receiver) {
+          const returnVal = Reflect.set(target, p, newValue);
+          try {
+            if (p === "x" || p === "y") {
+              const emitArgs: Parameters<tMoveSubFc>[0] = {
+                x: target.x,
+                y: target.y,
+              };
+              target.emit(eEmitTypes.MOVE, emitArgs);
             }
-          },
+          } catch (error) {
+          } finally {
+            return returnVal;
+          }
+        },
+      });
+
+      this.data.set(playerId, playerSprite);
+
+      // Load in discord image
+      if (player.imageId.startsWith("http")) {
+        this.load.image(playerId, player.imageId);
+        this.load.once("filecomplete-image-" + playerId, () => {
+          const newSprite = this.add.sprite(
+            playerSprite.x,
+            playerSprite.y,
+            this.textures.get(playerId)
+          );
+          const mask = playerSprite.createGeometryMask();
+          newSprite.setDisplaySize(
+            playerSprite.displayWidth * 1.05,
+            playerSprite.displayHeight * 1.05
+          );
+          newSprite.setMask(mask);
+          newSprite.setDepth(eRenderDepth.PLAYER);
+          playerSprite.data.set("image", newSprite);
+          playerSprite.on(eEmitTypes.MOVE, function ({ y, x }) {
+            newSprite.y = y;
+            newSprite.x = x;
+          });
         });
 
-        this.data.set(playerId, playerSprite);
+        this.load.start();
+      }
 
-        // Load in discord image
-        if (player.imageId.startsWith("http")) {
-          this.load.image(playerId, player.imageId);
-          this.load.once("filecomplete-image-" + playerId, () => {
-            const newSprite = this.add.sprite(
-              playerSprite.x,
-              playerSprite.y,
-              this.textures.get(playerId)
-            );
-            const mask = playerSprite.createGeometryMask();
-            newSprite.setDisplaySize(
-              playerSprite.displayWidth * 1.05,
-              playerSprite.displayHeight * 1.05
-            );
-            newSprite.setMask(mask);
-            newSprite.setDepth(eRenderDepth.PLAYER);
-            playerSprite.data.set("image", newSprite);
-            playerSprite.on(eEmitTypes.MOVE, function ({ y, x }) {
-              newSprite.y = y;
-              newSprite.x = x;
-            });
-          });
+      // if player data is the currently connected player, update UI variables.
+      if (playerId === this.room.sessionId) {
+        this.playerStats.maxHealth = player.health;
+        this.playerStats.currentHealth = player.health;
+      } else {
+        // Render HUDs for other players
+        const offset = (player.scale || 1) * (16 * 2);
+        // Initialize player health above head
+        const paddingY = offset * 1.1;
+        const healthHud = this.add.text(
+          player.x,
+          player.y,
+          HUD.HEALTH_HEART.repeat(player.health)
+            .split("")
+            .reduce(splitIntoMatrix(3 * 2), [""]),
+          { fontSize: 24 }
+        );
+        healthHud.setDepth(eRenderDepth.HUD);
+        healthHud.setDataEnabled();
+        const paddingXHud = healthHud.displayWidth / 2;
+        const paddingYHud = paddingY;
 
-          this.load.start();
-        }
+        const updateHealthPos: tMoveSubFc = function ({ x, y }) {
+          healthHud.setX(x - paddingXHud);
+          healthHud.setY(y + paddingYHud);
+        };
+        updateHealthPos(player);
+        playerSprite.on(eEmitTypes.MOVE, updateHealthPos);
+        this.data.set(playerId + "healthHud", healthHud);
 
-        // if player data is the currently connected player, update UI variables.
-        if (playerId === this.room.sessionId) {
-          this.playerStats.maxHealth = player.health;
-          this.playerStats.currentHealth = player.health;
-        } else {
-          // Render HUDs for other players
-          const offset = (player.scale || 1) * (16 * 2);
-          // Initialize player health above head
-          const paddingY = offset * 1.1;
-          const healthHud = this.add.text(
-            player.x,
-            player.y,
-            HUD.HEALTH_HEART.repeat(player.health)
-              .split("")
-              .reduce(splitIntoMatrix(3 * 2), [""]),
-            { fontSize: 24 }
-          );
-          healthHud.setDepth(eRenderDepth.HUD);
-          healthHud.setDataEnabled();
-          const paddingXHud = healthHud.displayWidth / 2;
-          const paddingYHud = paddingY;
+        const usernamePaddingY = paddingY * 1.5;
+        const usernameHud = this.add.text(player.x, player.y, player.username, {
+          fontSize: 24,
+          color: "#000",
+          stroke: "#ffffff",
+          strokeThickness: 8,
+        });
+        const usernamePaddingX = usernameHud.displayWidth * 0.5;
+        usernameHud.setDataEnabled();
+        usernameHud.setDepth(eRenderDepth.HUD);
+        const updateHudPos: tMoveSubFc = function ({ x, y }) {
+          usernameHud.setY(y - usernamePaddingY);
+          usernameHud.setX(x - usernamePaddingX);
+        };
+        updateHudPos(player);
+        playerSprite.on("moved", updateHudPos);
+        this.data.set(playerId + "usernameHud", usernameHud);
+      }
 
-          const updateHealthPos: tMoveSubFc = function ({ x, y }) {
-            healthHud.setX(x - paddingXHud);
-            healthHud.setY(y + paddingYHud);
-          };
-          updateHealthPos(player);
-          playerSprite.on(eEmitTypes.MOVE, updateHealthPos);
-          this.data.set(playerId + "healthHud", healthHud);
-
-          const usernamePaddingY = paddingY * 1.5;
-          const usernameHud = this.add.text(
-            player.x,
-            player.y,
-            player.username,
-            {
-              fontSize: 24,
-              color: "#000",
-              stroke: "#ffffff",
-              strokeThickness: 8,
-            }
-          );
-          const usernamePaddingX = usernameHud.displayWidth * 0.5;
-          usernameHud.setDataEnabled();
-          usernameHud.setDepth(eRenderDepth.HUD);
-          const updateHudPos: tMoveSubFc = function ({ x, y }) {
-            usernameHud.setY(y - usernamePaddingY);
-            usernameHud.setX(x - usernamePaddingX);
-          };
-          updateHudPos(player);
-          playerSprite.on("moved", updateHudPos);
-          this.data.set(playerId + "usernameHud", usernameHud);
-        }
-
-        if (player.powerUps)
-          $(player.powerUps).onChange((value, powerUp) => {
-            if (playerId !== this.room.sessionId) return;
-            switch (powerUp) {
-              case "speed":
-                this.playerStats.speed = value;
-                break;
-              case "bombSize":
-                break;
-              case "bombCount":
-                this.playerStats.bombCount = value;
-                break;
-              case "bombDamage":
-                break;
-            }
-          });
-
-        // Assign user input once, as its a reference, and will get updates from colosyeus.
-        if (player.userInput) {
-          this.inputPayload = player.userInput;
-        }
-
-        $(player).onChange(() => {
-          const playerSprite = this.data.get(
-            playerId
-          ) as Phaser.GameObjects.Arc;
-          if (!playerSprite) return;
-
-          playerSprite.setData("serverX", player.x);
-          playerSprite.setData("serverY", player.y);
-
-          if (playerId === this.room.sessionId) {
-            if (player.health > this.playerStats.maxHealth)
-              this.playerStats.maxHealth = player.health;
-            if (player.health !== this.playerStats.currentHealth)
-              this.playerStats.currentHealth = player.health;
-          } else {
-            const textOb = this.data.get(
-              playerId + "healthHud"
-            ) as Phaser.GameObjects.Text;
-            if (player.health * 2 !== textOb.text.length) {
-              textOb.setText(
-                HUD.HEALTH_HEART.repeat(player.health)
-                  .split("")
-                  .reduce(splitIntoMatrix(3 * 2), [""])
-              );
-            }
+      if (player.powerUps)
+        $(player.powerUps).onChange((value, powerUp) => {
+          if (playerId !== this.room.sessionId) return;
+          switch (powerUp) {
+            case "speed":
+              this.playerStats.speed = value;
+              break;
+            case "bombSize":
+              break;
+            case "bombCount":
+              this.playerStats.bombCount = value;
+              break;
+            case "bombDamage":
+              break;
           }
         });
-      }
-    );
 
-    $(this.room.state).players.onRemove(
-      (_player: tPlayerSchema, playerId: string) => {
-        this.data.get(playerId)?.destroy();
-        this.data.get(playerId + "healthHud")?.destroy();
-        this.data.get(playerId + "usernameHud")?.destroy();
-        this.data.remove(playerId);
-        this.data.remove(playerId + "healthHud");
-        this.data.remove(playerId + "usernameHud");
-        this.sessionIds.delete(playerId);
+      // Assign user input once, as its a reference, and will get updates from colosyeus.
+      if (player.userInput) {
+        this.inputPayload = player.userInput;
       }
-    );
+
+      $(player).onChange(() => {
+        const playerSprite = this.data.get(playerId) as Phaser.GameObjects.Arc;
+        if (!playerSprite) return;
+
+        playerSprite.setData("serverX", player.x);
+        playerSprite.setData("serverY", player.y);
+
+        if (playerId === this.room.sessionId) {
+          if (player.health > this.playerStats.maxHealth)
+            this.playerStats.maxHealth = player.health;
+          if (player.health !== this.playerStats.currentHealth)
+            this.playerStats.currentHealth = player.health;
+        } else {
+          const textOb = this.data.get(
+            playerId + "healthHud"
+          ) as Phaser.GameObjects.Text;
+          if (player.health * 2 !== textOb.text.length) {
+            textOb.setText(
+              HUD.HEALTH_HEART.repeat(player.health)
+                .split("")
+                .reduce(splitIntoMatrix(3 * 2), [""])
+            );
+          }
+        }
+      });
+    });
+
+    $(this.room.state).players.onRemove((_player, playerId) => {
+      this.data.get(playerId)?.destroy();
+      this.data.get(playerId + "healthHud")?.destroy();
+      this.data.get(playerId + "usernameHud")?.destroy();
+      this.data.remove(playerId);
+      this.data.remove(playerId + "healthHud");
+      this.data.remove(playerId + "usernameHud");
+      this.sessionIds.delete(playerId);
+    });
 
     // /////////////////////////
     //         Debug
