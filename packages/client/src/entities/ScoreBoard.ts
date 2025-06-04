@@ -55,6 +55,12 @@ export class ScoreBoard extends pContainer {
   }
 }
 
+const tempScoreStyling = {
+  fontFamily: "Arial Black",
+  fontSize: 69,
+  align: "center",
+};
+
 class ScoreTile extends pContainer {
   #iconElm: Phaser.GameObjects.Image;
 
@@ -82,7 +88,13 @@ class ScoreTile extends pContainer {
   }
 
   #createScore(x: number, y: number, score: string) {
-    return new Phaser.GameObjects.Text(this.scene, x, y, score, {});
+    return new Phaser.GameObjects.Text(
+      this.scene,
+      x,
+      y,
+      score,
+      tempScoreStyling
+    );
   }
 
   #getScoreOrCreate(scoreKey: keyof tScoreStats, scoreValue: number) {
@@ -98,7 +110,7 @@ class ScoreTile extends pContainer {
 
     const newScore = this.#createScore(x, y, scoreValue.toString());
     newScore.setName(scoreKey);
-    // this.add(newScore);
+    this.add(newScore);
     this.#scores.push([scoreKey, newScore]);
 
     return newScore;

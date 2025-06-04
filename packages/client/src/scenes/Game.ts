@@ -374,21 +374,21 @@ export class Game extends Scene {
     });
 
     const scoreBoardEvents = new EventEmitter<tScoreUpdateEvents>();
-    const scoreBoard = new ScoreBoard(scoreBoardEvents, this, 100, 100);
+    const scoreBoard = new ScoreBoard(scoreBoardEvents, this, 1000, 500);
     scoreBoard.setDepth(eRenderDepth.HUD);
+    this.add.existing(scoreBoard);
 
     // /////////////////////////
     //      Score Board
     // /////////////////////////
     if ("score" in this.room.state) {
-      console.log("score in state");
       $(this.room.state).score.onAdd((score, playerId) => {
         scoreBoardEvents.emit("player--add", { playerId, score });
+        $(score).onChange(() => {
+          scoreBoardEvents.emit("score--update", { playerId, score });
+        });
       });
-      $(this.room.state).score.onChange((score, playerId) => {
-        scoreBoardEvents.emit("score--update", { playerId, score });
-      });
-      $(this.room.state).score.onRemove((score, playerId) => {
+      $(this.room.state).score.onRemove((_, playerId) => {
         scoreBoardEvents.emit("player--remove", playerId);
       });
     }
