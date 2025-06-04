@@ -1,13 +1,13 @@
 import { Schema } from "@colyseus/schema";
+import EventEmitter from "eventemitter3";
 import { tPlayer, tScoreStats } from "explosion-gyio";
-import { EventEmitter } from "stream";
 import Phaser from "phaser";
 
 const pContainer = Phaser.GameObjects.Container;
 type tPContainerConstructor = ConstructorParameters<typeof pContainer>;
 type tPartialScore = Partial<tScoreStats>;
 
-type tScoreUpdateEvents = {
+export type tScoreUpdateEvents = {
   "player--add": [{ playerId: string; score: tScoreStats; icon?: string }];
   "player--remove": [playerId: string];
   "score--update": [
@@ -23,10 +23,12 @@ export class ScoreBoard extends pContainer {
     super(...superArgs);
 
     scoreBoardEvents.on("player--add", ({ playerId, score, icon }) => {
+      console.log("on add");
       this.#addScoreTile(playerId, score, icon);
     });
 
     scoreBoardEvents.on("score--update", ({ playerId, score, icon }) => {
+      console.log("on update");
       const scoreTile = this.getByName(playerId);
       if (!(scoreTile instanceof ScoreTile)) return;
       if (score) scoreTile.updateScore(score);
@@ -34,6 +36,7 @@ export class ScoreBoard extends pContainer {
     });
 
     scoreBoardEvents.on("player--remove", (playerId) => {
+      console.log("on remove");
       this.#removeScoreTile(playerId);
     });
   }

@@ -10,6 +10,8 @@ import {
 } from "../utils/gameManagement";
 import { tGameState, tGameStateTimeAttack } from "explosion-gyio";
 import { Schema } from "@colyseus/schema";
+import { ScoreBoard, tScoreUpdateEvents } from "../entities";
+import EventEmitter from "eventemitter3";
 
 enum eEmitTypes {
   MOVE = "move",
@@ -370,6 +372,26 @@ export class Game extends Scene {
       this.data.remove(playerId + "usernameHud");
       this.sessionIds.delete(playerId);
     });
+
+    const scoreBoardEvents = new EventEmitter<tScoreUpdateEvents>();
+    const scoreBoard = new ScoreBoard(scoreBoardEvents, this, 100, 100);
+    scoreBoard.setDepth(eRenderDepth.HUD);
+
+    // /////////////////////////
+    //      Score Board
+    // /////////////////////////
+    if ("score" in this.room.state) {
+      console.log("score in state");
+      $(this.room.state).score.onAdd((score, playerId) => {
+        scoreBoardEvents.emit("player--add", { playerId, score });
+      });
+      $(this.room.state).score.onChange((score, playerId) => {
+        scoreBoardEvents.emit("score--update", { playerId, score });
+      });
+      $(this.room.state).score.onRemove((score, playerId) => {
+        scoreBoardEvents.emit("player--remove", playerId);
+      });
+    }
 
     // /////////////////////////
     //         Debug
