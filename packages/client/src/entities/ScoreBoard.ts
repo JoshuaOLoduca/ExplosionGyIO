@@ -8,9 +8,11 @@ type tPContainerConstructor = ConstructorParameters<typeof pContainer>;
 type tPartialScore = Partial<tScoreStats>;
 
 type tScoreUpdateEvents = {
-  "player--add": [playerId: string, score: tScoreStats];
+  "player--add": [{ playerId: string; score: tScoreStats; icon?: string }];
   "player--remove": [playerId: string];
-  "score--update": [playerId: string, score: tPartialScore];
+  "score--update": [
+    { playerId: string; score?: tPartialScore; icon?: string | null }
+  ];
 };
 
 export class ScoreBoard extends pContainer {
@@ -20,14 +22,15 @@ export class ScoreBoard extends pContainer {
   ) {
     super(...superArgs);
 
-    scoreBoardEvents.on("player--add", (playerId, score) => {
-      this.#addScoreTile(playerId, score);
+    scoreBoardEvents.on("player--add", ({ playerId, score, icon }) => {
+      this.#addScoreTile(playerId, score, icon);
     });
 
-    scoreBoardEvents.on("score--update", (playerId, score) => {
+    scoreBoardEvents.on("score--update", ({ playerId, score, icon }) => {
       const scoreTile = this.getByName(playerId);
       if (!(scoreTile instanceof ScoreTile)) return;
-      scoreTile.updateScore(score);
+      if (score) scoreTile.updateScore(score);
+      if (icon || icon === null) scoreTile.updateIcon(icon);
     });
 
     scoreBoardEvents.on("player--remove", (playerId) => {
@@ -35,8 +38,10 @@ export class ScoreBoard extends pContainer {
     });
   }
 
-  #addScoreTile(playerId: string, score: tScoreStats) {
-    this.add(new ScoreTile(playerId, score, this.scene));
+  #addScoreTile(playerId: string, score: tScoreStats, icon?: string) {
+    const scoreTile = new ScoreTile(playerId, score, this.scene);
+    if (icon || icon === null) scoreTile.updateIcon(icon);
+    this.add(scoreTile);
   }
 
   #removeScoreTile(playerId: string) {
@@ -48,6 +53,11 @@ export class ScoreBoard extends pContainer {
 }
 
 class ScoreTile extends pContainer {
+  #iconElm: Phaser.GameObjects.Image;
+
+  // TODO: replace GameObjects.Text with bitmapText for better rendering
+  #scores: { [k in keyof tScoreStats]?: Phaser.GameObjects.Text }[] = [];
+
   constructor(
     public tileName: string,
     initialScore: tScoreStats = { hits: 0, kills: 0, missfires: 0 },
@@ -55,7 +65,17 @@ class ScoreTile extends pContainer {
   ) {
     super(...superArgs);
     this.name = tileName;
-    this.update(initialScore);
+
+    this.updateScore(initialScore);
+    return this;
+  }
+
+  updateIcon(icon: string | null) {
+    if (icon)
+      this.#iconElm = new Phaser.GameObjects.Image(this.scene, 0, 0, icon);
+    else if (icon === null) this.#iconElm?.destroy();
+
+    return this;
   }
 
   updateScore(newScores: tPartialScore) {}
