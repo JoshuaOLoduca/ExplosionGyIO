@@ -56,7 +56,7 @@ class ScoreTile extends pContainer {
   #iconElm: Phaser.GameObjects.Image;
 
   // TODO: replace GameObjects.Text with bitmapText for better rendering
-  #scores: { [k in keyof tScoreStats]?: Phaser.GameObjects.Text }[] = [];
+  #scores: Array<[keyof tScoreStats, Phaser.GameObjects.Text]> = [];
 
   constructor(
     public tileName: string,
@@ -78,5 +78,36 @@ class ScoreTile extends pContainer {
     return this;
   }
 
-  updateScore(newScores: tPartialScore) {}
+  #createScore(x: number, y: number, score: string) {
+    return new Phaser.GameObjects.Text(this.scene, x, y, score, {});
+  }
+
+  #getScoreOrCreate(scoreKey: keyof tScoreStats, scoreValue: number) {
+    let x = 0,
+      y = 0;
+    const cachedScore = this.#scores.find(([scoreType, display]) => {
+      x = display.displayWidth * 0.5 + display.x;
+      // y = display.displayHeight * 0.5 + display.y;
+      return scoreType === scoreKey;
+    });
+
+    if (cachedScore) return cachedScore[1];
+
+    const newScore = this.#createScore(x, y, scoreValue.toString());
+    newScore.setName(scoreKey);
+    // this.add(newScore);
+    this.#scores.push([scoreKey, newScore]);
+
+    return newScore;
+  }
+
+  updateScore(newScores: tPartialScore) {
+    for (const scoreKey in newScores) {
+      const typedKey = scoreKey as keyof tScoreStats;
+      const updatedScore = newScores[typedKey] || 0;
+      const display = this.#getScoreOrCreate(typedKey, updatedScore);
+
+      display.setText(updatedScore.toString());
+    }
+  }
 }
