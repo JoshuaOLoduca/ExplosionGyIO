@@ -1,6 +1,7 @@
 import { Schema } from "@colyseus/schema";
 import { tPlayer, tScoreStats } from "explosion-gyio";
 import { EventEmitter } from "stream";
+import Phaser from "phaser";
 
 const pContainer = Phaser.GameObjects.Container;
 type tPContainerConstructor = ConstructorParameters<typeof pContainer>;
