@@ -24,7 +24,7 @@ export class GameStateTimeAttack
 
   updateCountdown = () => {
     this.countdown =
-      this.gameLength - Math.trunc(this.timeStart - Date.now() * 0.001);
+      this.gameLength - Math.trunc(Date.now() * 0.001 - this.timeStart);
   };
 
   updateScore = (
