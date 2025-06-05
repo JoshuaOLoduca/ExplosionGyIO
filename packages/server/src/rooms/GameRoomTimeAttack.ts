@@ -1,4 +1,6 @@
+import { BaseTile } from "../schemas";
 import { GameStateTimeAttack } from "../schemas/GameStateTimeAttack";
+import { tGameOptions } from "../types";
 import math from "../utils/math";
 import { GameRoom } from "./GameRoom";
 
@@ -60,5 +62,11 @@ export class GameRoomTimeAttack extends GameRoom {
         }
       }
     });
+  }
+
+  fixedTick(...fixedTickArgs: Parameters<GameRoom["fixedTick"]>): void {
+    super.fixedTick(...fixedTickArgs);
+
+    this.state.updateCountdown();
   }
 }
