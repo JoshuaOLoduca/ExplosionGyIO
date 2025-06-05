@@ -393,6 +393,28 @@ export class Game extends Scene {
       });
     }
 
+    if ("countdown" in this.room.state) {
+      const timeDisplayStyle: Parameters<typeof this.add.text>["3"] = {
+        font: "48px Arial",
+        color: "#000000",
+        strokeThickness: 14,
+        stroke: "#fff",
+      };
+      const timeDisplay = this.add
+        .text(+this.game.config.width / 2, 100, "Timer", timeDisplayStyle)
+        .setOrigin(0.5, 0.5)
+        .setDepth(eRenderDepth.HUD);
+
+      $(this.room.state).onChange(() => {
+        if (
+          "countdown" in this.room.state &&
+          Number.isFinite(this.room.state.countdown)
+        ) {
+          timeDisplay.setText(this.room.state.countdown.toString());
+        }
+      });
+    }
+
     // /////////////////////////
     //         Debug
     // /////////////////////////
