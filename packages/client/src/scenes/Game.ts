@@ -408,7 +408,9 @@ export class Game extends Scene {
       $(this.room.state).onChange(() => {
         if (
           "countdown" in this.room.state &&
-          Number.isFinite(this.room.state.countdown)
+          Number.isFinite(this.room.state.countdown) &&
+          // Re-rendering text is expensive. lets only do it when necessary
+          timeDisplay.text !== this.room.state.countdown.toString()
         ) {
           timeDisplay.setText(this.room.state.countdown.toString());
         }
