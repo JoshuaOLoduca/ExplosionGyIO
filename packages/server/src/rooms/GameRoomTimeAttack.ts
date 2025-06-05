@@ -67,6 +67,11 @@ export class GameRoomTimeAttack extends GameRoom {
   fixedTick(...fixedTickArgs: Parameters<GameRoom["fixedTick"]>): void {
     super.fixedTick(...fixedTickArgs);
 
-    this.state.updateCountdown();
+    if (this.state.countdown > 0) this.state.updateCountdown();
+    else this.endGame();
+  }
+
+  endGame() {
+    throw "notImpl";
   }
 }
