@@ -39,6 +39,13 @@ export class GameStateTimeAttack
     type === "increment" ? scoreBoard[property]++ : scoreBoard[property]--;
   };
 
+  addPlayer = (playerId: string) => {
+    if (this.score.has(playerId)) return false;
+
+    this.score.set(playerId, new PlayerScore());
+    return true;
+  };
+
   @type("number")
   countdown: number;
 

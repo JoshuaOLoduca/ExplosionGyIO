@@ -1,3 +1,4 @@
+import { Client } from "colyseus";
 import { BaseTile } from "../schemas";
 import { GameStateTimeAttack } from "../schemas/GameStateTimeAttack";
 import { tGameOptions } from "../types";
@@ -73,5 +74,15 @@ export class GameRoomTimeAttack extends GameRoom {
 
   endGame() {
     throw "notImpl";
+  }
+
+  onJoin(
+    ...onJoinSuperArgs: Parameters<GameRoom["onJoin"]>
+  ): void | Promise<any> {
+    super.onJoin(...onJoinSuperArgs);
+    const [client] = onJoinSuperArgs;
+
+    // Start rendering of scoreboard entry for new player.
+    this.state.addPlayer(client.sessionId);
   }
 }
