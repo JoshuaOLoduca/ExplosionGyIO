@@ -10,13 +10,13 @@
   "devDependencies": {
     "@colyseus/schema": "^3.0.36",
     "@types/explosion-gyio": "file:../types",
+    "eventemitter3": "^5.0.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.8"
   },
   "dependencies": {
     "@discord/embedded-app-sdk": "^1.4.3",
     "colyseus.js": "^0.16.0",
-    "eventemitter3": "^5.0.1",
     "phaser": "^3.87.0"
   }
 }

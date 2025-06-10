@@ -16,18 +16,15 @@ export type tScoreUpdateEvents = {
 };
 
 export class ScoreBoard extends pContainer {
-  constructor(
-    scoreBoardEvents: EventEmitter<tScoreUpdateEvents>,
-    ...superArgs: tPContainerConstructor
-  ) {
+  constructor(...superArgs: tPContainerConstructor) {
     super(...superArgs);
 
-    scoreBoardEvents.on("player--add", ({ playerId, score, icon }) => {
+    this.getEmitter().on("player--add", ({ playerId, score, icon }) => {
       console.log("on add");
       this.#addScoreTile(playerId, score, icon);
     });
 
-    scoreBoardEvents.on("score--update", ({ playerId, score, icon }) => {
+    this.getEmitter().on("score--update", ({ playerId, score, icon }) => {
       console.log("on update");
       const scoreTile = this.getByName(playerId);
       if (!(scoreTile instanceof ScoreTile)) return;
@@ -35,10 +32,14 @@ export class ScoreBoard extends pContainer {
       if (icon || icon === null) scoreTile.updateIcon(icon);
     });
 
-    scoreBoardEvents.on("player--remove", (playerId) => {
+    this.getEmitter().on("player--remove", (playerId) => {
       console.log("on remove");
       this.#removeScoreTile(playerId);
     });
+  }
+
+  getEmitter() {
+    return this as any as EventEmitter<tScoreUpdateEvents>;
   }
 
   #addScoreTile(playerId: string, score: tScoreStats, icon?: string) {

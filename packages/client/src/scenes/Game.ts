@@ -11,7 +11,6 @@ import {
 import { tGameState, tGameStateTimeAttack } from "explosion-gyio";
 import { Schema } from "@colyseus/schema";
 import { ScoreBoard, tScoreUpdateEvents } from "../entities";
-import EventEmitter from "eventemitter3";
 
 enum eEmitTypes {
   MOVE = "move",
@@ -373,8 +372,8 @@ export class Game extends Scene {
       this.sessionIds.delete(playerId);
     });
 
-    const scoreBoardEvents = new EventEmitter<tScoreUpdateEvents>();
-    const scoreBoard = new ScoreBoard(scoreBoardEvents, this, 1000, 500);
+    const scoreBoard = new ScoreBoard(this, 1000, 500);
+    const scoreBoardEvents = scoreBoard.getEmitter();
     scoreBoard.setDepth(eRenderDepth.HUD);
     this.add.existing(scoreBoard);
 
