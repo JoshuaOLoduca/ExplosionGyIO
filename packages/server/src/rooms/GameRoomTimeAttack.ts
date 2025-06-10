@@ -85,4 +85,18 @@ export class GameRoomTimeAttack extends GameRoom {
     // Start rendering of scoreboard entry for new player.
     this.state.addPlayer(client.sessionId);
   }
+
+  onLeave(
+    ...onLeaveSuperArgs: Parameters<GameRoom["onLeave"]>
+  ): void | Promise<any> {
+    super.onLeave(...onLeaveSuperArgs);
+
+    const [client] = onLeaveSuperArgs;
+    const playerScore = this.state.score.get(client.sessionId);
+    if (playerScore) {
+      const totalScore =
+        playerScore.hits + playerScore.kills + playerScore.missfires;
+      if (!totalScore) this.state.score.delete(client.sessionId);
+    }
+  }
 }
