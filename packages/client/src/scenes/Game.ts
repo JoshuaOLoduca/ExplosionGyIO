@@ -10,7 +10,7 @@ import {
 } from "../utils/gameManagement";
 import { tGameState, tGameStateTimeAttack } from "explosion-gyio";
 import { Schema } from "@colyseus/schema";
-import { ScoreBoard, tScoreUpdateEvents } from "../entities";
+import { ScoreBoard } from "../entities";
 
 enum eEmitTypes {
   MOVE = "move",
