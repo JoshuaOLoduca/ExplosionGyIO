@@ -20,12 +20,10 @@ export class ScoreBoard extends pContainer {
     super(...superArgs);
 
     this.getEmitter().on("player--add", ({ playerId, score, icon }) => {
-      console.log("on add");
       this.#addScoreTile(playerId, score, icon);
     });
 
     this.getEmitter().on("score--update", ({ playerId, score, icon }) => {
-      console.log("on update");
       const scoreTile = this.getByName(playerId);
       if (!(scoreTile instanceof ScoreTile)) return;
       if (score) scoreTile.updateScore(score);
@@ -33,7 +31,6 @@ export class ScoreBoard extends pContainer {
     });
 
     this.getEmitter().on("player--remove", (playerId) => {
-      console.log("on remove");
       this.#removeScoreTile(playerId);
     });
   }
