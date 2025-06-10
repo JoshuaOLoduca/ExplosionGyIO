@@ -482,21 +482,24 @@ export class Game extends Scene {
       return;
     }
 
-    /**
-     * // //////////////////////////
-     * / /  Render Player Movement
-     * // //////////////////////////
-     *
-     * Always sync it every update, as the timestep is taken care of by the server.
-     * This decreases percieved latency for the users.
-     */
-    renderPlayerMovement.call(this);
+    // Allows videos, and other media in other tabs, to play smoothly
+    requestAnimationFrame(() => {
+      /**
+       * // //////////////////////////
+       * / /  Render Player Movement
+       * // //////////////////////////
+       *
+       * Always sync it every update, as the timestep is taken care of by the server.
+       * This decreases percieved latency for the users.
+       */
+      renderPlayerMovement.call(this);
 
-    this.elapsedTime += delta;
-    while (this.elapsedTime >= this.fixedTimeStep) {
-      this.elapsedTime -= this.fixedTimeStep;
-      this.fixedTick();
-    }
+      this.elapsedTime += delta;
+      while (this.elapsedTime >= this.fixedTimeStep) {
+        this.elapsedTime -= this.fixedTimeStep;
+        this.fixedTick();
+      }
+    });
   }
 
   async connect() {
