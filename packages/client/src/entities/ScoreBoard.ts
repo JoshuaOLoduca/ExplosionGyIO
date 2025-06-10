@@ -55,7 +55,7 @@ export class ScoreBoard extends pContainer {
 
 const tempScoreStyling = {
   fontFamily: "Arial Black",
-  fontSize: 69,
+  fontSize: 18,
   align: "center",
 };
 
@@ -72,6 +72,7 @@ class ScoreTile extends pContainer {
   ) {
     super(...superArgs);
     this.name = tileName;
+    this.setScale(4, 4);
 
     this.updateScore(initialScore);
     return this;
@@ -105,8 +106,9 @@ class ScoreTile extends pContainer {
     });
 
     if (cachedScore) return cachedScore[1];
+    const xTest = this.#scores.length * tempScoreStyling.fontSize;
 
-    const newScore = this.#createScore(x, y, scoreValue.toString());
+    const newScore = this.#createScore(xTest, 0, scoreValue.toString());
     newScore.setName(scoreKey);
     this.add(newScore);
     this.#scores.push([scoreKey, newScore]);
